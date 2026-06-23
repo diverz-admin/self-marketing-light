@@ -1,177 +1,336 @@
+import { redirect } from "next/navigation";
 import React from "react";
 
-export default function HomePage() {
-  return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden selection:bg-indigo-500 selection:text-white">
-      {/* Background glowing blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-400/20 blur-[150px] pointer-events-none" />
+const SERVICES = [
+  {
+    tag: "로컬 매장",
+    tagColor: "bg-green-50 text-green-700",
+    title: "네이버 플레이스 유입",
+    desc: "지역 매장의 네이버 플레이스 유입 마케팅 활동을 지원합니다. 키워드·지역·미션을 설정하고 원하는 기간만큼 운영하세요.",
+    price: "100원",
+    unit: "/ 1유입",
+    href: "/marketing/reward/place",
+  },
+  {
+    tag: "온라인 스토어",
+    tagColor: "bg-blue-50 text-blue-700",
+    title: "스마트스토어 트래픽",
+    desc: "스마트스토어·쿠팡 상품 유입 마케팅 활동을 지원합니다. 키워드와 일 유입량을 설정하고 매출 증가를 경험하세요.",
+    price: "80원",
+    unit: "/ 1유입",
+    href: "/marketing/reward/shopping",
+  },
+  {
+    tag: "리뷰·체험단",
+    tagColor: "bg-orange-50 text-orange-700",
+    title: "블로그 기자단",
+    desc: "블로그 체험단·기자단을 모집해 리뷰 콘텐츠를 생성합니다. 가이드라인을 입력하면 검증된 블로거들이 리뷰를 작성합니다.",
+    price: "50,000원",
+    unit: "/ 1건",
+    href: "/marketing/experience/blog",
+  },
+];
 
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-white/60 backdrop-blur-md transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+const FEATURES = [
+  {
+    title: "상품화된 마케팅",
+    desc: "상담·계약 없이 카탈로그에서 바로 선택하고 주문하세요. 광고대행사의 복잡한 절차가 필요 없습니다.",
+    icon: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+      />
+    ),
+  },
+  {
+    title: "투명한 단가·수량",
+    desc: "단위당 단가, 예상 수량, 진행/잔여 수량을 모두 공개합니다. 거품 없는 가격으로 제공합니다.",
+    icon: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    ),
+  },
+  {
+    title: "실시간 대시보드",
+    desc: "일별 유입량, 진행 상태, 사용 금액을 실시간으로 확인하세요. 결과 보고서를 기다릴 필요가 없습니다.",
+    icon: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    ),
+  },
+];
+
+const STEPS = [
+  { num: "01", label: "회원가입" },
+  { num: "02", label: "서비스 선택" },
+  { num: "03", label: "예산·기간 입력" },
+  { num: "04", label: "결제" },
+  { num: "05", label: "자동 실행" },
+  { num: "06", label: "대시보드 추적" },
+];
+
+export default function HomePage() {
+  redirect("/marketing");
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-brand-border bg-white/95 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="h-8 w-8 rounded-lg bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/30">
+            <span className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold text-base">
               M
             </span>
-            <span className="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent">
+            <span className="font-bold text-lg text-brand-dark tracking-tight">
               SelfMarketing
             </span>
           </div>
-          
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-brand-dark/70">
-            <a href="#profile" className="hover:text-brand-primary transition-colors duration-200">프로필</a>
-            <a href="#projects" className="hover:text-brand-primary transition-colors duration-200">포트폴리오</a>
-            <a href="#posts" className="hover:text-brand-primary transition-colors duration-200">블로그</a>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-brand-sub">
+            <a
+              href="#services"
+              className="hover:text-brand-text transition-colors"
+            >
+              서비스
+            </a>
+            <a
+              href="#features"
+              className="hover:text-brand-text transition-colors"
+            >
+              특징
+            </a>
+            <a
+              href="#how"
+              className="hover:text-brand-text transition-colors"
+            >
+              이용 방법
+            </a>
+            <a
+              href="/login"
+              className="hover:text-brand-text transition-colors"
+            >
+              로그인
+            </a>
           </nav>
-
-          <div className="flex items-center gap-4">
-            <button className="px-4 py-2 rounded-full text-xs font-semibold bg-brand-primary text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300">
-              시작하기
-            </button>
-          </div>
+          <a
+            href="/signup"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
+          >
+            무료로 시작하기
+          </a>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-12 md:py-24 flex flex-col gap-16 relative z-10">
-        <section className="text-center flex flex-col items-center max-w-3xl mx-auto gap-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-brand-primary text-xs font-semibold animate-pulse">
-            ✨ 나만의 브랜딩 공간 만들기
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-display font-black tracking-tight text-brand-dark leading-tight">
-            당신의 가치를 <br className="md:hidden"/>
-            <span className="bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-accent bg-clip-text text-transparent">
-              가장 아름답게
-            </span> 증명하세요
-          </h1>
-          
-          <p className="text-base md:text-lg text-brand-dark/60 max-w-xl leading-relaxed">
-            포트폴리오 등록, 경력 관리, 나만의 인사이트 블로그까지.
-            쉽고 감각적인 디자인으로 스스로를 브랜딩하고 더 많은 기회를 연결해 드립니다.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full justify-center">
-            <button className="w-full sm:w-auto px-8 py-3 rounded-full text-sm font-bold bg-brand-dark text-white hover:bg-brand-primary hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-              내 프로필 만들기
-            </button>
-            <button className="w-full sm:w-auto px-8 py-3 rounded-full text-sm font-bold bg-white text-brand-dark border border-brand-border hover:bg-brand-light hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-              템플릿 둘러보기
-            </button>
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="bg-brand-dark text-white">
+          <div className="max-w-6xl mx-auto px-6 py-24 md:py-36">
+            <span className="inline-block text-[13px] font-bold px-3 py-1 rounded-full bg-brand-primary/20 text-brand-primary mb-6">
+              셀프 마케팅 플랫폼
+            </span>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 max-w-2xl">
+              광고대행사 없이,
+              <br />
+              직접 마케팅을
+              <br />
+              실행하세요
+            </h1>
+            <p className="text-lg text-white/60 max-w-lg leading-relaxed mb-10">
+              마케팅 서비스를 쇼핑몰에서 상품 사듯 직접 골라 실행하고,
+              <br className="hidden md:block" />
+              진행 현황을 실시간 대시보드로 확인하세요.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/signup"
+                className="px-6 py-3.5 rounded-lg text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors w-fit"
+              >
+                무료로 시작하기
+              </a>
+              <a
+                href="#services"
+                className="px-6 py-3.5 rounded-lg text-sm font-bold bg-white/10 text-white hover:bg-white/20 transition-colors w-fit"
+              >
+                서비스 둘러보기
+              </a>
+            </div>
           </div>
         </section>
 
-        {/* Feature Dashboard Preview Card */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
-          {/* Card 1 */}
-          <div className="group p-8 rounded-3xl bg-white/70 border border-white/60 shadow-xl shadow-slate-100/50 backdrop-blur-sm hover:border-brand-primary/20 hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-brand-primary text-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-              💼
-            </div>
-            <h3 className="text-lg font-bold mb-2">경력 및 프로필 관리</h3>
-            <p className="text-sm text-brand-dark/60 leading-relaxed">
-              자신만의 직무 능력과 소개글을 카드 형태로 깔끔하게 정리하여 외부에 링크 한 장으로 전송할 수 있습니다.
+        {/* How it works */}
+        <section id="how" className="bg-white border-b border-brand-border">
+          <div className="max-w-6xl mx-auto px-6 py-14">
+            <p className="text-center text-xs font-bold text-brand-sub uppercase tracking-wider mb-6">
+              이렇게 사용하세요
             </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="group p-8 rounded-3xl bg-white/70 border border-white/60 shadow-xl shadow-slate-100/50 backdrop-blur-sm hover:border-brand-secondary/20 hover:shadow-violet-500/5 hover:-translate-y-1 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-violet-50 flex items-center justify-center text-brand-secondary text-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-              🚀
+            <div className="flex flex-wrap justify-center">
+              {STEPS.map((step, i) => (
+                <div key={step.num} className="flex items-center">
+                  <div className="text-center px-3 md:px-5">
+                    <span className="block text-[11px] font-bold text-brand-primary mb-1">
+                      {step.num}
+                    </span>
+                    <span className="text-sm font-semibold text-brand-text">
+                      {step.label}
+                    </span>
+                  </div>
+                  {i < STEPS.length - 1 && (
+                    <svg
+                      className="w-4 h-4 text-brand-border shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              ))}
             </div>
-            <h3 className="text-lg font-bold mb-2">포트폴리오 프로젝트</h3>
-            <p className="text-sm text-brand-dark/60 leading-relaxed">
-              사용했던 스택 태그와 상세 작업 내용을 시각적인 갤러리 형태로 등록해 자신의 성과를 극대화해 보여줍니다.
+          </div>
+        </section>
+
+        {/* Services */}
+        <section id="services" className="bg-brand-light">
+          <div className="max-w-6xl mx-auto px-6 py-20">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-dark mb-2">
+              마케팅 서비스
+            </h2>
+            <p className="text-brand-sub mb-12">
+              지금 바로 주문 가능한 마케팅 상품입니다.
             </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="group p-8 rounded-3xl bg-white/70 border border-white/60 shadow-xl shadow-slate-100/50 backdrop-blur-sm hover:border-brand-accent/20 hover:shadow-pink-500/5 hover:-translate-y-1 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-pink-50 flex items-center justify-center text-brand-accent text-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-              ✍️
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {SERVICES.map((svc) => (
+                <div
+                  key={svc.title}
+                  className="bg-white rounded-2xl border border-brand-border p-6 hover:border-brand-primary/30 hover:shadow-sm transition-all"
+                >
+                  <span
+                    className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded mb-4 ${svc.tagColor}`}
+                  >
+                    {svc.tag}
+                  </span>
+                  <h3 className="text-base font-bold text-brand-dark mb-2">
+                    {svc.title}
+                  </h3>
+                  <p className="text-sm text-brand-sub leading-relaxed mb-5">
+                    {svc.desc}
+                  </p>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <span className="text-xl font-extrabold text-brand-dark">
+                        {svc.price}
+                      </span>
+                      <span className="text-xs text-brand-sub ml-1">
+                        {svc.unit}
+                      </span>
+                    </div>
+                    <a
+                      href={svc.href}
+                      className="text-xs font-bold text-brand-primary hover:text-brand-primary-hover transition-colors"
+                    >
+                      주문하기 →
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-lg font-bold mb-2">인사이트 포스팅</h3>
-            <p className="text-sm text-brand-dark/60 leading-relaxed">
-              개발, 기획, 마케팅 등 업무 중 겪었던 배움과 문제 해결 과정을 나만의 아티클로 정교하게 작성하고 공유합니다.
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="bg-white border-t border-brand-border">
+          <div className="max-w-6xl mx-auto px-6 py-20">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-dark mb-2">
+              왜 셀프마케팅인가요?
+            </h2>
+            <p className="text-brand-sub mb-12">
+              기존 광고대행의 복잡함과 불투명함을 없앴습니다.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {FEATURES.map((feat) => (
+                <div
+                  key={feat.title}
+                  className="p-6 rounded-2xl border border-brand-border hover:border-brand-primary/20 transition-colors"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                    <svg
+                      className="w-5 h-5 text-brand-primary"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      {feat.icon}
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-bold text-brand-dark mb-2">
+                    {feat.title}
+                  </h3>
+                  <p className="text-sm text-brand-sub leading-relaxed">
+                    {feat.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Compliance note */}
+        <section className="bg-brand-light border-t border-brand-border">
+          <div className="max-w-6xl mx-auto px-6 py-8">
+            <p className="text-xs text-brand-sub leading-relaxed">
+              ※ 본 서비스는 마케팅 활동 실행을 지원하는 도구입니다. 네이버·쿠팡
+              등 외부 플랫폼의 순위·노출은 해당 플랫폼의 정책에 따라 결과가
+              달라질 수 있으며, "순위 보장", "1페이지 확정" 등 확정적 효과를
+              약속하지 않습니다. 유입 지원 활동 외의 전환·매출은 상품 경쟁력에
+              따라 달라집니다.
             </p>
           </div>
         </section>
 
-        {/* Dynamic Project Showcase Section Preview */}
-        <section id="projects" className="flex flex-col gap-8 mt-12">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">전시 중인 대표 포트폴리오</h2>
-              <p className="text-sm text-brand-dark/60 mt-1">유저들이 브랜딩에 성공한 프로젝트 예시들입니다.</p>
-            </div>
-            <button className="text-sm font-semibold text-brand-primary hover:text-brand-secondary transition-colors duration-200 hidden sm:block">
-              더 많은 프로젝트 보기 &rarr;
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="group relative overflow-hidden rounded-3xl bg-white border border-brand-border shadow-md hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500 flex flex-col">
-              <div className="h-48 w-full bg-gradient-to-br from-indigo-500 to-violet-600 relative overflow-hidden flex items-center justify-center text-white">
-                <span className="text-5xl font-black opacity-10 absolute right-4 bottom-0 select-none scale-150">PORTFOLIO</span>
-                <span className="text-3xl">📱 AI Work</span>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-brand-primary">React Native</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-brand-secondary">AI Service</span>
-                  </div>
-                  <h4 className="text-lg font-bold mb-2 group-hover:text-brand-primary transition-colors duration-200">AI 기반 일정 최적화 비서 어플리케이션</h4>
-                  <p className="text-xs text-brand-dark/60 leading-relaxed">
-                    캘린더 일정 및 투두 리스트를 분석하여 사용자의 컨디션에 따른 지능형 집중 태스크 추천 엔진 설계 및 출시.
-                  </p>
-                </div>
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-brand-border text-xs text-brand-dark/40">
-                  <span>작성자: 김진서 (AI 엔지니어)</span>
-                  <span className="font-semibold text-brand-primary group-hover:translate-x-1 transition-transform duration-200">자세히 보기 &rarr;</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-3xl bg-white border border-brand-border shadow-md hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500 flex flex-col">
-              <div className="h-48 w-full bg-gradient-to-br from-pink-500 to-rose-600 relative overflow-hidden flex items-center justify-center text-white">
-                <span className="text-5xl font-black opacity-10 absolute right-4 bottom-0 select-none scale-150">BRANDING</span>
-                <span className="text-3xl">💻 DevLog</span>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-50 text-brand-accent">Next.js 16</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">SEO Optimized</span>
-                  </div>
-                  <h4 className="text-lg font-bold mb-2 group-hover:text-brand-accent transition-colors duration-200">개발자를 위한 초경량 블로그 템플릿 제작</h4>
-                  <p className="text-xs text-brand-dark/60 leading-relaxed">
-                    최신 Next.js App Router 기술과 Tailwind v4를 적용하여 라이트하우스 100점 만점을 기록한 셀프 브랜딩용 템플릿.
-                  </p>
-                </div>
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-brand-border text-xs text-brand-dark/40">
-                  <span>작성자: 이소민 (프론트엔드)</span>
-                  <span className="font-semibold text-brand-accent group-hover:translate-x-1 transition-transform duration-200">자세히 보기 &rarr;</span>
-                </div>
-              </div>
-            </div>
+        {/* CTA */}
+        <section className="bg-brand-primary">
+          <div className="max-w-6xl mx-auto px-6 py-20 text-center">
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">
+              지금 바로 마케팅을 시작하세요
+            </h2>
+            <p className="text-white/70 mb-8">
+              무료로 가입하고, 원하는 서비스를 바로 주문하세요.
+            </p>
+            <a
+              href="/signup"
+              className="inline-block px-8 py-4 rounded-lg text-sm font-bold bg-white text-brand-primary hover:bg-brand-light transition-colors"
+            >
+              무료 계정 만들기
+            </a>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-brand-border py-12 mt-24 bg-white relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-brand-dark/50">
+      <footer className="border-t border-brand-border bg-white py-10">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-sub">
           <div className="flex items-center gap-2">
             <span className="h-6 w-6 rounded bg-brand-primary flex items-center justify-center text-white font-bold text-xs">
               M
             </span>
-            <span className="font-display font-bold text-brand-dark">SelfMarketing</span>
+            <span className="font-bold text-brand-dark">SelfMarketing</span>
           </div>
-          <div>
-            &copy; {new Date().getFullYear()} SelfMarketing Platform. All rights reserved.
-          </div>
+          <span>
+            &copy; {new Date().getFullYear()} SelfMarketing. All rights
+            reserved.
+          </span>
         </div>
       </footer>
     </div>

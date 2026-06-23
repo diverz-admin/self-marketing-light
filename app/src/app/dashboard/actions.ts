@@ -27,21 +27,25 @@ export async function updateProfile(formData: FormData) {
     const githubUrl = formData.get("githubUrl") as string;
     const linkedinUrl = formData.get("linkedinUrl") as string;
 
-    await db
-      .update(profiles)
-      .set({
-        title,
-        bio,
-        contactEmail,
-        blogUrl,
-        githubUrl,
-        linkedinUrl,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.userId, user.id));
+    const existing = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, user.id))
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .update(profiles)
+        .set({ title, bio, contactEmail, blogUrl, githubUrl, linkedinUrl, updatedAt: new Date() })
+        .where(eq(profiles.userId, user.id));
+    } else {
+      await db
+        .insert(profiles)
+        .values({ userId: user.id, title, bio, contactEmail, blogUrl, githubUrl, linkedinUrl });
+    }
 
     revalidatePath("/dashboard");
-    revalidatePath(`/${user.email?.split("@")[0]}`); // 유저 공개 브랜딩 페이지 캐시 갱신
+    revalidatePath(`/${user.email?.split("@")[0]}`);
     return { success: true };
   } catch (error: any) {
     return { error: error.message || "프로필 저장 중 오류가 발생했습니다." };
