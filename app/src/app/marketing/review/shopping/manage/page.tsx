@@ -3,9 +3,7 @@
 import ReviewManageTable, { Campaign } from "@/components/marketing/ReviewManageTable";
 
 const TABS = [
-  { label: "블로그리뷰(기자단)", href: "/marketing/review/shopping/manage" },
-  { label: "블로그리뷰(체험단)", href: "/marketing/review/shopping/manage/blog-experience" },
-  { label: "상품 체험단",         href: "/marketing/review/shopping/manage/product-experience" },
+  { label: "상품 체험단", href: "/marketing/review/shopping/manage/product-experience" },
 ];
 
 const CAMPAIGNS: Campaign[] = [

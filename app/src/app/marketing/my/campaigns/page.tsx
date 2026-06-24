@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import AdBanners from "@/components/marketing/AdBanners";
 
 type RankPoint = { date: string; rank: number };
@@ -318,9 +318,8 @@ export default function MyCampaignsPage() {
                 const canExpand = c.category === "리워드" && !!c.rankHistory;
 
                 return (
-                  <>
+                  <Fragment key={c.id}>
                     <tr
-                      key={c.id}
                       onClick={() => canExpand && setExpandedId(isOpen ? null : c.id)}
                       className={`border-b border-brand-border transition-colors ${canExpand ? "cursor-pointer" : ""} ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/40"}`}
                     >
@@ -420,16 +419,14 @@ export default function MyCampaignsPage() {
 
                     {/* 순위 그래프 아코디언 */}
                     {isOpen && c.rankHistory && (
-                      <tr key={`${c.id}-chart`} className="border-b border-brand-border">
+                      <tr className="border-b border-brand-border">
                         <td colSpan={10} className="p-0">
                           <div className="bg-brand-lighter/50 border-t border-brand-border px-6 py-5">
                             <div className="flex items-center gap-2 mb-4">
                               <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
                               </svg>
-                              <p className="text-[13px] font-bold text-brand-dark">
-                                키워드 순위 추이
-                              </p>
+                              <p className="text-[13px] font-bold text-brand-dark">키워드 순위 추이</p>
                               <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${plt.bg} ${plt.text} ${plt.border}`}>
                                 {c.keyword}
                               </span>
@@ -442,7 +439,7 @@ export default function MyCampaignsPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>

@@ -562,7 +562,7 @@ export default function NaverRefundPage() {
                   <div className="px-3 py-2 grid grid-cols-[1fr_60px_70px] text-[9px] bg-white">
                     <div className="flex items-center gap-1">
                       <input type="checkbox" className="w-2.5 h-2.5 accent-green-500" readOnly />
-                      <span className="text-blue-500 underline">아우라비즈</span>
+                      <span className="text-blue-500 underline">다이버즈</span>
                       <span className="text-red-500 font-bold">(1234567)</span>
                     </div>
                     <span className="text-center text-brand-sub">핵심자</span>

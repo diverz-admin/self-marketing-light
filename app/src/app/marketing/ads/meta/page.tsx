@@ -95,7 +95,7 @@ function RetargetingMockup() {
       </div>
       <div className="p-2 space-y-2">
         {/* 픽셀 배지 */}
-        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{ background: "#EBF3FF" }}>
+        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg" style={{ background: "#E6EEFF" }}>
           <div className="w-4 h-4 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0">
             <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
           </div>

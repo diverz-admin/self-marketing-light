@@ -1,443 +1,385 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
 
-/* ── 접시+포크 씬 SVG (프리뷰 카드용) ── */
-function PlateScene({ bg, vaseColor = "#1F2937" }: { bg: string; vaseColor?: string }) {
+/* ── Before/After 페어 데이터 ─────────────────── */
+const BA_PAIRS = [
+  { emoji: "🍜", beforeBg: "#2a1a0a", afterBg: "#0d0d12", label: "라멘" },
+  { emoji: "🔥", beforeBg: "#1a0a08", afterBg: "#0a0a0f", label: "불고기" },
+  { emoji: "🥘", beforeBg: "#0e1a10", afterBg: "#080c10", label: "해산물" },
+  { emoji: "🧁", beforeBg: "#1a100a", afterBg: "#f0ece8", label: "디저트" },
+  { emoji: "🍱", beforeBg: "#141a14", afterBg: "#f8f8f6", label: "도시락" },
+  { emoji: "☕", beforeBg: "#100c08", afterBg: "#1a1208", label: "음료" },
+];
+
+/* ── BA 카드 컴포넌트 ─────────────────────────── */
+function BAPair({ pair, index }: { pair: typeof BA_PAIRS[0]; index: number }) {
+  const isLightAfter = index >= 3;
   return (
-    <svg viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect width="160" height="130" fill={bg} />
-      {/* 꽃병 */}
-      <rect x="18" y="22" width="11" height="36" rx="3" fill={vaseColor} opacity="0.85" />
-      <ellipse cx="23.5" cy="22" rx="7" ry="4" fill={vaseColor} opacity="0.85" />
-      <circle cx="23.5" cy="15" r="5" fill="white" opacity="0.7" />
-      <circle cx="17" cy="11" r="3" fill="white" opacity="0.5" />
-      <circle cx="30" cy="12" r="2.5" fill="white" opacity="0.4" />
-      {/* 큰 접시 */}
-      <ellipse cx="88" cy="78" rx="50" ry="46" fill="white" opacity="0.92" />
-      <ellipse cx="88" cy="78" rx="42" ry="38" fill="transparent" stroke="#E5E7EB" strokeWidth="1.5" />
-      {/* 포크 */}
-      <rect x="30" y="52" width="2.5" height="52" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-      <rect x="34" y="52" width="1.5" height="28" rx="0.7" fill="#9CA3AF" opacity="0.6" />
-      <rect x="38" y="52" width="2.5" height="52" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-      {/* 나이프 */}
-      <rect x="143" y="52" width="2.5" height="52" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-      {/* 숟가락 */}
-      <rect x="149" y="60" width="2.5" height="44" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-      <ellipse cx="150.2" cy="57" rx="4.5" ry="7" fill="#9CA3AF" opacity="0.8" />
-    </svg>
-  );
-}
-
-/* ── 구도별 SVG ── */
-function AngleScene({ type, bg }: { type: string; bg: string }) {
-  if (type === "topdown") {
-    return (
-      <svg viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <rect width="160" height="130" fill={bg} />
-        <ellipse cx="80" cy="65" rx="52" ry="50" fill="white" opacity="0.92" />
-        <ellipse cx="80" cy="65" rx="42" ry="40" fill="transparent" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="22" y="42" width="2.5" height="46" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-        <rect x="136" y="42" width="2.5" height="46" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-        <rect x="20" y="16" width="10" height="32" rx="3" fill="#1F2937" opacity="0.75" />
-      </svg>
-    );
-  }
-  if (type === "45deg") {
-    return (
-      <svg viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <rect width="160" height="130" fill={bg} />
-        <ellipse cx="90" cy="85" rx="55" ry="40" fill="white" opacity="0.92" />
-        <ellipse cx="90" cy="85" rx="44" ry="32" fill="transparent" stroke="#E5E7EB" strokeWidth="1.5" />
-        <rect x="25" y="60" width="2.5" height="50" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-        <rect x="148" y="62" width="2.5" height="48" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-        <rect x="16" y="18" width="10" height="36" rx="3" fill="#1F2937" opacity="0.75" />
-        <ellipse cx="21" cy="18" rx="6" ry="3.5" fill="#1F2937" opacity="0.75" />
-        <circle cx="21" cy="12" r="4.5" fill="white" opacity="0.65" />
-      </svg>
-    );
-  }
-  /* handheld */
-  return (
-    <svg viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect width="160" height="130" fill={bg} />
-      <ellipse cx="82" cy="72" rx="50" ry="42" fill="white" opacity="0.92" />
-      <ellipse cx="82" cy="72" rx="40" ry="34" fill="transparent" stroke="#E5E7EB" strokeWidth="1.5" />
-      {/* 손 */}
-      <path d="M55 118 Q60 100 70 95 Q80 90 95 92 Q110 94 118 108 Q122 116 118 122 Q85 130 55 118Z"
-        fill="#F5CBA7" opacity="0.85" />
-      <rect x="30" y="58" width="2.5" height="44" rx="1.2" fill="#9CA3AF" opacity="0.8" />
-    </svg>
-  );
-}
-
-const CATEGORIES = ["음식", "사장", "제품"] as const;
-type Category = (typeof CATEGORIES)[number];
-
-const TONES = [
-  { id: "warm",    label: "따뜻한 색감", desc: "황금빛 분위기 색감",   badge: "WARM",    bg: "#D4B48C" },
-  { id: "cool",    label: "차가운 색감", desc: "시원하고 청량한 색감", badge: "COOL",    bg: "#BACED8" },
-  { id: "neutral", label: "중립",        desc: "자연스러운 색감",      badge: "NEUTRAL", bg: "#CEC5B8" },
-];
-
-const BACKGROUNDS = [
-  { id: "darkwood", label: "다크우드", desc: "고급스러운 나무",    badge: "DARK WOOD", bg: "#2C1810", vase: "#F5F5F5" },
-  { id: "slate",    label: "슬레이트", desc: "모던한 돌판",        badge: "SLATE",     bg: "#374151", vase: "#F5F5F5" },
-  { id: "marble",   label: "마블",     desc: "럭셔리 대리석",     badge: "MARBLE",    bg: "#EEE9E2", vase: "#1F2937" },
-  { id: "white",    label: "화이트",   desc: "깔끔한 흰색",       badge: "WHITE",     bg: "#F8F8F6", vase: "#1F2937" },
-  { id: "gravel",   label: "자갈",     desc: "자연스러운 조약돌", badge: "GRAVEL",    bg: "#111827", vase: "#F5F5F5" },
-];
-
-const ANGLES = [
-  { id: "topdown",  label: "탑다운",   desc: "90도 위에서",   badge: "TOP DOWN", bg: "#D8D0C8" },
-  { id: "45deg",    label: "45도",     desc: "입체감 강조",   badge: "45°",      bg: "#C8D8D0" },
-  { id: "handheld", label: "핸드헬드", desc: "손에 들고 촬영", badge: "HAND",    bg: "#D8CCC8" },
-];
-
-const RATIOS = [
-  { id: "1:1",  label: "1:1",  desc: "정사각형",    w: 28, h: 28 },
-  { id: "4:3",  label: "4:3",  desc: "교교형",      w: 32, h: 24 },
-  { id: "3:4",  label: "3:4",  desc: "세로형",      w: 24, h: 32 },
-  { id: "16:9", label: "16:9", desc: "가로 와이드", w: 36, h: 20 },
-  { id: "9:16", label: "9:16", desc: "세로 와이드", w: 20, h: 36 },
-];
-
-/* ── 재사용 카드 컴포넌트 ── */
-function StyleCard({
-  selected, onClick, badge, label, desc, preview,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  badge: string;
-  label: string;
-  desc: string;
-  preview: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex flex-col rounded-xl overflow-hidden border-2 transition-all text-left ${
-        selected ? "border-brand-primary shadow-md shadow-brand-primary/10" : "border-transparent hover:border-brand-primary/30"
-      }`}
-    >
-      {/* 이미지 영역 */}
-      <div className="relative w-full aspect-[4/3] overflow-hidden">
-        {preview}
-        {/* 배지 */}
-        <div className="absolute bottom-0 inset-x-0 flex justify-center pb-2">
-          <span className="text-[9px] font-extrabold tracking-widest text-white bg-black/40 px-2 py-0.5 rounded">
-            {badge}
-          </span>
+    <div className="flex gap-1.5 shrink-0">
+      {/* BEFORE */}
+      <div className="relative w-[160px] h-[160px] rounded-2xl overflow-hidden"
+        style={{ background: pair.beforeBg, border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[64px] opacity-30 select-none" style={{ filter: "saturate(0.4) brightness(0.7)" }}>{pair.emoji}</span>
         </div>
-        {/* 선택 체크 */}
-        {selected && (
-          <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-brand-primary flex items-center justify-center">
-            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(160deg,rgba(255,255,255,0.03),transparent)" }} />
+        <span className="absolute bottom-2 left-2 text-[10px] font-extrabold text-white/80 bg-black/50 px-2 py-0.5 rounded-md tracking-wide">BEFORE</span>
       </div>
-      {/* 텍스트 */}
-      <div className="px-2 pt-2 pb-2.5 bg-white">
-        <p className="text-[12px] font-bold text-brand-dark">{label}</p>
-        <p className="text-[10px] text-brand-muted mt-0.5">{desc}</p>
+      {/* AFTER */}
+      <div className="relative w-[160px] h-[160px] rounded-2xl overflow-hidden ring-2 ring-[#EC4899]"
+        style={{ background: pair.afterBg }}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[64px] select-none" style={{ filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5)) saturate(1.3) brightness(1.1)" }}>{pair.emoji}</span>
+        </div>
+        {/* 조명 효과 */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 35% 30%, rgba(255,255,255,0.1), transparent 55%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.35) 100%)" }} />
+        <span className="absolute bottom-2 right-2 text-[10px] font-extrabold text-white bg-[#EC4899] px-2 py-0.5 rounded-md tracking-wide">AFTER</span>
+        <span className="absolute top-2 left-2 text-[9px] font-bold text-white/60">{pair.label}</span>
       </div>
-    </button>
+    </div>
   );
 }
+
+/* ── 특장점 ──────────────────────────────────── */
+const FEATURES = [
+  {
+    icon: "📸",
+    title: "전문 촬영 장비",
+    desc: "미러리스 카메라·스튜디오 조명으로 매장 방문 없이도 프로 수준의 결과물을 제공합니다.",
+  },
+  {
+    icon: "🎨",
+    title: "전문 편집·보정",
+    desc: "포토그래퍼와 리터처가 색감, 조명, 그림자까지 세밀하게 보정합니다.",
+  },
+  {
+    icon: "⚡",
+    title: "빠른 납품",
+    desc: "촬영 후 평균 2~3 영업일 내 고해상도 파일로 납품합니다.",
+  },
+  {
+    icon: "🛍️",
+    title: "플랫폼 최적화",
+    desc: "스마트스토어·쿠팡·배민·인스타 등 플랫폼별 최적 규격으로 출력합니다.",
+  },
+  {
+    icon: "🔄",
+    title: "무제한 수정",
+    desc: "납품 후 색감·구도 수정을 패키지 내 횟수 제한 없이 지원합니다.",
+  },
+  {
+    icon: "💡",
+    title: "컨설팅 포함",
+    desc: "어떤 컷이 필요한지 모르셔도 괜찮습니다. 업종별 최적 구성을 제안합니다.",
+  },
+];
+
+/* ── 서비스 패키지 ───────────────────────────── */
+const PACKAGES = [
+  {
+    name: "베이직",
+    desc: "처음 시작하는 사장님께 추천",
+    items: ["대표 메뉴 3종 촬영", "컷당 3장 납품", "기본 보정 포함", "1:1 / 4:3 규격"],
+    accent: "#6366F1",
+    popular: false,
+  },
+  {
+    name: "스탠다드",
+    desc: "스마트스토어·배달앱 운영자",
+    items: ["메뉴 10종 촬영", "컷당 5장 납품", "고급 색감 보정", "전 플랫폼 규격 포함", "SNS용 세로 컷 추가"],
+    accent: "#EC4899",
+    popular: true,
+  },
+  {
+    name: "프리미엄",
+    desc: "브랜드 이미지를 높이고 싶은 경우",
+    items: ["메뉴 전체 촬영", "컷당 10장 납품", "시네마틱 보정", "영상 클립 1개 포함", "월 1회 정기 업데이트"],
+    accent: "#8B5CF6",
+    popular: false,
+  },
+];
+
+/* ── 프로세스 ───────────────────────────────── */
+const PROCESS = [
+  { step: "01", title: "문의 & 상담", desc: "업종, 메뉴 수, 원하는 분위기를 상담합니다. 맞춤 패키지를 추천해 드립니다." },
+  { step: "02", title: "일정 조율 & 방문 촬영", desc: "매장 또는 스튜디오에서 전문 포토그래퍼가 직접 촬영합니다." },
+  { step: "03", title: "편집 & 보정", desc: "전문 리터처가 색감·조명·그림자를 세밀하게 보정합니다." },
+  { step: "04", title: "시안 검토", desc: "보정된 시안을 공유하고 고객 피드백을 반영합니다." },
+  { step: "05", title: "최종 납품", desc: "플랫폼별 최적 규격으로 고해상도 PNG/JPG 파일을 납품합니다." },
+];
+
+/* ── FAQ ────────────────────────────────────── */
+const FAQS = [
+  {
+    q: "매장이 없어도 촬영이 가능한가요?",
+    a: "스튜디오 촬영도 가능합니다. 제품이나 음식을 스튜디오로 가져오시면 전문 세팅 환경에서 촬영합니다.",
+  },
+  {
+    q: "촬영 당일 몇 시간이 걸리나요?",
+    a: "메뉴 수에 따라 다르지만, 베이직 기준 1~2시간, 스탠다드 2~4시간, 프리미엄은 하루 일정으로 진행됩니다.",
+  },
+  {
+    q: "편집·납품은 얼마나 걸리나요?",
+    a: "촬영 완료 후 평균 2~3 영업일 내 시안을 공유하고, 수정 반영 후 최종 납품까지 약 5 영업일이 소요됩니다.",
+  },
+  {
+    q: "납품 파일 형식은 어떻게 되나요?",
+    a: "고해상도 PNG 및 JPG 파일로 납품합니다. 플랫폼별 규격(스마트스토어 1:1, 쿠팡 3:4 등)으로 각각 리사이징하여 제공합니다.",
+  },
+];
 
 export default function ImagePage() {
-  const [category, setCategory] = useState<Category>("음식");
-  const [tone, setTone] = useState("warm");
-  const [background, setBackground] = useState("darkwood");
-  const [angle, setAngle] = useState("topdown");
-  const [ratio, setRatio] = useState("1:1");
-  const [uploaded, setUploaded] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [generated, setGenerated] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-
-  const handleGenerate = async () => {
-    if (!uploaded) return;
-    setGenerating(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setGenerating(false);
-    setGenerated(true);
-  };
-
-  const selectedTone = TONES.find((t) => t.id === tone)!;
-  const selectedBg   = BACKGROUNDS.find((b) => b.id === background)!;
-  const selectedAngle = ANGLES.find((a) => a.id === angle)!;
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="w-full space-y-4">
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <span className="text-brand-muted">콘텐츠</span>
-        <span>›</span>
-        <span className="text-brand-text font-medium">10초 이미지 제작</span>
-      </nav>
+    <div className="w-full flex gap-6 items-start">
 
-      {/* ── Before / After 배너 ── */}
-      <div className="rounded-2xl overflow-hidden border border-[#1E2D4A]" style={{ background: "#0B1628" }}>
-        <p className="px-5 pt-4 pb-3 text-white text-[14px] font-bold">30초만 투자하여 매장을 리뉴얼해보세요</p>
-        <div className="grid grid-cols-4 gap-0 px-3 pb-4">
-          {/* 각 쌍: BEFORE(왼) + AFTER(오른, 핑크 테두리) */}
-          {[
-            {
-              beforeGrad: "linear-gradient(160deg,#3D2810 0%,#5C3A18 50%,#2C1C08 100%)",
-              afterGrad:  "linear-gradient(160deg,#1A1A20 0%,#2D2D35 50%,#111118 100%)",
-              beforeFood: "🍜", afterFood: "🍲",
-            },
-            {
-              beforeGrad: "linear-gradient(160deg,#2A1808 0%,#4A2A10 50%,#1E1206 100%)",
-              afterGrad:  "linear-gradient(160deg,#181820 0%,#252530 50%,#101018 100%)",
-              beforeFood: "🥘", afterFood: "🦞",
-            },
-            {
-              beforeGrad: "linear-gradient(160deg,#0E1A10 0%,#1A2C1C 50%,#0A1208 100%)",
-              afterGrad:  "linear-gradient(160deg,#1C1C10 0%,#2C2C18 50%,#141408 100%)",
-              beforeFood: "🥗", afterFood: "🍱",
-            },
-            {
-              beforeGrad: "linear-gradient(160deg,#1A1010 0%,#2C1818 50%,#120C0C 100%)",
-              afterGrad:  "linear-gradient(160deg,#F8F4EE 0%,#EDE5D8 50%,#F0E8DC 100%)",
-              beforeFood: "🍵", afterFood: "🧁",
-            },
-          ].map((pair, i) => (
-            <div key={i} className="flex gap-1.5 px-1.5">
-              {/* BEFORE */}
-              <div className="relative flex-1 rounded-xl overflow-hidden h-[148px]"
-                style={{ background: pair.beforeGrad }}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[44px] opacity-30 select-none">{pair.beforeFood}</span>
-                </div>
-                <span className="absolute bottom-2 left-2 text-[9px] font-bold text-white/70 bg-black/40 px-1.5 py-0.5 rounded">BEFORE</span>
-              </div>
-              {/* AFTER (핑크 테두리) */}
-              <div className="relative flex-1 rounded-xl overflow-hidden h-[148px] ring-2 ring-[#EC4899]"
-                style={{ background: pair.afterGrad }}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[44px] opacity-60 select-none">{pair.afterFood}</span>
-                </div>
-                <span className="absolute bottom-2 right-2 text-[9px] font-bold text-white bg-[#EC4899] px-1.5 py-0.5 rounded">AFTER</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── 서비스 소개 ── */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5">
-        <div className="flex items-start gap-3">
-          <span className="text-[24px]">🐯</span>
-          <div className="flex-1">
-            <h2 className="text-[16px] font-extrabold text-brand-dark mb-1">AI 스튜디오 이미지 촬영</h2>
-            <p className="text-[13px] text-brand-sub">
-              사진을 업로드하면 <span className="font-bold text-brand-dark">전문 스튜디오</span>에서 체촬영한 것처럼 고품질 이미지로 변환됩니다.
+      {/* ── 오른쪽 고정 CTA 패널 ────── */}
+      <div className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8 xl:right-[288px]" style={{ top: "92px" }}>
+        <div className="rounded-2xl overflow-hidden shadow-xl" style={{ border: "1px solid rgba(236,72,153,0.2)" }}>
+          <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(145deg,#0f0a1e,#1e1040)" }}>
+            <p className="text-[10px] font-extrabold text-pink-400/60 uppercase tracking-widest mb-2">고퀄리티 이미지 제작</p>
+            <p className="text-[17px] font-extrabold text-white leading-tight mb-1">전문가가 직접 찍고</p>
+            <p className="text-[17px] font-extrabold text-white leading-tight mb-5">보정까지 완성</p>
+            <p className="text-[11px] leading-relaxed mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+              스마트폰 사진과 비교되는<br />
+              진짜 프로 촬영 이미지로<br />
+              매장·상품을 새롭게 바꿔드립니다.
             </p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[13px] text-brand-muted line-through">10,000P</span>
-              <span className="text-[13px] text-brand-sub">→</span>
-              <span className="text-[14px] font-extrabold text-pink-600">한정 할인 2,000P</span>
-              <span className="text-[12px] text-brand-muted">/1회</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 메인 2컬럼 ── */}
-      <div className="grid grid-cols-[1fr_320px] gap-4 items-start">
-
-        {/* 왼쪽: 1·2단계 */}
-        <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-8">
-
-          {/* 1. 카테고리 */}
-          <div>
-            <p className="text-[14px] font-extrabold text-brand-dark mb-3">1. 카테고리 선택</p>
-            <div className="flex gap-2">
-              {CATEGORIES.map((c) => (
-                <button key={c} onClick={() => setCategory(c)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-bold border transition-all ${
-                    category === c
-                      ? "bg-brand-dark text-white border-brand-dark"
-                      : "bg-brand-lighter text-brand-sub border-brand-border hover:border-brand-primary/40"
-                  }`}>
-                  {c === "음식" ? "🍽️" : c === "사장" ? "👤" : "📦"} {c}
-                  {c !== "음식" && (
-                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-pink-500 text-white ml-1">NEW</span>
-                  )}
-                </button>
+            <div className="space-y-2 mb-5">
+              {["📸 전문 포토그래퍼 직접 촬영", "🎨 고급 보정 포함", "⚡ 2~3일 내 납품", "🛍️ 플랫폼별 규격 최적화"].map((t) => (
+                <div key={t} className="flex items-center gap-2 text-[11px]" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  <span>{t}</span>
+                </div>
               ))}
             </div>
           </div>
-
-          {/* 2. 스타일 */}
-          <div className="space-y-7">
-            <p className="text-[14px] font-extrabold text-brand-dark">2. 스타일 선택</p>
-
-            {/* 배경 */}
-            <div>
-              <p className="text-[13px] font-bold text-brand-dark mb-3">배경</p>
-              <div className="flex gap-3 flex-wrap">
-                {BACKGROUNDS.map((b) => (
-                  <div key={b.id} className="w-[136px]">
-                    <StyleCard
-                      selected={background === b.id}
-                      onClick={() => setBackground(b.id)}
-                      badge={b.badge}
-                      label={b.label}
-                      desc={b.desc}
-                      preview={<PlateScene bg={b.bg} vaseColor={b.vase} />}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 구도 */}
-            <div>
-              <p className="text-[13px] font-bold text-brand-dark mb-3">구도</p>
-              <div className="flex gap-3">
-                {ANGLES.map((a) => (
-                  <div key={a.id} className="w-[160px]">
-                    <StyleCard
-                      selected={angle === a.id}
-                      onClick={() => setAngle(a.id)}
-                      badge={a.badge}
-                      label={a.label}
-                      desc={a.desc}
-                      preview={<AngleScene type={a.id} bg={a.bg} />}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 비율 */}
-            <div>
-              <p className="text-[13px] font-bold text-brand-dark mb-3">비율</p>
-              <div className="flex gap-2 flex-wrap">
-                {RATIOS.map((r) => (
-                  <button key={r.id} onClick={() => setRatio(r.id)}
-                    className={`flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl border-2 transition-all ${
-                      ratio === r.id
-                        ? "border-brand-primary bg-brand-primary/5"
-                        : "border-brand-border hover:border-brand-primary/40 bg-brand-lighter"
-                    }`}>
-                    <div className="flex items-center justify-center" style={{ width: 40, height: 40 }}>
-                      <div className="rounded border-2 bg-white" style={{
-                        borderColor: ratio === r.id ? "#3182F6" : "#9CA3AF",
-                        width: r.w,
-                        height: r.h,
-                      }} />
-                    </div>
-                    <p className="text-[12px] font-bold text-brand-dark">{r.label}</p>
-                    <p className="text-[10px] text-brand-muted">{r.desc}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="bg-white px-4 py-5 space-y-2.5">
+            <button
+              onClick={() => alert("문의하기 연결 예정")}
+              className="w-full py-3 rounded-xl text-[13px] font-extrabold text-white transition-opacity hover:opacity-85"
+              style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}
+            >
+              문의하기
+            </button>
+            <button
+              onClick={() => alert("카카오 문의 연결 예정")}
+              className="w-full py-3 rounded-xl text-[13px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border"
+            >
+              카카오로 문의하기
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* 오른쪽: 3단계 업로드 */}
-        <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4 sticky top-4">
-          <p className="text-[14px] font-extrabold text-brand-dark">3. 이미지 업로드</p>
+      {/* ── 메인 콘텐츠 ────────────────────── */}
+      <div className="flex-1 min-w-0 space-y-0">
 
-          {generated ? (
-            <div className="space-y-3">
-              <div className="rounded-xl h-[240px] flex flex-col items-center justify-center gap-3 overflow-hidden relative">
-                <PlateScene bg={selectedBg.bg} vaseColor={selectedBg.vase} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 gap-2">
-                  <span className="text-[40px]">✨</span>
-                  <p className="text-[13px] font-bold text-white">AI 이미지 생성 완료!</p>
+        {/* 브레드크럼 */}
+        <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub mb-6 px-1">
+          <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
+          <span>›</span>
+          <span className="text-brand-muted">콘텐츠</span>
+          <span>›</span>
+          <span className="text-brand-text font-medium">고퀄리티 이미지 제작</span>
+        </nav>
+
+        {/* ── HERO ──────────────────────────── */}
+        <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#080c18 0%,#0f1628 60%,#0a0e1e 100%)" }}>
+          <div className="px-8 pt-10 pb-4">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] mb-3" style={{ color: "#EC4899" }}>Professional Photography</p>
+            <h1 className="text-[30px] font-extrabold text-white leading-tight mb-3">
+              30초만 투자해서<br />
+              <span style={{ background: "linear-gradient(90deg,#EC4899,#8B5CF6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                매장을 리뉴얼해보세요
+              </span>
+            </h1>
+            <p className="text-[14px] leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.55)" }}>
+              전문 포토그래퍼가 직접 방문해 촬영하고, 고급 보정까지 완성합니다.<br />
+              스마트폰 사진과 확연히 다른 결과물을 경험해 보세요.
+            </p>
+          </div>
+
+          {/* Before/After 갤러리 */}
+          <div className="px-6 pb-8">
+            <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+              {BA_PAIRS.map((pair, i) => (
+                <BAPair key={i} pair={pair} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 숫자 강조 ──────────────────────── */}
+        <section className="rounded-2xl bg-white border border-brand-border py-6 px-8">
+          <div className="grid grid-cols-4 gap-4 divide-x divide-brand-border">
+            {[
+              { num: "2~3일", label: "평균 납품 기간" },
+              { num: "500+", label: "누적 제작 건수" },
+              { num: "98%", label: "고객 재의뢰율" },
+              { num: "전 플랫폼", label: "최적화 규격 제공" },
+            ].map((s) => (
+              <div key={s.label} className="text-center px-2">
+                <p className="text-[22px] font-extrabold leading-tight"
+                  style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  {s.num}
+                </p>
+                <p className="text-[11px] text-brand-sub mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── 특장점 그리드 ──────────────────── */}
+        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+          <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Why us</p>
+          <h2 className="text-[22px] font-extrabold text-brand-dark mb-6">왜 다를까요</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {FEATURES.map((f) => (
+              <div key={f.title} className="rounded-2xl p-5 border border-brand-border hover:border-pink-200 transition-colors"
+                style={{ background: "#FAFBFF" }}>
+                <span className="text-[24px] mb-3 block">{f.icon}</span>
+                <p className="text-[14px] font-extrabold text-brand-dark mb-1">{f.title}</p>
+                <p className="text-[12px] text-brand-sub leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── 패키지 ─────────────────────────── */}
+        <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#080c18 0%,#0f1628 100%)" }}>
+          <div className="px-8 py-10">
+            <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Packages</p>
+            <h2 className="text-[22px] font-extrabold text-white mb-8">패키지 안내</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {PACKAGES.map((pkg) => (
+                <div key={pkg.name} className={`rounded-2xl p-5 relative ${pkg.popular ? "ring-2 ring-[#EC4899]" : ""}`}
+                  style={{ background: "rgba(255,255,255,0.05)", border: pkg.popular ? undefined : "1px solid rgba(255,255,255,0.08)" }}>
+                  {pkg.popular && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-extrabold text-white px-3 py-1 rounded-full"
+                      style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}>
+                      인기
+                    </span>
+                  )}
+                  <div className="h-1.5 w-8 rounded-full mb-4" style={{ background: pkg.accent }} />
+                  <p className="text-[16px] font-extrabold text-white mb-1">{pkg.name}</p>
+                  <p className="text-[11px] mb-4" style={{ color: "rgba(255,255,255,0.45)" }}>{pkg.desc}</p>
+                  <ul className="space-y-2 mb-5">
+                    {pkg.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke={pkg.accent} strokeWidth={2.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.75)" }}>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => alert("문의하기 연결 예정")}
+                    className="w-full py-2.5 rounded-xl text-[12px] font-extrabold transition-opacity hover:opacity-85"
+                    style={pkg.popular
+                      ? { background: "linear-gradient(135deg,#EC4899,#8B5CF6)", color: "white" }
+                      : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.12)" }
+                    }
+                  >
+                    문의하기
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-[11px] mt-5" style={{ color: "rgba(255,255,255,0.3)" }}>
+              패키지 외 맞춤 견적도 가능합니다 · 문의하기를 통해 상담해 주세요
+            </p>
+          </div>
+        </section>
+
+        {/* ── 프로세스 ────────────────────────── */}
+        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+          <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Process</p>
+          <h2 className="text-[22px] font-extrabold text-brand-dark mb-8">진행 프로세스</h2>
+          <div className="space-y-0">
+            {PROCESS.map((p, i) => (
+              <div key={p.step} className="flex gap-4">
+                <div className="flex flex-col items-center shrink-0">
+                  <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
+                    style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}>
+                    {p.step}
+                  </div>
+                  {i < PROCESS.length - 1 && (
+                    <div className="w-px flex-1 my-1.5" style={{ background: "linear-gradient(180deg,#EC489940,transparent)" }} />
+                  )}
+                </div>
+                <div className={`pb-7 ${i === PROCESS.length - 1 ? "pb-0" : ""}`}>
+                  <p className="text-[14px] font-bold text-brand-dark mb-1">{p.title}</p>
+                  <p className="text-[12px] text-brand-sub leading-relaxed">{p.desc}</p>
                 </div>
               </div>
-              <button className="w-full py-3 rounded-xl text-[13px] font-extrabold text-white"
-                style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}>
-                이미지 다운로드
-              </button>
-              <button onClick={() => { setGenerated(false); setUploaded(false); }}
-                className="w-full py-2.5 rounded-xl text-[13px] font-bold text-brand-sub bg-brand-lighter border border-brand-border hover:text-brand-text transition-colors">
-                다시 생성하기
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* 업로드 영역 */}
-              <div
-                onClick={() => setUploaded(true)}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => { e.preventDefault(); setDragOver(false); setUploaded(true); }}
-                className={`rounded-xl border-2 border-dashed h-[220px] flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
-                  dragOver   ? "border-pink-400 bg-pink-50" :
-                  uploaded   ? "border-green-400 bg-green-50" :
-                  "border-brand-border hover:border-pink-300 hover:bg-pink-50/40"
-                }`}>
-                {uploaded ? (
-                  <>
-                    <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
-                      <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <p className="text-[13px] font-bold text-green-600">이미지 업로드 완료</p>
-                    <p className="text-[11px] text-brand-muted">클릭하여 교체</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="h-11 w-11 rounded-full bg-brand-lighter border border-brand-border flex items-center justify-center">
-                      <svg className="w-5 h-5 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                      </svg>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[13px] text-brand-sub font-medium">이미지를 드래그하거나 클릭하여 업로드</p>
-                      <p className="text-[11px] text-brand-muted mt-0.5">PNG, JPG, WEBP (최대 20MB)</p>
-                    </div>
-                  </>
+            ))}
+          </div>
+        </section>
+
+        {/* ── FAQ ────────────────────────────── */}
+        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+          <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>FAQ</p>
+          <h2 className="text-[22px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
+          <div className="space-y-2">
+            {FAQS.map((faq, i) => (
+              <div key={i} className="rounded-2xl border border-brand-border overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors"
+                >
+                  <span className="text-[13px] font-bold text-brand-dark">{faq.q}</span>
+                  <svg className={`w-4 h-4 text-brand-muted shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-4 border-t border-brand-border bg-brand-lighter">
+                    <p className="text-[13px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
+                  </div>
                 )}
               </div>
+            ))}
+          </div>
+        </section>
 
-              {/* 선택 요약 */}
-              <div className="rounded-xl bg-brand-lighter border border-brand-border p-3 space-y-1.5">
-                {[
-                  { label: "카테고리", value: category },
-                  { label: "배경",     value: selectedBg.label },
-                  { label: "구도",     value: selectedAngle.label },
-                  { label: "비율",     value: ratio },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between">
-                    <span className="text-[11px] text-brand-muted">{row.label}</span>
-                    <span className="text-[11px] font-bold text-brand-dark">{row.value}</span>
-                  </div>
-                ))}
-              </div>
+        {/* ── 하단 CTA 배너 ──────────────────── */}
+        <section className="rounded-2xl px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6"
+          style={{ background: "linear-gradient(135deg,#0f0a1e,#1e1040)" }}>
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>문의하기</p>
+            <p className="text-[20px] font-extrabold text-white leading-tight">
+              지금 바로 무료 상담을<br />
+              <span style={{ color: "rgba(255,255,255,0.6)" }}>받아보세요</span>
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <button
+              onClick={() => alert("문의하기 연결 예정")}
+              className="px-6 py-3 rounded-xl text-[13px] font-extrabold text-white transition-opacity hover:opacity-85"
+              style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}
+            >
+              문의하기
+            </button>
+            <button
+              onClick={() => alert("카카오 문의 연결 예정")}
+              className="px-6 py-3 rounded-xl text-[13px] font-bold text-white/80 border border-white/15 hover:bg-white/10 transition-colors"
+            >
+              카카오로 문의
+            </button>
+          </div>
+        </section>
 
-              <button
-                onClick={handleGenerate}
-                disabled={!uploaded || generating}
-                className="w-full py-3.5 rounded-xl text-[14px] font-extrabold text-white transition-all disabled:opacity-40 cursor-pointer hover:opacity-90"
-                style={{ background: "linear-gradient(135deg,#EC4899,#8B5CF6)" }}>
-                {generating ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    AI 생성 중...
-                  </span>
-                ) : "AI 이미지 생성하기 (2,000P)"}
-              </button>
-            </>
-          )}
-        </div>
+        <div className="h-8" />
       </div>
+
+      {/* 오른쪽 고정 패널 자리 확보 */}
+      <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
     </div>
   );
 }

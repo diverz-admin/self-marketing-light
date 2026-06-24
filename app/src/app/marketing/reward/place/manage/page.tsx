@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import Link from "next/link";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
@@ -18,12 +18,13 @@ const MOCK_CAMPAIGNS = [
     media: "버즈빌",
     dailyQty: 100,
     status: "running",
-    startDate: "2026-06-15",
-    endDate: "2026-06-30",
+    startDate: "2026-06-10",
+    endDate: "2026-07-05",
     orderAmount: 12000,
     rank: 3,
     rankDiff: -2,
     placeLink: "https://m.place.naver.com/restaurant/1234567",
+    isGuaranteed: true,
   },
   {
     id: "2",
@@ -38,6 +39,7 @@ const MOCK_CAMPAIGNS = [
     rank: null,
     rankDiff: 0,
     placeLink: "https://m.place.naver.com/restaurant/2345678",
+    isGuaranteed: false,
   },
   {
     id: "3",
@@ -52,6 +54,7 @@ const MOCK_CAMPAIGNS = [
     rank: 1,
     rankDiff: 5,
     placeLink: "https://m.place.naver.com/restaurant/3456789",
+    isGuaranteed: false,
   },
   {
     id: "4",
@@ -66,6 +69,7 @@ const MOCK_CAMPAIGNS = [
     rank: 7,
     rankDiff: 1,
     placeLink: "https://m.place.naver.com/restaurant/4567890",
+    isGuaranteed: false,
   },
   {
     id: "5",
@@ -80,19 +84,11 @@ const MOCK_CAMPAIGNS = [
     rank: 12,
     rankDiff: -3,
     placeLink: "https://m.place.naver.com/restaurant/5678901",
+    isGuaranteed: false,
   },
 ];
 
 const RANK_HISTORY: Record<string, { date: string; rank: number }[]> = {
-  "1": [
-    { date: "06/13", rank: 9 },
-    { date: "06/14", rank: 8 },
-    { date: "06/15", rank: 7 },
-    { date: "06/16", rank: 5 },
-    { date: "06/17", rank: 5 },
-    { date: "06/18", rank: 4 },
-    { date: "06/19", rank: 3 },
-  ],
   "5": [
     { date: "06/13", rank: 18 },
     { date: "06/14", rank: 17 },
@@ -104,7 +100,24 @@ const RANK_HISTORY: Record<string, { date: string; rank: number }[]> = {
   ],
 };
 
-const CHART_COLORS = ["#10B981", "#3182F6", "#8B5CF6", "#F97316"];
+const GUARANTEED_RANK_HISTORY: Record<string, { date: string; rank: number }[]> = {
+  "1": [
+    { date: "06/10", rank: 12 },
+    { date: "06/11", rank: 10 },
+    { date: "06/12", rank: 8  },
+    { date: "06/13", rank: 5  },
+    { date: "06/14", rank: 4  },
+    { date: "06/15", rank: 6  }, // 이탈 — 카운트 정지
+    { date: "06/16", rank: 5  },
+    { date: "06/17", rank: 4  },
+    { date: "06/18", rank: 4  },
+    { date: "06/19", rank: 3  },
+  ],
+};
+
+const GUARANTEED_TOTAL_DAYS = 25;
+
+const CHART_COLORS = ["#10B981", "#0341C7", "#8B5CF6", "#F97316"];
 
 type TooltipState = {
   pctX: number;
@@ -122,8 +135,8 @@ function SingleRankChart({ campaign, color }: {
   const history = RANK_HISTORY[campaign.id];
   if (!history) return null;
 
-  const W = 400, H = 160;
-  const PAD = { top: 20, right: 16, bottom: 36, left: 40 };
+  const W = 520, H = 260;
+  const PAD = { top: 16, right: 16, bottom: 28, left: 36 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 
@@ -150,95 +163,88 @@ function SingleRankChart({ campaign, color }: {
   const improved = latestRank < firstRank;
 
   return (
-    <div className="bg-white rounded-2xl border border-brand-border p-4">
-      {/* 헤더 */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="min-w-0">
-          <p className="text-[13.5px] font-extrabold text-brand-dark truncate">{campaign.placeName}</p>
-          <div className="flex items-center gap-1.5 mt-0.5">
+    <div className="bg-white rounded-2xl border border-brand-border p-4 flex gap-0">
+      {/* 왼쪽: 순위 정보 패널 */}
+      <div className="w-[152px] shrink-0 flex flex-col justify-between pr-4 border-r border-brand-border">
+        <div>
+          <p className="text-[13px] font-extrabold text-brand-dark leading-tight mb-1">{campaign.placeName}</p>
+          <div className="flex items-center gap-1 mb-5">
             <svg className="w-3 h-3 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
             </svg>
-            <span className="text-[12px] text-brand-sub">{campaign.keyword}</span>
+            <span className="text-[11px] text-brand-sub truncate">{campaign.keyword}</span>
           </div>
         </div>
-        <div className="text-right shrink-0 ml-3">
-          <p className="text-[22px] font-extrabold text-brand-dark leading-none">{latestRank}<span className="text-[13px] font-medium text-brand-muted ml-0.5">위</span></p>
-          <p className={`text-[11px] font-bold mt-0.5 flex items-center justify-end gap-0.5 ${improved ? "text-green-500" : "text-red-400"}`}>
-            {improved ? (
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            ) : (
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            )}
-            {Math.abs(firstRank - latestRank)}단계
-          </p>
+        <div className="space-y-2">
+          <div>
+            <p className="text-[10px] font-bold text-brand-muted mb-0.5">최초 순위</p>
+            <p className="text-[26px] font-extrabold text-brand-muted leading-none">{firstRank}<span className="text-[12px] font-medium ml-0.5">위</span></p>
+          </div>
+          <svg className={`w-4 h-4 ${improved ? "text-green-500" : "text-red-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-6 6m6-6l6 6" />
+          </svg>
+          <div>
+            <p className="text-[10px] font-bold text-brand-muted mb-0.5">현재 순위</p>
+            <p className="text-[30px] font-extrabold text-brand-dark leading-none">{latestRank}<span className="text-[12px] font-medium text-brand-muted ml-0.5">위</span></p>
+            <p className={`text-[11px] font-bold mt-1 flex items-center gap-0.5 ${improved ? "text-green-500" : "text-red-400"}`}>
+              {improved
+                ? <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+              }
+              {Math.abs(firstRank - latestRank)}단계
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* 날짜별 순위 테이블 */}
-      <div className="overflow-x-auto mb-4">
-        <table className="w-full text-center border-collapse">
-          <thead>
-            <tr>
-              {history.map((d, i) => (
-                <th key={i} className="px-2 py-1.5 text-[11px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
-                  {d.date}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {/* 순위 행 */}
-            <tr>
-              {history.map((d, i) => {
-                const isLatest = i === history.length - 1;
-                return (
-                  <td key={i} className={`px-2 py-2 text-[13px] font-extrabold border-b border-brand-border ${isLatest ? "text-brand-dark" : "text-brand-sub"}`}>
+      {/* 오른쪽: 테이블 + 차트 */}
+      <div className="flex-1 min-w-0 pl-4 flex flex-col gap-3">
+        {/* 날짜별 순위 테이블 */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-center border-collapse">
+            <thead>
+              <tr>
+                {history.map((d, i) => (
+                  <th key={i} className="px-2 py-1.5 text-[11px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
+                    {d.date}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {history.map((d, i) => (
+                  <td key={i} className={`px-2 py-2 text-[13px] font-extrabold border-b border-brand-border ${i === history.length - 1 ? "text-brand-dark" : "text-brand-sub"}`}>
                     {d.rank}위
                   </td>
-                );
-              })}
-            </tr>
-            {/* 변동 행 */}
-            <tr>
-              {history.map((d, i) => {
-                if (i === 0) return (
-                  <td key={i} className="px-2 py-1.5 text-[11px] text-brand-muted">-</td>
-                );
-                const diff = history[i - 1].rank - d.rank; // 양수 = 순위 상승
-                return (
-                  <td key={i} className="px-2 py-1.5">
-                    {diff === 0 ? (
-                      <span className="text-[11px] text-brand-muted">-</span>
-                    ) : (
-                      <span className={`inline-flex items-center justify-center gap-0.5 text-[11px] font-bold ${diff > 0 ? "text-green-500" : "text-red-400"}`}>
-                        {diff > 0 ? (
-                          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                          </svg>
-                        ) : (
-                          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                          </svg>
-                        )}
-                        {Math.abs(diff)}
-                      </span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                ))}
+              </tr>
+              <tr>
+                {history.map((d, i) => {
+                  if (i === 0) return <td key={i} className="px-2 py-1.5 text-[11px] text-brand-muted">-</td>;
+                  const diff = history[i - 1].rank - d.rank;
+                  return (
+                    <td key={i} className="px-2 py-1.5">
+                      {diff === 0 ? <span className="text-[11px] text-brand-muted">-</span> : (
+                        <span className={`inline-flex items-center justify-center gap-0.5 text-[11px] font-bold ${diff > 0 ? "text-green-500" : "text-red-400"}`}>
+                          {diff > 0
+                            ? <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                            : <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                          }
+                          {Math.abs(diff)}
+                        </span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      {/* 차트 */}
-      <div className="relative">
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+        {/* 차트 */}
+        <div className="relative flex-1">
+        <svg viewBox={`0 0 ${W} ${H}`} height={H} className="w-full overflow-visible" style={{ height: H }}>
           {/* Grid */}
           {yTicks.map((tick) => (
             <g key={tick}>
@@ -251,7 +257,7 @@ function SingleRankChart({ campaign, color }: {
 
           {/* X dates */}
           {history.map((d, i) => (
-            <text key={i} x={xScale(i)} y={H - PAD.bottom + 16} textAnchor="middle" fill="#CBD5E1" fontSize={10}>
+            <text key={i} x={xScale(i)} y={H - PAD.bottom + 14} textAnchor="middle" fill="#CBD5E1" fontSize={10}>
               {d.date}
             </text>
           ))}
@@ -290,6 +296,210 @@ function SingleRankChart({ campaign, color }: {
               style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #1A1E2E" }} />
           </div>
         )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GuaranteedRankChart({ campaign, color }: {
+  campaign: typeof MOCK_CAMPAIGNS[number];
+  color: string;
+}) {
+  const [tooltip, setTooltip] = useState<TooltipState>(null);
+  const history = GUARANTEED_RANK_HISTORY[campaign.id];
+  if (!history) return null;
+
+  const THRESHOLD = 5;
+  const countedDays = history.filter((d) => d.rank <= THRESHOLD).length;
+  const pausedDays  = history.filter((d) => d.rank > THRESHOLD).length;
+  const progressPct = Math.min((countedDays / GUARANTEED_TOTAL_DAYS) * 100, 100);
+
+  const W = 520, H = 260;
+  const PAD = { top: 16, right: 16, bottom: 28, left: 36 };
+  const innerW = W - PAD.left - PAD.right;
+  const innerH = H - PAD.top - PAD.bottom;
+
+  const ranks = history.map((d) => d.rank);
+  const dataMin = Math.min(...ranks);
+  const dataMax = Math.max(...ranks);
+  const yMin = Math.max(1, dataMin - 1);
+  const yMax = dataMax + 2;
+
+  const xScale = (i: number) => PAD.left + (i / (history.length - 1)) * innerW;
+  const yScale = (rank: number) => PAD.top + ((rank - yMin) / (yMax - yMin || 1)) * innerH;
+
+  const yTickCount = 4;
+  const yStep = Math.max(1, Math.ceil((yMax - yMin) / (yTickCount - 1)));
+  const yTicks: number[] = [];
+  for (let t = yMin; t <= yMax; t += yStep) yTicks.push(t);
+
+  const pts = history.map((d, i) => ({
+    x: xScale(i), y: yScale(d.rank), ...d,
+    counted: d.rank <= THRESHOLD,
+  }));
+
+  const thresholdY = yScale(THRESHOLD);
+  const firstRank  = history[0].rank;
+  const latestRank = history[history.length - 1].rank;
+  const improved   = latestRank < firstRank;
+
+  return (
+    <div className="bg-white rounded-2xl border border-brand-border p-4 flex gap-0">
+      {/* 왼쪽: 플레이스 정보 + 보장 카운트 + 순위 */}
+      <div className="w-[200px] shrink-0 flex flex-col gap-3 pr-4 border-r border-brand-border">
+        {/* 플레이스명 + 배지 */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+            <p className="text-[13px] font-extrabold text-brand-dark leading-tight">{campaign.placeName}</p>
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-green-50 text-green-700 border border-green-200 shrink-0">
+              🛡️ 보장형
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <svg className="w-3 h-3 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+            <span className="text-[11px] text-brand-sub truncate">{campaign.keyword}</span>
+          </div>
+        </div>
+
+        {/* 보장 카운트 */}
+        <div className="p-2.5 rounded-xl bg-green-50 border border-green-100">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1">
+              <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+              </svg>
+              <span className="text-[11px] font-extrabold text-green-700">보장 카운트</span>
+            </div>
+            <span className="text-[12px] font-extrabold text-green-700">{countedDays}<span className="text-[10px] font-medium text-green-600"> / {GUARANTEED_TOTAL_DAYS}</span></span>
+          </div>
+          <div className="h-2 bg-green-100 rounded-full overflow-hidden mb-1.5">
+            <div className="h-full bg-green-500 rounded-full" style={{ width: `${progressPct}%` }} />
+          </div>
+          <p className="text-[9px] text-green-600">1~5순위 유지 일수만 카운트</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="flex items-center gap-0.5 text-[10px] text-green-600 font-medium">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500" />
+              카운트 {countedDays}일
+            </span>
+            <span className="flex items-center gap-0.5 text-[10px] text-gray-400 font-medium">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300" />
+              정지 {pausedDays}일
+            </span>
+          </div>
+          <p className="text-[10px] text-brand-muted mt-1">잔여 {GUARANTEED_TOTAL_DAYS - countedDays}일</p>
+        </div>
+
+        {/* 최초 → 현재 순위 */}
+        <div className="space-y-2">
+          <div>
+            <p className="text-[10px] font-bold text-brand-muted mb-0.5">최초 순위</p>
+            <p className="text-[26px] font-extrabold text-brand-muted leading-none">{firstRank}<span className="text-[12px] font-medium ml-0.5">위</span></p>
+          </div>
+          <svg className={`w-4 h-4 ${improved ? "text-green-500" : "text-red-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-6 6m6-6l6 6" />
+          </svg>
+          <div>
+            <p className="text-[10px] font-bold text-brand-muted mb-0.5">현재 순위</p>
+            <p className="text-[30px] font-extrabold text-brand-dark leading-none">{latestRank}<span className="text-[12px] font-medium text-brand-muted ml-0.5">위</span></p>
+            <p className={`text-[11px] font-bold mt-1 flex items-center gap-0.5 ${improved ? "text-green-500" : "text-red-400"}`}>
+              {improved
+                ? <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+              }
+              {Math.abs(firstRank - latestRank)}단계
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 오른쪽: 날짜 테이블 + 차트 */}
+      <div className="flex-1 min-w-0 pl-4 flex flex-col gap-3">
+        {/* 날짜별 순위 테이블 */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-center border-collapse">
+            <thead>
+              <tr>
+                {history.map((d, i) => (
+                  <th key={i} className="px-2 py-1.5 text-[11px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
+                    {d.date}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {history.map((d, i) => {
+                  const counted = d.rank <= THRESHOLD;
+                  return (
+                    <td key={i} className={`px-2 py-2 text-[12px] font-extrabold border-b border-brand-border ${counted ? "text-green-600 bg-green-50" : "text-gray-400 bg-gray-50"}`}>
+                      {d.rank}위
+                      {!counted && <span className="block text-[9px] font-bold text-orange-400 leading-none mt-0.5">정지</span>}
+                    </td>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* 차트 */}
+        <div className="relative flex-1">
+          <svg viewBox={`0 0 ${W} ${H}`} height={H} className="w-full overflow-visible" style={{ height: H }}>
+            {yTicks.map((tick) => (
+              <g key={tick}>
+                <line x1={PAD.left} y1={yScale(tick)} x2={W - PAD.right} y2={yScale(tick)} stroke="#F3F4F6" strokeWidth={1.5} />
+                <text x={PAD.left - 6} y={yScale(tick)} textAnchor="end" dominantBaseline="middle" fill="#CBD5E1" fontSize={10}>{tick}위</text>
+              </g>
+            ))}
+            <line x1={PAD.left} y1={thresholdY} x2={W - PAD.right} y2={thresholdY}
+              stroke="#10B981" strokeWidth={1.5} strokeDasharray="5,4" />
+            <text x={W - PAD.right + 4} y={thresholdY} dominantBaseline="middle" fill="#10B981" fontSize={9} fontWeight={700}>5위</text>
+            {history.map((d, i) => (
+              <text key={i} x={xScale(i)} y={H - PAD.bottom + 14} textAnchor="middle" fill="#CBD5E1" fontSize={9}>{d.date}</text>
+            ))}
+            <line x1={PAD.left} y1={H - PAD.bottom} x2={W - PAD.right} y2={H - PAD.bottom} stroke="#E5E7EB" strokeWidth={1} />
+            {pts.map((p, i) => {
+              if (i === 0) return null;
+              const prev = pts[i - 1];
+              const both = p.counted && prev.counted;
+              return (
+                <line key={i}
+                  x1={prev.x} y1={prev.y} x2={p.x} y2={p.y}
+                  stroke={both ? "#10B981" : "#D1D5DB"}
+                  strokeWidth={2.5} strokeLinecap="round"
+                  strokeDasharray={both ? undefined : "4,3"}
+                />
+              );
+            })}
+            {pts.map((p, i) => (
+              <g key={i}>
+                <circle cx={p.x} cy={p.y} r={4.5}
+                  fill={p.counted ? "#10B981" : "#9CA3AF"}
+                  stroke="white" strokeWidth={2} />
+                <circle
+                  cx={p.x} cy={p.y} r={13} fill="transparent" className="cursor-pointer"
+                  onMouseEnter={() => setTooltip({ pctX: (p.x / W) * 100, pctY: (p.y / H) * 100, date: p.date, rank: p.rank })}
+                  onMouseLeave={() => setTooltip(null)}
+                />
+              </g>
+            ))}
+          </svg>
+
+          {tooltip && (
+            <div className="absolute pointer-events-none z-20 bg-[#1A1E2E] text-white px-3 py-2 rounded-xl text-[12px] shadow-xl whitespace-nowrap"
+              style={{ left: `${tooltip.pctX}%`, top: `${tooltip.pctY}%`, transform: "translate(-50%, -130%)" }}>
+              <p className="text-white/60">{tooltip.date}</p>
+              <p className="font-extrabold text-[14px]" style={{ color: tooltip.rank <= THRESHOLD ? "#10B981" : "#9CA3AF" }}>
+                {tooltip.rank}위 {tooltip.rank <= THRESHOLD ? "✓ 카운트" : "⏸ 정지"}
+              </p>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0"
+                style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #1A1E2E" }} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -330,6 +540,7 @@ const STATUS_KEY: Record<string, string> = {
 export default function PlaceManagePage() {
   const [filter, setFilter] = useState("진행중");
   const [search, setSearch] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = MOCK_CAMPAIGNS.filter((c) => {
     const statusMatch = filter === "전체" || c.status === STATUS_KEY[filter];
@@ -358,7 +569,7 @@ export default function PlaceManagePage() {
       {/* 상단 요약 카드 */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "전체 캠페인", value: total,   color: "text-brand-dark",  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2", grad: "linear-gradient(135deg,#3182F6,#1B64DA)" },
+          { label: "전체 캠페인", value: total,   color: "text-brand-dark",  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2", grad: "linear-gradient(135deg,#0341C7,#0235A8)" },
           { label: "진행중",     value: running, color: "text-green-600", icon: "M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z", grad: "linear-gradient(135deg,#10B981,#059669)" },
           { label: "대기중",     value: pending, color: "text-amber-600", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", grad: "linear-gradient(135deg,#F59E0B,#D97706)" },
         ].map((stat) => (
@@ -424,6 +635,7 @@ export default function PlaceManagePage() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
+                <th className="w-8" />
                 {["플레이스명", "플레이스 링크", "키워드", "현재 순위", "매체사", "일 작업량", "기간", "주문금액", "상태", "관리"].map((h) => (
                   <th key={h} className="px-4 py-3 text-[11px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">
                     {h}
@@ -431,104 +643,143 @@ export default function PlaceManagePage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border">
+            <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-16 text-center text-[14px] text-brand-muted">
+                  <td colSpan={11} className="px-4 py-16 text-center text-[14px] text-brand-muted">
                     조건에 맞는 캠페인이 없습니다.
                   </td>
                 </tr>
               ) : (
-                filtered.map((c) => {
+                filtered.map((c, idx) => {
                   const st = STATUS_CONFIG[c.status];
+                  const canExpand = c.isGuaranteed ? !!GUARANTEED_RANK_HISTORY[c.id] : !!RANK_HISTORY[c.id];
+                  const isOpen = expandedId === c.id;
+                  const color = CHART_COLORS[idx % CHART_COLORS.length];
                   return (
-                    <tr key={c.id} className="hover:bg-brand-lighter/50 transition-colors">
-                      <td className="px-4 py-3.5">
-                        <p className="text-[13px] font-semibold text-brand-dark truncate max-w-[140px]">{c.placeName}</p>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <a
-                          href={c.placeLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-[12px] text-brand-primary hover:underline"
-                        >
-                          <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                          </svg>
-                          플레이스 링크
-                        </a>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-[12px] font-medium text-brand-sub">{c.keyword}</span>
-                      </td>
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        {c.rank === null ? (
-                          <span className="text-[12px] text-brand-muted">-</span>
-                        ) : (
+                    <Fragment key={c.id}>
+                      <tr
+                        onClick={() => canExpand && setExpandedId(isOpen ? null : c.id)}
+                        className={`border-b border-brand-border transition-colors ${canExpand ? "cursor-pointer" : ""} ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/40"}`}
+                      >
+                        {/* 확장 화살표 */}
+                        <td className="pl-3 py-3.5">
+                          {canExpand && (
+                            <svg className={`w-3.5 h-3.5 text-brand-muted transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[14px] font-extrabold text-brand-dark">{c.rank}위</span>
-                            {c.rankDiff !== 0 && (
-                              <span className={`flex items-center gap-0.5 text-[11px] font-bold ${c.rankDiff < 0 ? "text-green-500" : "text-red-400"}`}>
-                                {c.rankDiff < 0 ? (
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                  </svg>
-                                ) : (
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                  </svg>
-                                )}
-                                {Math.abs(c.rankDiff)}
+                            <p className="text-[13px] font-semibold text-brand-dark truncate max-w-[120px]">{c.placeName}</p>
+                            {c.isGuaranteed && (
+                              <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-green-50 text-green-700 border border-green-200">
+                                보장형
                               </span>
                             )}
                           </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-[12px] font-bold text-brand-dark">{c.media}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-[13px] font-bold text-brand-dark">{c.dailyQty.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">건</span>
-                      </td>
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[11.5px] text-brand-sub">{c.startDate}</span>
-                        <span className="text-brand-muted mx-1">~</span>
-                        <span className="text-[11.5px] text-brand-sub">{c.endDate}</span>
-                      </td>
-                      <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[13px] font-extrabold text-brand-dark">{c.orderAmount.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">원</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${st.bg} ${st.text}`}>
-                          {st.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-1.5">
-                          {c.status === "running" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
-                              일시정지
-                            </button>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <a
+                            href={c.placeLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1 text-[12px] text-brand-primary hover:underline"
+                          >
+                            <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            플레이스 링크
+                          </a>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="text-[12px] font-medium text-brand-sub">{c.keyword}</span>
+                        </td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          {c.rank === null ? (
+                            <span className="text-[12px] text-brand-muted">-</span>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[14px] font-extrabold text-brand-dark">{c.rank}위</span>
+                              {c.rankDiff !== 0 && (
+                                <span className={`flex items-center gap-0.5 text-[11px] font-bold ${c.rankDiff < 0 ? "text-green-500" : "text-red-400"}`}>
+                                  {c.rankDiff < 0 ? (
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                    </svg>
+                                  )}
+                                  {Math.abs(c.rankDiff)}
+                                </span>
+                              )}
+                            </div>
                           )}
-                          {c.status === "paused" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">
-                              재시작
-                            </button>
-                          )}
-                          {c.status !== "done" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                              중단
-                            </button>
-                          )}
-                          {c.status === "done" && (
-                            <span className="text-[11px] text-brand-muted">-</span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="text-[12px] font-bold text-brand-dark">{c.media}</span>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="text-[13px] font-bold text-brand-dark">{c.dailyQty.toLocaleString()}</span>
+                          <span className="text-[11px] text-brand-muted ml-0.5">건</span>
+                        </td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-[11.5px] text-brand-sub">{c.startDate}</span>
+                          <span className="text-brand-muted mx-1">~</span>
+                          <span className="text-[11.5px] text-brand-sub">{c.endDate}</span>
+                        </td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-[13px] font-extrabold text-brand-dark">{c.orderAmount.toLocaleString()}</span>
+                          <span className="text-[11px] text-brand-muted ml-0.5">원</span>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${st.bg} ${st.text}`}>
+                            {st.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1.5">
+                            {c.status === "running" && (
+                              <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
+                                일시정지
+                              </button>
+                            )}
+                            {c.status === "paused" && (
+                              <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">
+                                재시작
+                              </button>
+                            )}
+                            {c.status !== "done" && (
+                              <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                                중단
+                              </button>
+                            )}
+                            {c.status === "done" && (
+                              <span className="text-[11px] text-brand-muted">-</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* 아코디언 그래프 */}
+                      {isOpen && canExpand && (
+                        <tr className="border-b border-brand-border">
+                          <td colSpan={11} className="p-0">
+                            <div className="bg-brand-lighter/50 px-6 py-4">
+                              {c.isGuaranteed
+                                ? <GuaranteedRankChart campaign={c} color={color} />
+                                : <SingleRankChart campaign={c} color={color} />
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })
               )}
@@ -543,8 +794,6 @@ export default function PlaceManagePage() {
         </div>
       </div>
 
-      {/* 키워드별 순위 트래킹 — 진행중 탭에서만 표시 */}
-      {filter === "진행중" && <RankChartSection campaigns={MOCK_CAMPAIGNS} />}
     </div>
   );
 }

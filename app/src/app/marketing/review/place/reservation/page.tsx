@@ -5,10 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const TABS = [
-  { label: "블로그리뷰(기자단)", href: "/marketing/review/place/blog-reporter" },
-  { label: "블로그리뷰(체험단)", href: "/marketing/review/place/blog-experience" },
-  { label: "방문자리뷰",         href: "/marketing/review/place/visitor" },
-  { label: "예약자리뷰",         href: "/marketing/review/place/reservation" },
+  { label: "블로그배포", href: "/marketing/review/place/blog-reporter" },
+  { label: "영수증리뷰", href: "/marketing/review/place/receipt" },
 ];
 
 const UNIT_PRICE = 1000;
@@ -17,13 +15,13 @@ function ImageUploadBox({ bordered }: { bordered?: boolean }) {
   return (
     <button
       className={`aspect-square w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-colors ${
-        bordered ? "border-gray-400 bg-gray-50" : "border-gray-200 bg-white hover:bg-gray-50"
+        bordered ? "border-brand-primary/50 bg-brand-lighter" : "border-brand-border bg-white hover:bg-brand-lighter"
       }`}
     >
-      <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+      <svg className="w-7 h-7 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
       </svg>
-      <span className="text-[12px] text-gray-400">이미지 추가</span>
+      <span className="text-[12px] text-brand-muted">이미지 추가</span>
     </button>
   );
 }
@@ -95,9 +93,9 @@ export default function ReservationReviewPage() {
       <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
-        <span className="text-brand-muted">네이버 플레이스</span>
+        <Link href="/marketing/review/place" className="hover:text-brand-text">네이버 플레이스</Link>
         <span>›</span>
-        <Link href="/marketing/review/place" className="hover:text-brand-text">[리뷰] 캠페인 생성</Link>
+        <Link href="/marketing/review/place" className="hover:text-brand-text">캠페인 생성</Link>
         <span>›</span>
         <span className="text-brand-text font-medium">예약자리뷰</span>
       </nav>
@@ -123,13 +121,23 @@ export default function ReservationReviewPage() {
 
           {/* 스케줄 설정 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
-            <h2 className="text-[15px] font-extrabold text-brand-dark">스케줄 설정</h2>
+            <div className="flex items-center gap-3">
+              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0341C7,#6366F1)" }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </span>
+              <div>
+                <h2 className="text-[15px] font-bold text-brand-dark">스케줄 설정</h2>
+                <p className="text-[12px] text-brand-sub">캠페인 기간과 모집 인원을 설정하세요</p>
+              </div>
+            </div>
 
             <div>
               <p className="text-[13px] font-semibold text-brand-dark mb-0.5">
                 모집 기간 <span className="text-red-500">*</span>
               </p>
-              <p className="text-[11.5px] text-blue-500 font-normal mb-2">(익일 구동 접수 마감 오후 5시)</p>
+              <p className="text-[11.5px] text-brand-primary font-normal mb-2">(익일 구동 접수 마감 오후 5시)</p>
               <button className="w-full flex items-center gap-2 px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-muted bg-brand-lighter hover:bg-white transition-colors">
                 <svg className="w-4 h-4 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -146,7 +154,7 @@ export default function ReservationReviewPage() {
                   type="number"
                   value={totalCount}
                   onChange={(e) => setTotalCount(Math.max(1, Number(e.target.value)))}
-                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[20px] font-extrabold text-blue-600 text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[20px] font-extrabold text-brand-primary text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                   min={1}
                 />
                 <span className="text-[13px] text-brand-sub shrink-0">/</span>
@@ -180,14 +188,24 @@ export default function ReservationReviewPage() {
 
           {/* 필수 정보 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
-            <h2 className="text-[15px] font-extrabold text-brand-dark">필수 정보</h2>
+            <div className="flex items-center gap-3">
+              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </span>
+              <div>
+                <h2 className="text-[15px] font-bold text-brand-dark">필수 정보</h2>
+                <p className="text-[12px] text-brand-sub">포스팅 작성에 필요한 업체 정보를 입력하세요</p>
+              </div>
+            </div>
 
             <div>
               <p className="text-[13px] font-semibold text-brand-dark mb-2.5">포스팅 유형 <span className="text-red-500">*</span></p>
               <div className="flex items-center gap-6">
                 {["후기성", "정보성", "자유성"].map((v) => (
                   <label key={v} className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="postingType" checked={postingType === v} onChange={() => setPostingType(v)} className="w-4 h-4 accent-blue-500" />
+                    <input type="radio" name="postingType" checked={postingType === v} onChange={() => setPostingType(v)} className="w-4 h-4 accent-[#0341C7]" />
                     <span className="text-[13px] text-brand-dark">{v}</span>
                   </label>
                 ))}
@@ -199,7 +217,7 @@ export default function ReservationReviewPage() {
               <div className="flex items-center gap-6 flex-wrap">
                 {["업체명", "업체명 + 키워드", "키워드"].map((v) => (
                   <label key={v} className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="titleType" checked={titleType === v} onChange={() => setTitleType(v)} className="w-4 h-4 accent-blue-500" />
+                    <input type="radio" name="titleType" checked={titleType === v} onChange={() => setTitleType(v)} className="w-4 h-4 accent-[#0341C7]" />
                     <span className="text-[13px] text-brand-dark">{v}</span>
                   </label>
                 ))}
@@ -219,7 +237,7 @@ export default function ReservationReviewPage() {
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
             ))}
@@ -227,14 +245,14 @@ export default function ReservationReviewPage() {
             <div>
               <label className="block text-[13px] font-semibold text-brand-dark mb-1">
                 해시태그 <span className="text-red-500">*</span>{" "}
-                <span className="text-[11.5px] font-normal text-blue-500">(#해시태그로 구분, 일괄 등록 가능)</span>
+                <span className="text-[11.5px] font-normal text-brand-primary">(#해시태그로 구분, 일괄 등록 가능)</span>
               </label>
               {hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
                   {hashtags.map((tag, i) => (
-                    <span key={i} className="flex items-center gap-1 px-2.5 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[12px] font-medium">
+                    <span key={i} className="flex items-center gap-1 px-2.5 py-0.5 bg-brand-lighter text-brand-primary rounded-full text-[12px] font-medium">
                       {tag}
-                      <button onClick={() => setHashtags((p) => p.filter((_, j) => j !== i))} className="text-blue-400 hover:text-blue-600 ml-0.5">×</button>
+                      <button onClick={() => setHashtags((p) => p.filter((_, j) => j !== i))} className="text-brand-muted hover:text-brand-primary ml-0.5">×</button>
                     </span>
                   ))}
                 </div>
@@ -244,7 +262,7 @@ export default function ReservationReviewPage() {
                 onChange={(e) => setHashtagInput(e.target.value)}
                 onKeyDown={handleHashtagKey}
                 placeholder="입력 후 엔터키로 추가"
-                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
               />
             </div>
 
@@ -266,12 +284,22 @@ export default function ReservationReviewPage() {
 
           {/* 이미지 등록 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
-            <h2 className="text-[15px] font-extrabold text-brand-dark">이미지 등록</h2>
+            <div className="flex items-center gap-3">
+              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+              </span>
+              <div>
+                <h2 className="text-[15px] font-bold text-brand-dark">이미지 등록</h2>
+                <p className="text-[12px] text-brand-sub">썸네일 및 포스팅 이미지를 첨부해 주세요</p>
+              </div>
+            </div>
 
             <div>
               <p className="text-[13px] font-semibold text-brand-dark mb-3">
                 썸네일 이미지 <span className="text-red-500">*</span>{" "}
-                <span className="text-[12px] font-normal text-blue-500">+ 상세 이미지(최대 3장)</span>
+                <span className="text-[12px] font-normal text-brand-primary">+ 상세 이미지(최대 3장)</span>
               </p>
               <div className="grid grid-cols-3 gap-3 mb-3">
                 <ImageUploadBox bordered />
@@ -286,13 +314,13 @@ export default function ReservationReviewPage() {
             <div>
               <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
                 포스팅 이미지 <span className="text-red-500">*</span>{" "}
-                <span className="text-[12px] font-normal text-blue-500 cursor-pointer hover:underline">(구글 드라이브링크)</span>
+                <span className="text-[12px] font-normal text-brand-primary cursor-pointer hover:underline">(구글 드라이브링크)</span>
               </label>
               <input
                 value={postingUrl}
                 onChange={(e) => setPostingUrl(e.target.value)}
                 placeholder="https://drive.google.com/drive/folders/..."
-                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
               />
             </div>
 
@@ -328,10 +356,10 @@ export default function ReservationReviewPage() {
             </div>
 
             {/* 결제 금액 */}
-            <div className="flex items-center justify-between px-4 py-3 bg-blue-50 rounded-xl">
+            <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter border border-brand-border rounded-xl">
               <span className="text-[14px] font-bold text-brand-dark">결제 금액</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-[20px] font-extrabold text-blue-600">{orderAmount.toLocaleString()}</span>
+                <span className="text-[20px] font-extrabold text-brand-primary">{orderAmount.toLocaleString()}</span>
                 <span className="text-[13px] text-brand-sub">원</span>
               </div>
             </div>
@@ -341,7 +369,7 @@ export default function ReservationReviewPage() {
             )}
 
             {/* 보유 금액 */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl">
+            <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter rounded-xl">
               <span className="text-[14px] font-bold text-brand-dark">보유 금액</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-[20px] font-extrabold text-brand-dark">{balance.toLocaleString()}</span>
@@ -352,7 +380,7 @@ export default function ReservationReviewPage() {
             {/* 동의 항목 */}
             <div className="space-y-3 pt-1">
               {([
-                { key: "req1" as const, node: <><span className="text-blue-500 underline cursor-pointer">필수 동의 사항</span> 에 동의합니다. <span className="text-brand-muted">(필수)</span></> },
+                { key: "req1" as const, node: <><span className="text-brand-primary underline cursor-pointer">필수 동의 사항</span> 에 동의합니다. <span className="text-brand-muted">(필수)</span></> },
                 { key: "req2" as const, node: <>공정위 문구 여부 포함 동의 <span className="text-brand-muted">(필수)</span></> },
                 { key: "opt1" as const, node: <>지도 첨부 여부 <span className="text-brand-muted">(선택)</span></> },
                 { key: "opt2" as const, node: <>연락처 첨부 여부 <span className="text-brand-muted">(선택)</span></> },
@@ -362,7 +390,7 @@ export default function ReservationReviewPage() {
                     type="checkbox"
                     checked={agreements[item.key]}
                     onChange={(e) => setAgreements((p) => ({ ...p, [item.key]: e.target.checked }))}
-                    className="w-4 h-4 mt-0.5 accent-blue-500 shrink-0"
+                    className="w-4 h-4 mt-0.5 accent-[#0341C7] shrink-0"
                   />
                   <span className="text-[12.5px] text-brand-dark leading-relaxed">{item.node}</span>
                 </label>

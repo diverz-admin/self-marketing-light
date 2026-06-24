@@ -7,7 +7,7 @@ import Link from "next/link";
 const MEDIA_GROUPS = [
   {
     category: "공통",
-    color: "#3182F6",
+    color: "#0341C7",
     items: [
       { id: "olstar",  name: "올스타",  desc: "1일 단위 구독",  sale: true,  bg: "#1C1C2E",                                 initial: "O" },
       { id: "aura",    name: "아우라",  desc: "신규오파일",     sale: true,  bg: "linear-gradient(135deg,#667eea,#764ba2)", initial: "A" },

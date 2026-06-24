@@ -7,7 +7,7 @@ import Link from "next/link";
 const MEDIA_GROUPS = [
   {
     category: "공통",
-    color: "#3182F6",
+    color: "#0341C7",
     items: [
       { id: "olstar",  name: "올스타",  desc: "1일 단위 구독",  sale: true,  bg: "#1C1C2E",                                       initial: "O" },
       { id: "aura",    name: "아우라",  desc: "신규오파일",     sale: true,  bg: "linear-gradient(135deg,#667eea,#764ba2)",       initial: "A" },
@@ -38,7 +38,6 @@ function efficiencyLabel(v: number) {
 /* ── Page ── */
 export default function ShoppingCampaignPage() {
   const [selectedMedia, setSelectedMedia] = useState("buzzvil");
-  const [serviceType, setServiceType] = useState<"search" | "wishlist">("search");
   const [productName, setProductName] = useState("제주 오메기떡 선물 택배 50개입");
   const [productUrl, setProductUrl] = useState("https://smartstore.naver.com/");
   const [rankKeyword, setRankKeyword] = useState("오메기떡 선물세트");
@@ -150,44 +149,6 @@ export default function ShoppingCampaignPage() {
         <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
           <h2 className="text-[15px] font-extrabold text-brand-dark">서비스 선택</h2>
 
-          {/* 서비스 타입 */}
-          <div className="flex gap-3">
-            {[
-              {
-                id: "search",
-                label: "검색하기",
-                icon: (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="11" cy="11" r="8" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
-                  </svg>
-                ),
-              },
-              {
-                id: "wishlist",
-                label: "찜하기",
-                icon: (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                ),
-              },
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setServiceType(s.id as "search" | "wishlist")}
-                className={`flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl border-2 transition-all ${
-                  serviceType === s.id
-                    ? "border-brand-primary bg-brand-primary/5 text-brand-primary"
-                    : "border-brand-border text-brand-muted hover:border-brand-primary/40"
-                }`}
-              >
-                {s.icon}
-                <span className="text-[12px] font-bold">{s.label}</span>
-              </button>
-            ))}
-          </div>
-
           {/* 가격 */}
           <div className="flex items-center justify-between py-3 border-t border-brand-border">
             <span className="text-[14px] text-brand-sub">가격</span>
@@ -205,7 +166,7 @@ export default function ShoppingCampaignPage() {
             <div className="h-3 rounded-full bg-brand-lighter overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#3182F6,#8B5CF6)" }}
+                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#0341C7,#8B5CF6)" }}
               />
             </div>
           </div>

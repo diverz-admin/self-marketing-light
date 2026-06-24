@@ -1,28 +1,7 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 const REVIEW_TYPES = [
-  {
-    href: "/marketing/review/shopping/blog-reporter",
-    label: "블로그리뷰(기자단)",
-    desc: "전문 블로거 기자단이 상품을 직접 사용·분석 후 고품질 콘텐츠를 작성합니다. SEO 최적화된 리뷰로 검색 노출을 극대화합니다.",
-    grad: "linear-gradient(135deg,#3182F6,#6366F1)",
-    iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z",
-    tag: "고품질",
-    tagBg: "bg-blue-50",
-    tagText: "text-blue-600",
-    points: ["전문 기자단 네트워크", "고조회수 블로그 콘텐츠", "SEO 최적화 리뷰"],
-  },
-  {
-    href: "/marketing/review/shopping/blog-experience",
-    label: "블로그리뷰(체험단)",
-    desc: "체험단 회원들이 직접 구매 후 솔직한 상품 후기를 작성합니다. 자연스러운 입소문으로 신규 구매자 유입을 늘립니다.",
-    grad: "linear-gradient(135deg,#10B981,#059669)",
-    iconPath: "M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z",
-    tag: "입소문",
-    tagBg: "bg-emerald-50",
-    tagText: "text-emerald-600",
-    points: ["대규모 체험단 풀", "자연스러운 바이럴 효과", "실구매 후 솔직 후기"],
-  },
   {
     href: "/marketing/review/shopping/product-experience",
     label: "상품 체험단",
@@ -37,6 +16,7 @@ const REVIEW_TYPES = [
 ];
 
 export default function ShoppingReviewDashboard() {
+  redirect("/marketing/review/shopping/product-experience");
   return (
     <div className="w-full space-y-6">
 
@@ -47,9 +27,9 @@ export default function ShoppingReviewDashboard() {
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
-          <span className="text-brand-text font-medium">네이버 쇼핑 체험단</span>
+          <span className="text-brand-text font-medium">네이버 쇼핑 리뷰</span>
         </div>
-        <h1 className="text-[22px] font-extrabold text-brand-dark tracking-tight">네이버 쇼핑 체험단</h1>
+        <h1 className="text-[22px] font-extrabold text-brand-dark tracking-tight">네이버 쇼핑 리뷰</h1>
         <p className="text-[14px] text-brand-sub mt-1">리뷰 유형을 선택하여 캠페인을 시작하세요.</p>
       </div>
 

@@ -7,7 +7,7 @@ import Link from "next/link";
 const MEDIA_GROUPS = [
   {
     category: "공통",
-    color: "#3182F6",
+    color: "#0341C7",
     items: [
       { id: "olstar",  name: "올스타",  desc: "1일 단위 구독",  sale: true,  bg: "#1C1C2E", textColor: "white", initial: "O" },
       { id: "aura",    name: "아우라",  desc: "신규오파일",     sale: true,  bg: "linear-gradient(135deg,#667eea,#764ba2)", textColor: "white", initial: "A" },
@@ -20,7 +20,7 @@ const MEDIA_GROUPS = [
     color: "#F97316",
     items: [
       { id: "seven",   name: "세븐",   desc: "상세 안내 필독",  sale: false, bg: "linear-gradient(135deg,#FF6B6B,#FF8E53)", textColor: "white", initial: "7", bookmarked: true },
-      { id: "andrew",  name: "앤드류", desc: "신규 참여루쓰",   sale: false, bg: "#3182F6", textColor: "white", initial: "앤" },
+      { id: "andrew",  name: "앤드류", desc: "신규 참여루쓰",   sale: false, bg: "#0341C7", textColor: "white", initial: "앤" },
       { id: "gamgyul", name: "감귤",   desc: "맛집 최적화",    sale: false, bg: "linear-gradient(135deg,#FB923C,#FBBF24)", textColor: "white", initial: "감" },
       { id: "prima",   name: "프리마", desc: "IP 디타겟팅",    sale: true,  bg: "linear-gradient(135deg,#6366F1,#8B5CF6)", textColor: "white", initial: "P", bookmarked: true },
       { id: "golden",  name: "골든",   desc: "신로직 세팅",    sale: false, bg: "linear-gradient(135deg,#F59E0B,#EF4444)", textColor: "white", initial: "G", bookmarked: true },
@@ -57,7 +57,6 @@ function efficiencyLabel(v: number) {
 /* ── Page ── */
 export default function PlaceCampaignPage() {
   const [selectedMedia, setSelectedMedia] = useState("buzzvil");
-  const [serviceType, setServiceType] = useState<"search" | "save">("search");
   const [placeName, setPlaceName] = useState("대박갈비 일산동구청정");
   const [placeLink, setPlaceLink] = useState("https://m.place.naver.com/");
   const [rankKeyword, setRankKeyword] = useState("경주물밀라");
@@ -165,27 +164,6 @@ export default function PlaceCampaignPage() {
         <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
           <h2 className="text-[15px] font-extrabold text-brand-dark">서비스 선택</h2>
 
-          {/* 서비스 타입 */}
-          <div className="flex gap-3">
-            {[
-              { id: "search", label: "검색하기", icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35"/></svg> },
-              { id: "save",   label: "저장하기", icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg> },
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setServiceType(s.id as "search" | "save")}
-                className={`flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl border-2 transition-all ${
-                  serviceType === s.id
-                    ? "border-brand-primary bg-brand-primary/5 text-brand-primary"
-                    : "border-brand-border text-brand-muted hover:border-brand-primary/40"
-                }`}
-              >
-                {s.icon}
-                <span className="text-[12px] font-bold">{s.label}</span>
-              </button>
-            ))}
-          </div>
-
           {/* 가격 */}
           <div className="flex items-center justify-between py-3 border-t border-brand-border">
             <span className="text-[14px] text-brand-sub">가격</span>
@@ -201,7 +179,7 @@ export default function PlaceCampaignPage() {
             <div className="h-3 rounded-full bg-brand-lighter overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#3182F6,#8B5CF6)" }}
+                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#0341C7,#8B5CF6)" }}
               />
             </div>
           </div>

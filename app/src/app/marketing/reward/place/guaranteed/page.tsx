@@ -163,7 +163,7 @@ const PROCESS = [
   { step: "01", title: "플레이스 분석",    desc: "키워드 현재 순위·경쟁 플레이스·리뷰 점수를 분석하여 5순위 달성 가능성을 진단합니다." },
   { step: "02", title: "트래픽 설계",      desc: "리워드 유입 방식으로 실제 사용자가 키워드 검색 후 플레이스를 방문·저장하도록 설계합니다." },
   { step: "03", title: "캠페인 집행",      desc: "검증된 매체사를 통해 자연스러운 유입을 일별로 조절하며 알고리즘 페널티 없이 순위를 끌어올립니다." },
-  { step: "04", title: "순위 모니터링",    desc: "매일 키워드 순위를 트래킹하고 목표 순위 이탈 시 즉시 트래픽을 보강합니다." },
+  { step: "04", title: "순위 모니터링",    desc: "매일 키워드 순위를 트래킹합니다. 1~5순위 유지 일수만 보장 기간(25일)으로 카운트되며, 순위 이탈 시 카운트가 멈추고 즉시 트래픽을 보강합니다." },
   { step: "05", title: "보장 완료 & 리포트", desc: "5순위 이내 달성 확인 후 리포트를 제공합니다. 미달성 시 전액 환불 처리됩니다." },
 ];
 
@@ -214,6 +214,10 @@ const FAQS = [
   {
     q: "키워드를 여러 개 설정할 수 있나요?",
     a: "기본 플랜은 키워드 1개 기준입니다. 추가 키워드는 별도 문의를 통해 맞춤 견적을 안내해드립니다.",
+  },
+  {
+    q: "25일 보장은 어떻게 계산되나요?",
+    a: "보장 기간은 총 25일입니다. 단, 1~5순위 안에 머문 날만 카운트됩니다. 순위가 6위 이하로 이탈한 날은 카운트가 멈추고, 트래픽 보강 후 다시 5순위 이내로 복귀한 날부터 카운트가 재개됩니다. 25일이 누적되면 보장 완료로 처리됩니다.",
   },
 ];
 
@@ -454,6 +458,7 @@ export default function PlaceGuaranteedPage() {
               <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">보장 현황</p>
               {[
                 { label: "보장 순위", value: "5위 이내" },
+                { label: "보장 기간", value: "25일" },
                 { label: "평균 달성 기간", value: "7~14일" },
                 { label: "달성률 (6개월)", value: "92%" },
                 { label: "미달성 환불", value: "100%" },
@@ -463,6 +468,9 @@ export default function PlaceGuaranteedPage() {
                   <span className="text-[12px] font-extrabold text-brand-dark">{s.value}</span>
                 </div>
               ))}
+              <p className="text-[10px] text-brand-muted leading-relaxed mt-2">
+                * 1~5순위 유지 일수만 카운트됩니다. 순위 이탈 시 카운트 일시 정지 후 복귀 시 재개.
+              </p>
             </div>
 
             {/* 포함 항목 카드 */}

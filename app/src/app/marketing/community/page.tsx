@@ -8,8 +8,8 @@ const SECTIONS = [
     desc: "마케팅 노하우, 정보, 질문을 자유롭게 공유하세요.",
     icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M12 11v4m0 0h-1.5M12 15h1.5",
     count: "7개 게시글",
-    color: "#3182F6",
-    bg: "linear-gradient(135deg,#3182F6,#1B64DA)",
+    color: "#0341C7",
+    bg: "linear-gradient(135deg,#0341C7,#0235A8)",
   },
   {
     href: "/marketing/community/openchat",

@@ -1,2 +1,21 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# Next.js build output
+app/.next/
+app/out/
+
+# Vercel
 .vercel
+
+# exports
 html-export/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store

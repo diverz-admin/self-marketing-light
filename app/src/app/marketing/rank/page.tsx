@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 /* ── Types ── */
-type Platform = "naver_place" | "naver_shopping" | "coupang" | "musinsa" | "ohouse";
+type Platform = "naver_place" | "naver_shopping";
 
 interface RankItem {
   id: number;
@@ -43,8 +43,8 @@ const PLATFORM_META: Record<Platform, {
   },
   naver_shopping: {
     label: "네이버 쇼핑",
-    color: "#3182F6",
-    grad: "linear-gradient(135deg,#3182F6,#1B64DA)",
+    color: "#0341C7",
+    grad: "linear-gradient(135deg,#0341C7,#0235A8)",
     emoji: "🛍️",
     placeholder: "예) 여성 패딩, 무스탕 자켓",
     urlLabel: "상품 URL 또는 상품 ID",
@@ -53,51 +53,6 @@ const PLATFORM_META: Record<Platform, {
     urlInputPlaceholder: "상품 URL 또는 상품 ID를 입력하세요",
     exampleUrl: "https://smartstore.naver.com/store/products/9001234567",
     exampleId: "9001234567",
-    urlRegex: /products\/(\d+)/,
-    keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
-  },
-  coupang: {
-    label: "쿠팡",
-    color: "#F97316",
-    grad: "linear-gradient(135deg,#F97316,#EA580C)",
-    emoji: "📦",
-    placeholder: "예) 에어프라이어, 무선청소기",
-    urlLabel: "상품 URL 또는 상품 ID",
-    urlPlaceholder: "https://www.coupang.com/vp/products/123456  또는  123456",
-    urlFieldLabel: "쿠팡 상품 주소(URL) 혹은 ID",
-    urlInputPlaceholder: "상품 URL 또는 상품 ID를 입력하세요",
-    exampleUrl: "https://www.coupang.com/vp/products/7654321098",
-    exampleId: "7654321098",
-    urlRegex: /products\/(\d+)/,
-    keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
-  },
-  musinsa: {
-    label: "무신사",
-    color: "#1A1A1A",
-    grad: "linear-gradient(135deg,#1A1A1A,#3D3D3D)",
-    emoji: "👕",
-    placeholder: "예) 오버핏 후드티, 나이키 스니커즈",
-    urlLabel: "상품 URL 또는 상품 번호",
-    urlPlaceholder: "https://www.musinsa.com/app/goods/1234567  또는  1234567",
-    urlFieldLabel: "무신사 상품 주소(URL) 혹은 ID",
-    urlInputPlaceholder: "상품 URL 또는 상품 번호를 입력하세요",
-    exampleUrl: "https://www.musinsa.com/app/goods/2341567",
-    exampleId: "2341567",
-    urlRegex: /goods\/(\d+)/,
-    keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
-  },
-  ohouse: {
-    label: "오늘의집",
-    color: "#00BCD4",
-    grad: "linear-gradient(135deg,#00BCD4,#0097A7)",
-    emoji: "🏠",
-    placeholder: "예) 북유럽 소파, 원목 책상",
-    urlLabel: "상품 URL 또는 상품 ID",
-    urlPlaceholder: "https://ohou.se/products/1234567  또는  1234567",
-    urlFieldLabel: "오늘의집 상품 주소(URL) 혹은 ID",
-    urlInputPlaceholder: "상품 URL 또는 상품 ID를 입력하세요",
-    exampleUrl: "https://ohou.se/products/8873421",
-    exampleId: "8873421",
     urlRegex: /products\/(\d+)/,
     keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
   },
@@ -113,19 +68,6 @@ const MOCK_DATA: Record<Platform, RankItem[]> = {
     { id: 1, keyword: "여성 패딩", productName: "버터플라이 구스다운 자켓", targetUrl: "https://smartstore.naver.com/butterfly/products/9001234567", currentRank: 8, prevRank: 16, bestRank: 5, history: [74, 35, 53, 36, 19, 12, 8], checkedAt: "15분 전", status: "active" },
     { id: 2, keyword: "무스탕 자켓", productName: "아우라 무스탕 코트", targetUrl: "https://smartstore.naver.com/aura/products/8887776665", currentRank: 22, prevRank: 20, bestRank: 14, history: [40, 38, 30, 28, 22, 20, 22], checkedAt: "15분 전", status: "active" },
     { id: 3, keyword: "캐시미어 니트", productName: "소프트 캐시미어 터틀넥", targetUrl: "5556667778", currentRank: null, prevRank: null, bestRank: 35, history: [55, 50, 45, 40, null, null, null], checkedAt: "집계 중", status: "paused" },
-  ],
-  coupang: [
-    { id: 1, keyword: "에어프라이어", productName: "필립스 에어프라이어 6L", targetUrl: "https://www.coupang.com/vp/products/7654321098", currentRank: 4, prevRank: 7, bestRank: 2, history: [20, 15, 12, 10, 8, 7, 4], checkedAt: "5분 전", status: "active" },
-    { id: 2, keyword: "무선청소기", productName: "다이슨 V15 무선청소기", targetUrl: "3210987654", currentRank: 11, prevRank: 11, bestRank: 8, history: [15, 13, 11, 12, 11, 11, 11], checkedAt: "5분 전", status: "active" },
-  ],
-  musinsa: [
-    { id: 1, keyword: "오버핏 후드티", productName: "커버낫 오버핏 후드티", targetUrl: "https://www.musinsa.com/app/goods/2341567", currentRank: 6, prevRank: 9, bestRank: 3, history: [25, 20, 15, 12, 10, 9, 6], checkedAt: "20분 전", status: "active" },
-    { id: 2, keyword: "나이키 스니커즈", productName: "나이키 에어포스1 화이트", targetUrl: "1047823", currentRank: 2, prevRank: 2, bestRank: 1, history: [5, 4, 3, 2, 2, 2, 2], checkedAt: "20분 전", status: "active" },
-    { id: 3, keyword: "청바지 남성", productName: "리바이스 501 슬림 청바지", targetUrl: "3892045", currentRank: 18, prevRank: 14, bestRank: 10, history: [8, 10, 10, 12, 14, 14, 18], checkedAt: "20분 전", status: "active" },
-  ],
-  ohouse: [
-    { id: 1, keyword: "북유럽 소파", productName: "리바트 3인용 패브릭 소파", targetUrl: "https://ohou.se/products/8873421", currentRank: 5, prevRank: 8, bestRank: 3, history: [22, 18, 14, 12, 9, 8, 5], checkedAt: "30분 전", status: "active" },
-    { id: 2, keyword: "원목 책상", productName: "아이베베 원목 스터디 책상", targetUrl: "4421893", currentRank: 12, prevRank: 10, bestRank: 7, history: [18, 15, 12, 10, 10, 10, 12], checkedAt: "30분 전", status: "active" },
   ],
 };
 
@@ -385,7 +327,7 @@ export default function RankManagementPage() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-[22px] font-extrabold text-brand-dark leading-tight">통합 순위관리</h1>
-          <p className="text-[14px] text-brand-sub mt-1">네이버, 쿠팡, 무신사, 오늘의집 키워드 순위를 한 곳에서 추적하세요.</p>
+          <p className="text-[14px] text-brand-sub mt-1">네이버 플레이스, 네이버 쇼핑 키워드 순위를 한 곳에서 추적하세요.</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -503,7 +445,7 @@ export default function RankManagementPage() {
                   type="text"
                   value={keywords[0]}
                   onChange={e => setKeyword(0, e.target.value)}
-                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 맛집" : meta.exampleUrl.includes("naver") ? "여성 패딩" : meta.exampleUrl.includes("coupang") ? "에어프라이어" : meta.exampleUrl.includes("musinsa") ? "오버핏 후드" : "북유럽 소파"}`}
+                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 맛집" : "여성 패딩"}`}
                   className="w-full px-4 py-3 border border-brand-border rounded-xl text-[14px] bg-brand-lighter placeholder-brand-muted text-brand-dark focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                 />
               </div>
@@ -515,7 +457,7 @@ export default function RankManagementPage() {
                   type="text"
                   value={keywords[1]}
                   onChange={e => setKeyword(1, e.target.value)}
-                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 순대국" : meta.exampleUrl.includes("naver") ? "겨울 자켓" : meta.exampleUrl.includes("coupang") ? "소형 에어프라이어" : meta.exampleUrl.includes("musinsa") ? "오버핏 맨투맨" : "원목 책상"}`}
+                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 순대국" : "겨울 자켓"}`}
                   className="w-full px-4 py-3 border border-brand-border rounded-xl text-[14px] bg-brand-lighter placeholder-brand-muted text-brand-dark focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                 />
               </div>
@@ -527,7 +469,7 @@ export default function RankManagementPage() {
                   type="text"
                   value={keywords[2]}
                   onChange={e => setKeyword(2, e.target.value)}
-                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 점심" : meta.exampleUrl.includes("naver") ? "패딩 점퍼" : meta.exampleUrl.includes("coupang") ? "6L 에어프라이어" : meta.exampleUrl.includes("musinsa") ? "스트릿 후드티" : "스칸디나비아 소파"}`}
+                  placeholder={`ex. ${meta.exampleUrl.includes("place") ? "을지로 점심" : "패딩 점퍼"}`}
                   className="w-full px-4 py-3 border border-brand-border rounded-xl text-[14px] bg-brand-lighter placeholder-brand-muted text-brand-dark focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                 />
               </div>
@@ -703,36 +645,6 @@ export default function RankManagementPage() {
                     "네이버쇼핑 검색 결과 내 상품 순위입니다.",
                     "통합스토어 / 가격비교 각각 순위가 다릅니다.",
                     "클릭수, 구매전환율이 순위에 영향을 미칩니다.",
-                  ].map((t, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{ background: meta.color }} />
-                      <p className="text-[13px] text-brand-sub">{t}</p>
-                    </div>
-                  ))}
-                  {activePlatform === "coupang" && [
-                    "쿠팡 검색 결과 노출 순위입니다.",
-                    "로켓배송 여부, 리뷰 수, 판매량이 반영됩니다.",
-                    "카테고리별 인기 순위와 검색 순위가 다를 수 있습니다.",
-                  ].map((t, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{ background: meta.color }} />
-                      <p className="text-[13px] text-brand-sub">{t}</p>
-                    </div>
-                  ))}
-                  {activePlatform === "musinsa" && [
-                    "무신사 스토어 검색 결과 순위입니다.",
-                    "찜 수, 리뷰 수, 최근 판매량이 반영됩니다.",
-                    "인기 순위와 신상품 순위는 별도로 집계됩니다.",
-                  ].map((t, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{ background: meta.color }} />
-                      <p className="text-[13px] text-brand-sub">{t}</p>
-                    </div>
-                  ))}
-                  {activePlatform === "ohouse" && [
-                    "오늘의집 검색 결과 상품 순위입니다.",
-                    "스크랩 수, 구매 후기, 조회수가 반영됩니다.",
-                    "카테고리 인기 순위와 검색 순위가 다를 수 있습니다.",
                   ].map((t, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <div className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{ background: meta.color }} />

@@ -50,10 +50,8 @@ const REVIEW_STATUS_CONFIG: Record<string, { bg: string; text: string }> = {
 };
 
 const DEFAULT_TABS = [
-  { label: "블로그리뷰(기자단)", href: "/marketing/review/place/manage" },
-  { label: "블로그리뷰(체험단)", href: "/marketing/review/place/manage/blog-experience" },
-  { label: "방문자리뷰",         href: "/marketing/review/place/manage/visitor" },
-  { label: "예약자리뷰",         href: "/marketing/review/place/manage/reservation" },
+  { label: "블로그배포", href: "/marketing/review/place/manage" },
+  { label: "영수증리뷰", href: "/marketing/review/place/manage/receipt" },
 ];
 
 const FILTER_OPTIONS = ["진행중", "대기중", "일시정지", "완료", "전체"];
