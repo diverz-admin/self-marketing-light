@@ -1,0 +1,14 @@
+{
+  "name": "self-marketing-6000",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix app",
+    "build": "npm run build --prefix app",
+    "start": "npm run start --prefix app",
+    "lint": "npm run lint --prefix app",
+    "db:push": "npm run db:push --prefix app",
+    "db:studio": "npm run db:studio --prefix app",
+    "db:generate": "npm run db:generate --prefix app",
+    "install": "npm install --prefix app"
+  }
+}
