@@ -767,8 +767,8 @@ export default function NaverCafePage() {
         {/* ── RIGHT: Fixed CTA 패널 ── */}
         <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
         <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8 xl:right-[288px]"
-          style={{ top: "92px", maxHeight: "calc(100vh - 108px)", overflowY: "auto" }}
+          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
+          style={{ top: "92px", maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
         >
           <div className="space-y-3 pb-3">
 

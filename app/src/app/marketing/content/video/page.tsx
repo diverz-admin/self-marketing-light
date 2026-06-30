@@ -363,7 +363,7 @@ export default function VideoPage() {
 
         {/* ── 우측 고정 CTA 패널 ────── */}
         <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8 xl:right-[288px]"
+          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
           style={{ top: "92px" }}
         >
           <div className="rounded-2xl overflow-hidden shadow-xl border border-orange-100">

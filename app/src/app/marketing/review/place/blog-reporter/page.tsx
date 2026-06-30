@@ -9,36 +9,23 @@ const TABS = [
   { label: "영수증리뷰", href: "/marketing/review/place/receipt" },
 ];
 
-
-function ImageUploadBox({ bordered }: { bordered?: boolean }) {
-  return (
-    <button
-      className={`aspect-square w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-colors ${
-        bordered ? "border-brand-primary/50 bg-brand-lighter" : "border-brand-border bg-white hover:bg-brand-lighter"
-      }`}
-    >
-      <svg className="w-7 h-7 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-      </svg>
-      <span className="text-[12px] text-brand-muted">이미지 추가</span>
-    </button>
-  );
-}
-
 export default function BlogReporterPage() {
   const pathname = usePathname();
 
   const [postingType, setPostingType] = useState("후기성");
-  const [titleType, setTitleType] = useState("업체명");
   const [campaignName, setCampaignName] = useState("대박갈비 일산동구청점");
+  const [placePid, setPlacePid] = useState("");
+  const [placeLink, setPlaceLink] = useState("");
   const [businessName, setBusinessName] = useState("대박갈비 일산동구청점");
   const [mainKeyword, setMainKeyword] = useState("");
   const [hashtagInput, setHashtagInput] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [businessInfo, setBusinessInfo] = useState("");
   const [postingUrl, setPostingUrl] = useState("");
-  const [totalCount, setTotalCount] = useState(10);
-  const [dailyCount, setDailyCount] = useState("");
+  const [useCustomImage, setUseCustomImage] = useState(false);
+  const [startDate, setStartDate] = useState("2026-06-24");
+  const [issueDays, setIssueDays] = useState(7);
+  const [dailyVolume, setDailyVolume] = useState(5);
   const [agreements, setAgreements] = useState({ req1: false, req2: false, opt1: false, opt2: false });
   const [submitted, setSubmitted] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -127,63 +114,57 @@ export default function BlogReporterPage() {
               </span>
               <div>
                 <h2 className="text-[15px] font-bold text-brand-dark">스케줄 설정</h2>
-                <p className="text-[12px] text-brand-sub">캠페인 기간과 모집 인원을 설정하세요</p>
+                <p className="text-[12px] text-brand-sub">발행 기간과 일발행량을 설정하세요</p>
               </div>
             </div>
 
-            {/* 모집 기간 */}
-            <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-0.5">
-                모집 기간 <span className="text-red-500">*</span>
-              </p>
-              <p className="text-[11.5px] text-brand-primary font-normal mb-2">(익일 구동 접수 마감 오후 5시)</p>
-              <button className="w-full flex items-center gap-2 px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-muted bg-brand-lighter hover:bg-white transition-colors">
-                <svg className="w-4 h-4 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                시작일 ~ 종료일 선택
-              </button>
-            </div>
-
-            {/* 모집 인원 */}
-            <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-3">모집 인원 <span className="text-red-500">*</span></p>
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] text-brand-sub shrink-0">총</span>
-                <input
-                  type="number"
-                  value={totalCount}
-                  onChange={(e) => setTotalCount(Math.max(1, Number(e.target.value)))}
-                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[20px] font-extrabold text-brand-primary text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-                  min={1}
-                />
-                <span className="text-[13px] text-brand-sub shrink-0">/</span>
-                <span className="text-[13px] text-brand-sub shrink-0">일</span>
-                <input
-                  type="number"
-                  value={dailyCount}
-                  onChange={(e) => setDailyCount(e.target.value)}
-                  placeholder="일"
-                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[14px] font-bold text-brand-dark text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-                  min={1}
-                />
+            <div className="grid grid-cols-2 gap-4">
+              {/* 발행 시작일 */}
+              <div>
+                <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                  발행 시작일 <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                </div>
+                <p className="text-[11.5px] text-brand-muted mt-1">원하는 발행 시작일을 선택해주세요</p>
               </div>
-            </div>
 
-            {/* 모집 인원 주의사항 */}
-            <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-              <p className="text-[12.5px] font-extrabold text-red-600 mb-2">모집 인원 관련 주의사항</p>
-              <ul className="space-y-1.5">
-                {[
-                  "1일 오픈 건 수 부족 시 마지막 날 잔여 수량이 전부 오픈됩니다.",
-                  "인원 오기입으로 인해 발생되는 문제는 책임지지 않습니다.",
-                ].map((note, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px] text-red-500">
-                    <span className="font-bold shrink-0 mt-px">⊕</span>
-                    {note}
-                  </li>
-                ))}
-              </ul>
+              {/* 발행 일수 */}
+              <div>
+                <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                  발행 일수 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={issueDays}
+                  onChange={(e) => setIssueDays(Math.min(7, Math.max(1, Number(e.target.value))))}
+                  min={1}
+                  max={7}
+                  className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                />
+                <p className="text-[11.5px] text-brand-muted mt-1">1~7일 사이로 입력해주세요</p>
+              </div>
+
+              {/* 일발행량 */}
+              <div>
+                <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                  일발행량 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={dailyVolume}
+                  onChange={(e) => setDailyVolume(Math.max(1, Number(e.target.value)))}
+                  min={1}
+                  className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                />
+                <p className="text-[11.5px] text-brand-muted mt-1">하루에 발행할 건수를 입력해주세요</p>
+              </div>
             </div>
           </div>
 
@@ -201,26 +182,45 @@ export default function BlogReporterPage() {
               </div>
             </div>
 
+            {/* 플레이스 PID */}
+            <div>
+              <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                플레이스 PID <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  value={placePid}
+                  onChange={(e) => setPlacePid(e.target.value)}
+                  placeholder="업체명을 검색하세요"
+                  className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                />
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </div>
+              <p className="text-[11.5px] text-brand-muted mt-1">업체명 검색 또는 PID 숫자를 직접 입력하세요</p>
+            </div>
+
+            {/* 플레이스 링크 */}
+            <div>
+              <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                플레이스 링크 <span className="text-red-500">*</span>
+              </label>
+              <input
+                value={placeLink}
+                onChange={(e) => setPlaceLink(e.target.value)}
+                placeholder="https://m.place.naver.com/restaurant/..."
+                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+              />
+            </div>
+
             {/* 포스팅 유형 */}
             <div>
               <p className="text-[13px] font-semibold text-brand-dark mb-2.5">포스팅 유형 <span className="text-red-500">*</span></p>
               <div className="flex items-center gap-6">
-                {["후기성", "정보성", "자유성"].map((v) => (
+                {["후기성", "정보성"].map((v) => (
                   <label key={v} className="flex items-center gap-1.5 cursor-pointer">
                     <input type="radio" name="postingType" checked={postingType === v} onChange={() => setPostingType(v)} className="w-4 h-4 accent-[#0341C7]" />
-                    <span className="text-[13px] text-brand-dark">{v}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* 제목 유형 */}
-            <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-2.5">제목 유형 <span className="text-red-500">*</span></p>
-              <div className="flex items-center gap-6 flex-wrap">
-                {["업체명", "업체명 + 키워드", "키워드"].map((v) => (
-                  <label key={v} className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="titleType" checked={titleType === v} onChange={() => setTitleType(v)} className="w-4 h-4 accent-[#0341C7]" />
                     <span className="text-[13px] text-brand-dark">{v}</span>
                   </label>
                 ))}
@@ -298,57 +298,66 @@ export default function BlogReporterPage() {
               </span>
               <div>
                 <h2 className="text-[15px] font-bold text-brand-dark">이미지 등록</h2>
-                <p className="text-[12px] text-brand-sub">썸네일 및 포스팅 이미지를 첨부해 주세요</p>
+                <p className="text-[12px] text-brand-sub">기본적으로 네이버 플레이스에 등록된 이미지를 사용합니다</p>
               </div>
             </div>
 
-            {/* 썸네일 + 상세 이미지 */}
+            {/* 포스팅 이미지 직접 전달 토글 */}
             <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-3">
-                썸네일 이미지 <span className="text-red-500">*</span>{" "}
-                <span className="text-[12px] font-normal text-brand-primary">+ 상세 이미지(최대 3장)</span>
-              </p>
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <ImageUploadBox bordered />
-                <ImageUploadBox />
-                <ImageUploadBox />
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <ImageUploadBox />
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[13px] font-semibold text-brand-dark">포스팅 이미지 직접 전달 <span className="text-[12px] font-normal text-brand-sub">(선택)</span></p>
+                  <p className="text-[12px] text-brand-sub mt-0.5">
+                    {useCustomImage ? "구글 드라이브 링크로 전달한 이미지를 사용합니다" : "네이버 플레이스에 등록된 이미지를 사용합니다"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={useCustomImage}
+                  onClick={() => setUseCustomImage((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${useCustomImage ? "bg-green-500" : "bg-brand-border"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${useCustomImage ? "translate-x-6" : "translate-x-1"}`} />
+                </button>
               </div>
             </div>
 
-            {/* 포스팅 이미지 URL */}
-            <div>
-              <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
-                포스팅 이미지 <span className="text-red-500">*</span>{" "}
-                <span className="text-[12px] font-normal text-brand-primary cursor-pointer hover:underline">(구글 드라이브링크)</span>
-              </label>
-              <input
-                value={postingUrl}
-                onChange={(e) => setPostingUrl(e.target.value)}
-                placeholder="https://drive.google.com/drive/folders/..."
-                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
-              />
-            </div>
+            {useCustomImage && (
+              <>
+                {/* 포스팅 이미지 URL */}
+                <div>
+                  <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                    포스팅 이미지{" "}
+                    <span className="text-[12px] font-normal text-brand-primary cursor-pointer hover:underline">(구글 드라이브링크)</span>
+                  </label>
+                  <input
+                    value={postingUrl}
+                    onChange={(e) => setPostingUrl(e.target.value)}
+                    placeholder="https://drive.google.com/drive/folders/..."
+                    className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                </div>
 
-            {/* AI 주의사항 */}
-            <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-              <p className="text-[12.5px] font-extrabold text-red-600 mb-2">AI 이미지 자동 분류기 사용 주의사항</p>
-              <ul className="space-y-1.5">
-                {[
-                  "구글 드라이브 링크만 가능합니다.",
-                  "반드시 공개엑세스로 설정해주세요.",
-                  "인물 모자이크를 지원하지 않습니다.",
-                  "드라이브에는 이미지 파일만 존재해야합니다.(폴더 포함X)",
-                ].map((note, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px] text-red-500">
-                    <span className="font-bold shrink-0 mt-px">⊕</span>
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* AI 주의사항 */}
+                <div className="p-4 rounded-xl bg-red-50 border border-red-100">
+                  <p className="text-[12.5px] font-extrabold text-red-600 mb-2">AI 이미지 자동 분류기 사용 주의사항</p>
+                  <ul className="space-y-1.5">
+                    {[
+                      "구글 드라이브 링크만 가능합니다.",
+                      "반드시 공개엑세스로 설정해주세요.",
+                      "인물 모자이크를 지원하지 않습니다.",
+                      "드라이브에는 이미지 파일만 존재해야합니다.(폴더 포함X)",
+                    ].map((note, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[12px] text-red-500">
+                        <span className="font-bold shrink-0 mt-px">⊕</span>
+                        {note}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
 
         </div>

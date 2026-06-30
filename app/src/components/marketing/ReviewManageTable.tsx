@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 export type Applicant = {
   name: string;
@@ -26,8 +26,10 @@ export type Campaign = {
   status: string;
   startDate: string;
   endDate: string;
+  requestDate?: string;
   amount: number;
   type: string;
+  channel?: string;
   productType?: "제품제공" | "제품미제공";
   postingUrl: string;
   hashtags: string[];
@@ -78,11 +80,10 @@ function AccordionDetail({
 }: AccordionDetailProps) {
   const pct = campaign.totalCount === 0 ? 0 : Math.round((campaign.doneCount / campaign.totalCount) * 100);
   const infoItems = [
-    { label: "캠페인 유형",   value: campaign.type },
-    ...(campaign.productType ? [{ label: "제품 제공 여부", value: campaign.productType }] : []),
+    { label: "캠페인 유형",   value: campaign.productType ?? campaign.type },
     { label: "등록 URL",      value: campaign.postingUrl, link: true },
     { label: "해시태그",      value: campaign.hashtags.join("  ") },
-    { label: "모집 기간",     value: `${campaign.startDate} ~ ${campaign.endDate}` },
+    { label: "캠페인 요청일", value: campaign.requestDate ?? campaign.startDate },
     { label: "결제 금액",     value: `${campaign.amount.toLocaleString()}원` },
   ];
 
@@ -236,6 +237,7 @@ type Props = {
   showReviewStatus?: boolean;
   showApplicants?: boolean;
   showPostUrls?: boolean;
+  showChannel?: boolean;
 };
 
 export default function ReviewManageTable({
@@ -249,6 +251,7 @@ export default function ReviewManageTable({
   showReviewStatus = true,
   showApplicants = true,
   showPostUrls = false,
+  showChannel = false,
 }: Props) {
   const pathname = usePathname();
   const [filter, setFilter] = useState("진행중");
@@ -359,7 +362,7 @@ export default function ReviewManageTable({
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
                 <th className="w-10" />
-                {["캠페인명", "키워드", "모집 인원", "진행률", "기간", "결제 금액", "상태", "관리"].map((h) => (
+                {["캠페인명", ...(showChannel ? ["채널"] : []), "키워드", "모집 인원", "진행률", "캠페인 요청일", "결제 금액", "상태"].map((h) => (
                   <th key={h} className="px-4 py-3 text-[11px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -367,7 +370,7 @@ export default function ReviewManageTable({
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-16 text-center text-[14px] text-brand-muted">
+                  <td colSpan={showChannel ? 9 : 8} className="px-4 py-16 text-center text-[14px] text-brand-muted">
                     조건에 맞는 캠페인이 없습니다.
                   </td>
                 </tr>
@@ -376,9 +379,8 @@ export default function ReviewManageTable({
                 const isOpen = expandedId === c.id;
                 const pct = c.totalCount === 0 ? 0 : Math.round((c.doneCount / c.totalCount) * 100);
                 return (
-                  <>
+                  <Fragment key={c.id}>
                     <tr
-                      key={c.id}
                       onClick={() => toggleExpand(c.id)}
                       className={`border-b border-brand-border cursor-pointer transition-colors ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/40"}`}
                     >
@@ -398,6 +400,13 @@ export default function ReviewManageTable({
                           }`}>{c.productType}</span>
                         )}
                       </td>
+                      {showChannel && (
+                        <td className="px-4 py-3.5">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                            c.channel === "쿠팡" ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"
+                          }`}>{c.channel ?? "네이버 쇼핑"}</span>
+                        </td>
+                      )}
                       <td className="px-4 py-3.5">
                         <span className="text-[12px] text-brand-sub">{c.keyword}</span>
                       </td>
@@ -417,9 +426,7 @@ export default function ReviewManageTable({
                         </div>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[11.5px] text-brand-sub">{c.startDate}</span>
-                        <span className="text-brand-muted mx-1">~</span>
-                        <span className="text-[11.5px] text-brand-sub">{c.endDate}</span>
+                        <span className="text-[11.5px] text-brand-sub">{c.requestDate ?? c.startDate}</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span className="text-[13px] font-extrabold text-brand-dark">{c.amount.toLocaleString()}</span>
@@ -428,24 +435,10 @@ export default function ReviewManageTable({
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
                       </td>
-                      <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-1.5">
-                          {c.status === "running" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">일시정지</button>
-                          )}
-                          {c.status === "paused" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">재시작</button>
-                          )}
-                          {c.status !== "done" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">중단</button>
-                          )}
-                          {c.status === "done" && <span className="text-[11px] text-brand-muted">-</span>}
-                        </div>
-                      </td>
                     </tr>
                     {isOpen && (
                       <tr key={`${c.id}-detail`} className="border-b border-brand-border">
-                        <td colSpan={9} className="p-0">
+                        <td colSpan={showChannel ? 9 : 8} className="p-0">
                           <AccordionDetail
                             campaign={c}
                             applicantSectionLabel={applicantSectionLabel}
@@ -457,7 +450,7 @@ export default function ReviewManageTable({
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>

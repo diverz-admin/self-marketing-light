@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import SidebarNav from "@/components/marketing/SidebarNav";
-import RightSidebar from "@/components/marketing/RightSidebar";
 
 const MOCK = {
   name: "사용자",
@@ -115,11 +114,35 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        {/* Content + Right Sidebar */}
+        {/* Content */}
         <div className="flex flex-1 min-h-0">
           <main className="flex-1 p-6 md:p-8 overflow-y-auto min-w-0">{children}</main>
+        </div>
 
-          <RightSidebar />
+        {/* 하단 고정 배너 (고객 지원 / 트래픽 제휴) */}
+        <div className="shrink-0 border-t border-[#E5E8EB] bg-white px-5 md:px-8 py-5">
+          <div className="flex items-stretch gap-3 flex-wrap">
+            {/* 고객 지원 */}
+            <div className="flex items-center gap-3 flex-1 min-w-[280px] rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] px-5 py-5">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-[#8B95A1] uppercase tracking-wider mb-1">고객 지원</p>
+                <p className="text-[15px] font-bold text-[#191F28] leading-snug truncate">세팅에 도움이 필요하신가요?</p>
+              </div>
+              <Link href="/marketing/support" className="ml-auto shrink-0 px-5 py-3 rounded-xl text-[13px] font-bold bg-white border border-[#E5E8EB] text-[#333D4B] hover:bg-[#F2F4F6] transition-colors whitespace-nowrap">
+                전문 무료상담 신청
+              </Link>
+            </div>
+            {/* 트래픽 제휴 */}
+            <div className="flex items-center gap-3 flex-1 min-w-[280px] rounded-xl bg-[#191F28] px-5 py-5">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold text-white/40 uppercase tracking-wider mb-1">트래픽 제휴</p>
+                <p className="text-[15px] font-bold text-white leading-snug truncate">광고대행사를 운영중이신가요?</p>
+              </div>
+              <Link href="/marketing/support" className="ml-auto shrink-0 px-5 py-3 rounded-xl text-[13px] font-bold bg-white/10 text-white hover:bg-white/20 transition-colors whitespace-nowrap">
+                제휴 문의하기
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

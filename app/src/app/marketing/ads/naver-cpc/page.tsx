@@ -453,7 +453,7 @@ export default function NaverSaPage() {
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
             <span>네이버</span>
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span className="text-brand-text font-medium">네이버 SA광고</span>
+            <span className="text-brand-text font-medium">네이버 SA광고 최적화</span>
           </div>
 
           {/* ══════════════════════════════
@@ -894,8 +894,8 @@ export default function NaverSaPage() {
         <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
 
         <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8 xl:right-[288px]"
-          style={{ top: "92px", maxHeight: "calc(100vh - 108px)", overflowY: "auto" }}
+          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
+          style={{ top: "92px", maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
         >
           <div className="space-y-3 pb-3">
 

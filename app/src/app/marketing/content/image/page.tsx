@@ -138,7 +138,7 @@ export default function ImagePage() {
     <div className="w-full flex gap-6 items-start">
 
       {/* ── 오른쪽 고정 CTA 패널 ────── */}
-      <div className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8 xl:right-[288px]" style={{ top: "92px" }}>
+      <div className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8" style={{ top: "92px" }}>
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ border: "1px solid rgba(236,72,153,0.2)" }}>
           <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(145deg,#0f0a1e,#1e1040)" }}>
             <p className="text-[10px] font-extrabold text-pink-400/60 uppercase tracking-widest mb-2">고퀄리티 이미지 제작</p>

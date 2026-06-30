@@ -20,10 +20,9 @@ export default function ReceiptReviewPage() {
   const [dailyVolume, setDailyVolume] = useState(5);
   const [businessName, setBusinessName] = useState("대박갈비 일산동구청점");
   const [mainKeyword, setMainKeyword] = useState("");
-  const [hashtagInput, setHashtagInput] = useState("");
-  const [hashtags, setHashtags] = useState<string[]>([]);
-  const [businessInfo, setBusinessInfo] = useState("");
-  const [reviewGuide, setReviewGuide] = useState("");
+  const [receiptAttached, setReceiptAttached] = useState(true);
+  const [bizNumber, setBizNumber] = useState("");
+  const [emphasis, setEmphasis] = useState("");
   const [agreements, setAgreements] = useState({ req1: false, req2: false, opt1: false });
   const [submitted, setSubmitted] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -31,14 +30,6 @@ export default function ReceiptReviewPage() {
   const totalCount = issueDays * dailyVolume;
   const orderAmount = UNIT_PRICE * totalCount;
   const balance = 11500;
-
-  const handleHashtagKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter" || !hashtagInput.trim()) return;
-    e.preventDefault();
-    const raw = hashtagInput.trim();
-    setHashtags((p) => [...p, raw.startsWith("#") ? raw : `#${raw}`]);
-    setHashtagInput("");
-  };
 
   const handleSubmit = async () => {
     if (!agreements.req1 || !agreements.req2) return;
@@ -209,7 +200,7 @@ export default function ReceiptReviewPage() {
               </span>
               <div>
                 <h2 className="text-[15px] font-bold text-brand-dark">필수 정보</h2>
-                <p className="text-[12px] text-brand-sub">업체명, 키워드, 해시태그를 입력하세요</p>
+                <p className="text-[12px] text-brand-sub">업체명, 키워드, 영수증 첨부 여부를 입력하세요</p>
               </div>
             </div>
 
@@ -230,47 +221,49 @@ export default function ReceiptReviewPage() {
               </div>
             ))}
 
+            {/* 영수증 첨부 여부 */}
             <div>
-              <label className="block text-[13px] font-semibold text-brand-dark mb-1">
-                해시태그 <span className="text-red-500">*</span>{" "}
-                <span className="text-[11.5px] font-normal text-brand-primary">(#해시태그로 구분, 일괄 등록 가능)</span>
-              </label>
-              {hashtags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
-                  {hashtags.map((tag, i) => (
-                    <span key={i} className="flex items-center gap-1 px-2.5 py-0.5 bg-brand-lighter text-brand-primary rounded-full text-[12px] font-medium">
-                      {tag}
-                      <button onClick={() => setHashtags((p) => p.filter((_, j) => j !== i))} className="text-brand-muted hover:text-brand-primary ml-0.5">×</button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              <input
-                value={hashtagInput}
-                onChange={(e) => setHashtagInput(e.target.value)}
-                onKeyDown={handleHashtagKey}
-                placeholder="입력 후 엔터키로 추가"
-                className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
-              />
+              <p className="text-[13px] font-semibold text-brand-dark mb-2.5">영수증 첨부 여부 <span className="text-red-500">*</span></p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { val: true,  label: "영수증 첨부", desc: "영수증을 첨부합니다" },
+                  { val: false, label: "영수증 미첨부", desc: "작업으로 진행됩니다" },
+                ].map((opt) => (
+                  <button
+                    key={opt.label}
+                    type="button"
+                    onClick={() => setReceiptAttached(opt.val)}
+                    className={`flex flex-col items-start gap-0.5 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                      receiptAttached === opt.val
+                        ? "border-brand-primary bg-brand-lighter"
+                        : "border-brand-border bg-white hover:bg-brand-lighter"
+                    }`}
+                  >
+                    <span className={`text-[13px] font-bold ${receiptAttached === opt.val ? "text-brand-primary" : "text-brand-dark"}`}>{opt.label}</span>
+                    <span className="text-[11.5px] text-brand-muted">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
-                업체 정보 <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={businessInfo}
-                onChange={(e) => setBusinessInfo(e.target.value)}
-                maxLength={500}
-                rows={5}
-                placeholder={`예시)\n-대표 메뉴 (계절음식, 계절 상품 등)\n-이벤트 소개\n-영업시간(오픈, 브레이크 타임, 마감시간, 마지막 주문 시간)\n-교통안내 (주차, 지하철역 도보 거리 등)`}
-                className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
-              />
-              <p className="text-right text-[11px] text-brand-muted mt-1">{businessInfo.length} / 500</p>
-            </div>
+            {/* 영수증 미첨부 시 사업자번호 */}
+            {!receiptAttached && (
+              <div>
+                <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                  사업자번호 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={bizNumber}
+                  onChange={(e) => setBizNumber(e.target.value)}
+                  placeholder="000-00-00000"
+                  className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                />
+                <p className="text-[11.5px] text-brand-muted mt-1">영수증 미첨부 시 사업자번호 입력은 필수입니다</p>
+              </div>
+            )}
           </div>
 
-          {/* 리뷰 가이드 */}
+          {/* 강조 내용 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
@@ -279,24 +272,24 @@ export default function ReceiptReviewPage() {
                 </svg>
               </span>
               <div>
-                <h2 className="text-[15px] font-bold text-brand-dark">리뷰 가이드</h2>
-                <p className="text-[12px] text-brand-sub">리뷰어에게 전달할 안내사항을 작성하세요</p>
+                <h2 className="text-[15px] font-bold text-brand-dark">강조 내용</h2>
+                <p className="text-[12px] text-brand-sub">키워드 혹은 강조해야 할 내용을 작성하세요</p>
               </div>
             </div>
 
             <div>
               <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
-                리뷰어에게 전달할 안내사항 <span className="text-[12px] font-normal text-brand-muted">(선택)</span>
+                키워드 혹은 강조해야 할 내용 <span className="text-[12px] font-normal text-brand-muted">(선택)</span>
               </label>
               <textarea
-                value={reviewGuide}
-                onChange={(e) => setReviewGuide(e.target.value)}
+                value={emphasis}
+                onChange={(e) => setEmphasis(e.target.value)}
                 maxLength={300}
                 rows={4}
-                placeholder={`예시)\n-방문 후 영수증 촬영 필수\n-별점 5점으로 작성 요청\n-특정 메뉴나 서비스 언급 요청 사항 등`}
+                placeholder={`예시)\n-강조하고 싶은 키워드\n-꼭 언급되어야 할 메뉴나 서비스\n-부각하고 싶은 이벤트나 장점 등`}
                 className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
               />
-              <p className="text-right text-[11px] text-brand-muted mt-1">{reviewGuide.length} / 300</p>
+              <p className="text-right text-[11px] text-brand-muted mt-1">{emphasis.length} / 300</p>
             </div>
 
             {/* 영수증 주의사항 */}
@@ -304,7 +297,6 @@ export default function ReceiptReviewPage() {
               <p className="text-[12.5px] font-extrabold text-amber-700 mb-2">영수증 인증 안내</p>
               <ul className="space-y-1.5">
                 {[
-                  "리뷰어는 실제 방문 후 영수증 사진을 제출해야 합니다.",
                   "영수증은 결제일로부터 7일 이내만 인정됩니다.",
                   "영수증 미제출 시 캠페인 참여가 취소될 수 있습니다.",
                   "네이버 플레이스 리뷰 작성 후 URL을 제출해야 완료 처리됩니다.",

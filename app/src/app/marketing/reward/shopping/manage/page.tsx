@@ -130,6 +130,9 @@ function SingleRankChart({
   const history = RANK_HISTORY[campaign.id];
   if (!history) return null;
 
+  // 최근 날짜가 맨 앞(왼쪽)으로 오도록 역순 정렬
+  const ordered = [...history].reverse();
+
   const W = 520, H = 260;
   const PAD = { top: 16, right: 16, bottom: 28, left: 36 };
   const innerW = W - PAD.left - PAD.right;
@@ -149,7 +152,7 @@ function SingleRankChart({
   const yTicks: number[] = [];
   for (let t = yMin; t <= yMax; t += yStep) yTicks.push(t);
 
-  const pts = history.map((d, i) => ({ x: xScale(i), y: yScale(d.rank), ...d }));
+  const pts = ordered.map((d, i) => ({ x: xScale(i), y: yScale(d.rank), ...d }));
   const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const areaPath = `${linePath} L ${pts[pts.length - 1].x} ${H - PAD.bottom} L ${pts[0].x} ${H - PAD.bottom} Z`;
 
@@ -199,7 +202,7 @@ function SingleRankChart({
           <table className="w-full text-center border-collapse">
             <thead>
               <tr>
-                {history.map((d, i) => (
+                {ordered.map((d, i) => (
                   <th key={i} className="px-2 py-1.5 text-[11px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
                     {d.date}
                   </th>
@@ -208,16 +211,16 @@ function SingleRankChart({
             </thead>
             <tbody>
               <tr>
-                {history.map((d, i) => (
-                  <td key={i} className={`px-2 py-2 text-[13px] font-extrabold border-b border-brand-border ${i === history.length - 1 ? "text-brand-dark" : "text-brand-sub"}`}>
+                {ordered.map((d, i) => (
+                  <td key={i} className={`px-2 py-2 text-[13px] font-extrabold border-b border-brand-border ${i === 0 ? "text-brand-dark" : "text-brand-sub"}`}>
                     {d.rank}위
                   </td>
                 ))}
               </tr>
               <tr>
-                {history.map((d, i) => {
-                  if (i === 0) return <td key={i} className="px-2 py-1.5 text-[11px] text-brand-muted">-</td>;
-                  const diff = history[i - 1].rank - d.rank;
+                {ordered.map((d, i) => {
+                  if (i === ordered.length - 1) return <td key={i} className="px-2 py-1.5 text-[11px] text-brand-muted">-</td>;
+                  const diff = ordered[i + 1].rank - d.rank;
                   return (
                     <td key={i} className="px-2 py-1.5">
                       {diff === 0 ? <span className="text-[11px] text-brand-muted">-</span> : (
@@ -248,7 +251,7 @@ function SingleRankChart({
                 </text>
               </g>
             ))}
-            {history.map((d, i) => (
+            {ordered.map((d, i) => (
               <text key={i} x={xScale(i)} y={H - PAD.bottom + 14} textAnchor="middle" fill="#CBD5E1" fontSize={10}>
                 {d.date}
               </text>

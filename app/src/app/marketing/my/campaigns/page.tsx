@@ -116,7 +116,7 @@ const CAMPAIGNS: Campaign[] = [
     totalCount: 30, doneCount: 0,
     startDate: "2026-07-01", endDate: "2026-07-30",
     status: "pending",
-    manageHref: "/marketing/review/coupang/manage",
+    manageHref: "/marketing/review/shopping/manage/product-experience",
   },
 ];
 

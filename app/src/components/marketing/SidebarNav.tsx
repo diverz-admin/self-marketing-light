@@ -2,7 +2,57 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
+
+// ── User summary card ─────────────────────────────────────────
+const USER = { name: "사용자", grade: "Bronze", point: 0, activeAdCount: 0 };
+
+function UserCard() {
+  return (
+    <div className="mx-1 my-1.5 rounded-2xl bg-white border border-[#E5E8EB] p-4"
+      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
+      {/* 상단: 아바타 + 이름 + 등급 */}
+      <div className="flex items-center gap-3">
+        <div className="h-11 w-11 rounded-full flex items-center justify-center text-white font-bold text-[16px] shrink-0"
+          style={{ background: "linear-gradient(135deg,#0341C7,#6366F1)" }}>
+          {USER.name.charAt(0)}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[14px] font-bold text-[#191F28] leading-tight truncate">{USER.name} 님</p>
+          <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
+            {USER.grade}
+          </span>
+        </div>
+      </div>
+
+      <div className="h-px bg-[#F2F4F6] my-3" />
+
+      {/* 사용 가능 포인트 */}
+      <div className="flex items-center justify-between">
+        <span className="text-[12.5px] text-[#8B95A1]">사용 가능 포인트</span>
+        <span className="text-[14px] font-extrabold text-[#191F28]">
+          {USER.point.toLocaleString()} <span className="text-[11px] font-bold text-[#8B95A1]">P</span>
+        </span>
+      </div>
+
+      <div className="h-px bg-[#F2F4F6] my-3" />
+
+      {/* 진행 중인 광고 */}
+      <div className="flex items-center justify-between">
+        <span className="text-[12.5px] text-[#8B95A1]">진행 중인 광고</span>
+        <span className="text-[14px] font-extrabold text-[#0341C7]">
+          {USER.activeAdCount} <span className="text-[11px] font-bold text-[#8B95A1]">개</span>
+        </span>
+      </div>
+
+      {/* 충전 버튼 */}
+      <Link href="/marketing/my/charge"
+        className="mt-4 flex items-center justify-center w-full py-2.5 rounded-xl bg-[#0341C7] text-white text-[13px] font-bold hover:bg-[#0235A8] transition-colors">
+        포인트 충전하기
+      </Link>
+    </div>
+  );
+}
 
 // ── Icon system ──────────────────────────────────────────────
 type NavIcon =
@@ -74,14 +124,14 @@ const NAV_GROUPS: NavGroup[] = [
     title: "",
     items: [
       {
+        label: "마이 캠페인 현황",
+        href: "/marketing/my/campaigns",
+        icon: { kind: "svg", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+      },
+      {
         label: "홈",
         href: "/marketing",
         icon: { kind: "svg", d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" },
-      },
-      {
-        label: "홈2",
-        href: "/marketing/home2",
-        icon: { kind: "sqsvg", d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25", bg: "#F5B800" },
       },
       {
         label: "공지사항",
@@ -94,14 +144,8 @@ const NAV_GROUPS: NavGroup[] = [
         icon: { kind: "svg", d: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" },
         children: [
           { label: "게시판", href: "/marketing/community/board" },
-          { label: "오픈채팅", href: "/marketing/community/openchat" },
-          { label: "채팅방 관리", href: "/marketing/community/chatroom" },
+          { label: "오픈채팅", href: "/marketing/community/chatroom" },
         ],
-      },
-      {
-        label: "마이 캠페인 현황",
-        href: "/marketing/my/campaigns",
-        icon: { kind: "svg", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
       },
     ],
   },
@@ -113,6 +157,10 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/marketing/rank",
         icon: { kind: "svg", d: "M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" },
         free: true,
+        children: [
+          { label: "네이버 플레이스", href: "/marketing/rank/place" },
+          { label: "네이버 쇼핑", href: "/marketing/rank/shopping" },
+        ],
       },
     ],
   },
@@ -125,8 +173,9 @@ const NAV_GROUPS: NavGroup[] = [
         icon: { kind: "letter", ch: "N", bg: "#03C75A" },
         children: [
           { label: "[상위노출] 캠페인 신청", href: "/marketing/reward/place" },
-          { label: "[보장형] 캠페인 신청", href: "/marketing/reward/place/guaranteed" },
           { label: "[상위노출] 캠페인 관리", href: "/marketing/reward/place/manage" },
+          { label: "[보장형] 캠페인 신청", href: "/marketing/reward/place/guaranteed" },
+          { label: "[보장형] 캠페인 관리", href: "/marketing/reward/place/guaranteed/manage" },
         ],
       },
       {
@@ -153,21 +202,12 @@ const NAV_GROUPS: NavGroup[] = [
         ],
       },
       {
-        label: "네이버 쇼핑 리뷰",
+        label: "쇼핑 리뷰",
         href: "/marketing/review/shopping",
         icon: { kind: "sqsvg", d: BAG, bg: "#8B5CF6" },
         children: [
           { label: "캠페인 신청", href: "/marketing/review/shopping" },
           { label: "캠페인 관리", href: "/marketing/review/shopping/manage" },
-        ],
-      },
-      {
-        label: "쿠팡 리뷰",
-        href: "/marketing/review/coupang",
-        icon: { kind: "letter", ch: "C", bg: "#EF4444" },
-        children: [
-          { label: "캠페인 신청", href: "/marketing/review/coupang" },
-          { label: "캠페인 관리", href: "/marketing/review/coupang/manage" },
         ],
       },
     ],
@@ -180,7 +220,7 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/marketing/ads/naver-cpc",
         icon: { kind: "letter", ch: "N", bg: "#03C75A" },
         children: [
-          { label: "네이버 SA광고", href: "/marketing/ads/naver-cpc" },
+          { label: "네이버 SA광고 최적화", href: "/marketing/ads/naver-cpc" },
           { label: "네이버 광고비 환급받기", href: "/marketing/ads/naver-cpc-refund" },
         ],
       },
@@ -200,6 +240,11 @@ const NAV_GROUPS: NavGroup[] = [
     title: "콘텐츠",
     items: [
       {
+        label: "고퀄리티 이미지 제작",
+        href: "/marketing/content/image",
+        icon: { kind: "sqsvg", d: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z", bg: "#DB2777" },
+      },
+      {
         label: "Total 브랜딩",
         href: "/marketing/content/branding",
         icon: { kind: "letter", ch: "T", bg: "#7C3AED" },
@@ -213,11 +258,6 @@ const NAV_GROUPS: NavGroup[] = [
         label: "상세페이지",
         href: "/marketing/content/detail",
         icon: { kind: "sqsvg", d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bg: "#0D9488" },
-      },
-      {
-        label: "고퀄리티 이미지 제작",
-        href: "/marketing/content/image",
-        icon: { kind: "sqsvg", d: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z", bg: "#DB2777" },
       },
       {
         label: "영상 제작",
@@ -325,14 +365,17 @@ export default function SidebarNav() {
         <div key={gi}>
           {gi > 0 && <div className="h-px bg-[#EBEEF2] mx-1 my-2" />}
           <GroupTitle title={group.title} />
-          {group.items.map(item =>
-            item.children ? (
-              <AccordionItem key={item.href} item={item} pathname={pathname} />
-            ) : (
-              <LeafItem key={item.href} item={item}
-                active={item.href === "/marketing" ? pathname === "/marketing" : pathname === item.href || pathname.startsWith(item.href + "/")} />
-            )
-          )}
+          {group.items.map(item => (
+            <Fragment key={item.href}>
+              {item.children ? (
+                <AccordionItem item={item} pathname={pathname} />
+              ) : (
+                <LeafItem item={item}
+                  active={item.href === "/marketing" ? pathname === "/marketing" : pathname === item.href || pathname.startsWith(item.href + "/")} />
+              )}
+              {item.href === "/marketing/my/campaigns" && <UserCard />}
+            </Fragment>
+          ))}
         </div>
       ))}
     </nav>
