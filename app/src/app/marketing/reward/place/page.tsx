@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-/* ── 매체사 데이터 ── */
+/* ── 상품 데이터 ── */
 const MEDIA_GROUPS = [
   {
     category: "공통",
-    color: "#0341C7",
+    color: "#0D3473",
     items: [
       { id: "olstar",  name: "올스타",  desc: "1일 단위 구독",  sale: true,  bg: "#1C1C2E", textColor: "white", initial: "O" },
       { id: "aura",    name: "아우라",  desc: "신규오파일",     sale: true,  bg: "linear-gradient(135deg,#667eea,#764ba2)", textColor: "white", initial: "A" },
@@ -20,7 +20,7 @@ const MEDIA_GROUPS = [
     color: "#F97316",
     items: [
       { id: "seven",   name: "세븐",   desc: "상세 안내 필독",  sale: false, bg: "linear-gradient(135deg,#FF6B6B,#FF8E53)", textColor: "white", initial: "7", bookmarked: true },
-      { id: "andrew",  name: "앤드류", desc: "신규 참여루쓰",   sale: false, bg: "#0341C7", textColor: "white", initial: "앤" },
+      { id: "andrew",  name: "앤드류", desc: "신규 참여루쓰",   sale: false, bg: "#0D3473", textColor: "white", initial: "앤" },
       { id: "gamgyul", name: "감귤",   desc: "맛집 최적화",    sale: false, bg: "linear-gradient(135deg,#FB923C,#FBBF24)", textColor: "white", initial: "감" },
       { id: "prima",   name: "프리마", desc: "IP 디타겟팅",    sale: true,  bg: "linear-gradient(135deg,#6366F1,#8B5CF6)", textColor: "white", initial: "P", bookmarked: true },
       { id: "golden",  name: "골든",   desc: "신로직 세팅",    sale: false, bg: "linear-gradient(135deg,#F59E0B,#EF4444)", textColor: "white", initial: "G", bookmarked: true },
@@ -54,6 +54,12 @@ function efficiencyLabel(v: number) {
   return "낮음";
 }
 
+/* ── 상품 순위 (전체 표시 순서 기준) ── */
+const RANK_BY_ID: Record<string, number> = {};
+MEDIA_GROUPS.flatMap((g) => g.items).forEach((it, i) => {
+  RANK_BY_ID[it.id] = i + 1;
+});
+
 /* ── Page ── */
 export default function PlaceCampaignPage() {
   const [selectedMedia, setSelectedMedia] = useState("buzzvil");
@@ -68,6 +74,7 @@ export default function PlaceCampaignPage() {
   const price = MEDIA_PRICES[selectedMedia] ?? 100;
   const efficiency = MEDIA_EFFICIENCY[selectedMedia] ?? 60;
   const orderAmount = dailyQty * price;
+  const selectedItem = MEDIA_GROUPS.flatMap(g => g.items).find(i => i.id === selectedMedia);
 
   const handleSubmit = async () => {
     if (!placeName || !placeLink || !rankKeyword) return;
@@ -86,11 +93,11 @@ export default function PlaceCampaignPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-[20px] font-extrabold text-brand-dark mb-2">캠페인 등록 완료</h2>
-          <p className="text-[14px] text-brand-sub mb-8">검수 후 1~2일 내 캠페인이 시작됩니다.</p>
+          <h2 className="text-[22px] font-extrabold text-brand-dark mb-2">캠페인 등록 완료</h2>
+          <p className="text-[16px] text-brand-sub mb-8">검수 후 1~2일 내 캠페인이 시작됩니다.</p>
           <div className="flex gap-3 justify-center">
-            <Link href="/marketing/my/campaigns" className="px-5 py-3 rounded-2xl text-[14px] font-bold bg-brand-primary text-white">주문내역 확인</Link>
-            <button onClick={() => setSubmitted(false)} className="px-5 py-3 rounded-2xl text-[14px] font-bold bg-brand-lighter text-brand-text border border-brand-border cursor-pointer">새 캠페인 등록</button>
+            <Link href="/marketing/my/campaigns" className="px-5 py-3 rounded-2xl text-[16px] font-bold bg-brand-primary text-white">주문내역 확인</Link>
+            <button onClick={() => setSubmitted(false)} className="px-5 py-3 rounded-2xl text-[16px] font-bold bg-brand-lighter text-brand-text border border-brand-border cursor-pointer">새 캠페인 등록</button>
           </div>
         </div>
       </div>
@@ -98,227 +105,277 @@ export default function PlaceCampaignPage() {
   }
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-5">
       {/* breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
         <span className="text-brand-text font-medium">네이버 플레이스 유입</span>
       </nav>
 
-      {/* 3-panel layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-[300px_260px_1fr] gap-4 items-start">
+      {/* 페이지 헤더 */}
+      <div>
+        <h1 className="text-[24px] font-extrabold text-brand-dark tracking-tight">네이버 플레이스 유입 캠페인 신청</h1>
+        <p className="text-[15px] text-brand-sub mt-1">상품을 선택하고 캠페인 정보를 입력한 뒤 바로 신청하세요.</p>
+      </div>
 
-        {/* ── Panel 1: 매체사 선택 ── */}
-        <div className="bg-white rounded-2xl border border-brand-border p-4 space-y-4">
-          <h2 className="text-[15px] font-extrabold text-brand-dark">매체사 선택</h2>
+      {/* Row 1: 상품 선택 | 선택한 상품 */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-stretch">
 
-          {MEDIA_GROUPS.map((group) => (
-            <div key={group.category}>
-              <p className="text-[12px] font-bold mb-2" style={{ color: group.color }}>{group.category}</p>
-              <div className="grid grid-cols-2 gap-2">
-                {group.items.map((item) => {
-                  const isSelected = selectedMedia === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setSelectedMedia(item.id)}
-                      className={`relative rounded-2xl p-3 text-left transition-all border-2 ${
-                        isSelected
-                          ? "border-brand-primary shadow-md"
-                          : "border-brand-border hover:border-brand-primary/40 bg-brand-lighter"
-                      }`}
-                    >
-                      {/* SALE badge */}
-                      {item.sale && (
-                        <span className="absolute top-1.5 left-1.5 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-500 text-white z-10">
-                          SALE
-                        </span>
-                      )}
-                      {/* Bookmark */}
-                      {"bookmarked" in item && item.bookmarked && (
-                        <span className="absolute top-1.5 right-1.5 z-10">
-                          <svg className="w-3.5 h-3.5 text-brand-primary fill-brand-primary" viewBox="0 0 24 24">
-                            <path d="M5 3a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2H5z" />
-                          </svg>
-                        </span>
-                      )}
-                      {/* Logo circle */}
-                      <div
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-[14px] font-extrabold mb-2 mx-auto"
-                        style={{ background: item.bg, color: item.textColor }}
-                      >
-                        {item.initial}
-                      </div>
-                      <p className="text-[13px] font-bold text-brand-dark text-center truncate">{item.name}</p>
-                      <p className="text-[10px] text-brand-sub text-center truncate mt-0.5">{item.desc}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Panel 2: 서비스 선택 ── */}
-        <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
-          <h2 className="text-[15px] font-extrabold text-brand-dark">서비스 선택</h2>
-
-          {/* 가격 */}
-          <div className="flex items-center justify-between py-3 border-t border-brand-border">
-            <span className="text-[14px] text-brand-sub">가격</span>
-            <span className="text-[20px] font-extrabold text-brand-dark">{price}<span className="text-[13px] font-medium text-brand-sub ml-1">원</span></span>
+        {/* ── STEP 1: 상품 선택 ── */}
+        <section className="bg-white rounded-2xl border border-brand-border p-6 space-y-5 min-w-0">
+          <div className="flex items-center gap-2.5">
+            <span className="h-7 w-7 rounded-full bg-brand-primary text-white text-[13px] font-extrabold flex items-center justify-center shrink-0">1</span>
+            <h2 className="text-[18px] font-extrabold text-brand-dark">상품 선택</h2>
           </div>
 
-          {/* 매체 효율 */}
+        {MEDIA_GROUPS.map((group) => (
+          <div key={group.category}>
+            <p className="text-[13px] font-bold mb-2.5" style={{ color: group.color }}>{group.category}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {group.items.map((item) => {
+                const isSelected = selectedMedia === item.id;
+                const itemPrice = MEDIA_PRICES[item.id] ?? 100;
+                const itemEff = MEDIA_EFFICIENCY[item.id] ?? 60;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedMedia(item.id)}
+                    className={`relative rounded-2xl p-4 text-left transition-all border-2 ${
+                      isSelected
+                        ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.10)] bg-white"
+                        : "border-brand-border bg-white hover:border-brand-primary/40 hover:shadow-sm"
+                    }`}
+                  >
+                    {/* 뱃지: SALE(좌) / 북마크·선택(우) */}
+                    {item.sale && (
+                      <span className="absolute top-2 left-2 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-500 text-white z-10">
+                        SALE
+                      </span>
+                    )}
+                    <span className="absolute top-2 right-2 z-10">
+                      {isSelected ? (
+                        <span className="h-5 w-5 rounded-full bg-brand-primary flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        </span>
+                      ) : ("bookmarked" in item && item.bookmarked) ? (
+                        <svg className="w-3.5 h-3.5 text-brand-muted fill-brand-muted" viewBox="0 0 24 24">
+                          <path d="M5 3a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2H5z" />
+                        </svg>
+                      ) : null}
+                    </span>
+
+                    {/* 아바타 + 이름 */}
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="h-10 w-10 rounded-xl flex items-center justify-center text-white text-[16px] font-extrabold shrink-0 tabular-nums"
+                        style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)", boxShadow: "0 2px 8px rgba(13,52,115,0.25)" }}
+                      >
+                        {RANK_BY_ID[item.id]}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-bold text-brand-dark truncate">{item.name}</p>
+                        <p className="text-[11px] text-brand-sub truncate">{item.desc}</p>
+                      </div>
+                    </div>
+
+                    {/* 효율 */}
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] text-brand-muted">효율</span>
+                        <span className="text-[11px] font-bold text-brand-primary">{efficiencyLabel(itemEff)}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-brand-lighter overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${itemEff}%`, background: "linear-gradient(90deg,#0D3473,#22C7E0)" }} />
+                      </div>
+                    </div>
+
+                    {/* 단가 */}
+                    <div className="mt-2.5 pt-2.5 border-t border-brand-border flex items-baseline justify-between">
+                      <span className="text-[11px] text-brand-muted">단가</span>
+                      <span className="text-[16px] font-extrabold text-brand-dark tabular-nums">
+                        {itemPrice}<span className="text-[11px] font-medium text-brand-sub ml-0.5">원</span>
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </section>
+
+        {/* 선택한 상품 요약 */}
+        <section className="bg-white rounded-2xl border border-brand-border p-5 space-y-4 h-full">
+          <h3 className="text-[15px] font-extrabold text-brand-dark">선택한 상품</h3>
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-full flex items-center justify-center text-[16px] font-extrabold shrink-0"
+              style={{ background: selectedItem?.bg, color: selectedItem?.textColor }}>
+              {selectedItem?.initial}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[16px] font-bold text-brand-dark truncate">{selectedItem?.name}</p>
+              <p className="text-[12px] text-brand-sub truncate">{selectedItem?.desc}</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-3 border-t border-brand-border">
+            <span className="text-[14px] text-brand-sub">단가</span>
+            <span className="text-[20px] font-extrabold text-brand-dark tabular-nums">{price}<span className="text-[14px] font-medium text-brand-sub ml-1">원</span></span>
+          </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[14px] text-brand-sub">매체 효율</span>
-              <span className="text-[12px] font-bold text-brand-primary">{efficiencyLabel(efficiency)}</span>
+              <span className="text-[14px] text-brand-sub">상품 효율</span>
+              <span className="text-[13px] font-bold text-brand-primary">{efficiencyLabel(efficiency)}</span>
             </div>
-            <div className="h-3 rounded-full bg-brand-lighter overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#0341C7,#8B5CF6)" }}
+            <div className="h-2.5 rounded-full bg-brand-lighter overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#0D3473,#8B5CF6)" }} />
+            </div>
+          </div>
+          <div className="rounded-2xl border border-brand-border bg-brand-lighter p-4 space-y-1.5">
+            <p className="text-[13px] font-bold text-brand-sub mb-1">구독 정보</p>
+            {[
+              { label: "당일 접수 마감", value: "13시 30분", highlight: true },
+              { label: "당일 구동", badge: "가능" },
+              { label: "구동 기간", value: "최소 3일 이상" },
+            ].map((row, i) => (
+              <div key={i} className="flex items-center gap-2 text-[13px]">
+                <span className="text-brand-muted">-</span>
+                <span className="text-brand-sub">{row.label} :</span>
+                {row.badge ? (
+                  <span className="px-2 py-0.5 rounded-full bg-brand-primary text-white font-bold text-[12px]">{row.badge}</span>
+                ) : (
+                  <span className={`font-semibold ${row.highlight ? "text-red-500" : "text-brand-dark"}`}>{row.value}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Row 2: 캠페인 설정 | 결제 (높이 맞춤) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-stretch">
+
+        {/* ── STEP 2: 캠페인 설정 ── */}
+        <section className="bg-white rounded-2xl border border-brand-border p-6 h-full min-w-0">
+          <div className="flex items-center gap-2.5 mb-5">
+            <span className="h-7 w-7 rounded-full bg-brand-primary text-white text-[13px] font-extrabold flex items-center justify-center shrink-0">2</span>
+            <h2 className="text-[18px] font-extrabold text-brand-dark">캠페인 설정</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
+            {/* 작업 기간 */}
+            <div>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">작업 기간</label>
+              <button className="w-full h-[42px] flex items-center gap-2 px-3 rounded-xl border border-brand-border bg-brand-lighter hover:bg-white hover:border-brand-primary transition-colors text-brand-sub text-[14px]">
+                <svg className="w-4 h-4 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                날짜 선택
+              </button>
+              <p className="text-[12px] text-red-500 mt-1.5">* 주말 접수 시 구동 시작일은 평일로 설정해주세요.</p>
+            </div>
+
+            {/* 일 작업량 */}
+            <div>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">일 작업량</label>
+              <input
+                type="number"
+                value={dailyQty}
+                onChange={e => setDailyQty(Number(e.target.value))}
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[16px] font-bold text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+              />
+              <p className="text-[12px] text-brand-muted mt-1.5">단가 {price.toLocaleString()}원 · 일 {dailyQty.toLocaleString()}회</p>
+            </div>
+
+            {/* 플레이스명 */}
+            <div>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">플레이스명</label>
+              <input
+                value={placeName}
+                onChange={e => setPlaceName(e.target.value)}
+                placeholder="예) 홍길동 칼국수"
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
               />
             </div>
-          </div>
 
-          {/* 구독 정보 */}
-          <div className="rounded-2xl border border-brand-border bg-brand-lighter p-4 space-y-2.5">
-            <p className="text-[12px] font-bold text-brand-sub">구독 정보</p>
-            <p className="text-[13px] text-brand-dark font-medium">모든 트래픽 구독 시작일은 평일로 설정해주세요.</p>
-            <div className="space-y-1.5">
-              {[
-                { label: "당일 접수 마감", value: "13시 30분", highlight: true },
-                { label: "당일 구동", badge: "가능" },
-                { label: "구동 기간", value: "최소 3일 이상" },
-              ].map((row, i) => (
-                <div key={i} className="flex items-center gap-2 text-[12px]">
-                  <span className="text-brand-muted">-</span>
-                  <span className="text-brand-sub">{row.label} :</span>
-                  {row.badge ? (
-                    <span className="px-2 py-0.5 rounded-full bg-brand-primary text-white font-bold text-[11px]">{row.badge}</span>
-                  ) : (
-                    <span className={`font-semibold ${row.highlight ? "text-red-500" : "text-brand-dark"}`}>{row.value}</span>
-                  )}
+            {/* 순위 상승 희망 키워드 */}
+            <div>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">순위 상승 희망 키워드</label>
+              <input
+                value={rankKeyword}
+                onChange={e => setRankKeyword(e.target.value)}
+                placeholder="예) 마포 맛집"
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* 플레이스 링크 (full width) */}
+            <div className="sm:col-span-2">
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">플레이스 링크 <span className="text-[12px] font-medium text-red-500">* 모바일 기준 링크</span></label>
+              <input
+                value={placeLink}
+                onChange={e => setPlaceLink(e.target.value)}
+                placeholder="https://m.place.naver.com/..."
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[14px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* 작업 세팅 키워드 토글 (full width) */}
+            <div className="sm:col-span-2">
+              <div className="flex items-center justify-between rounded-xl border border-brand-border bg-brand-lighter px-4 py-3">
+                <div>
+                  <p className="text-[14px] font-bold text-brand-dark">AI 키워드 자동 세팅</p>
+                  <p className="text-[12px] text-brand-sub mt-0.5">최적의 키워드를 자동으로 설정합니다</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Panel 3: 캠페인 설정 + 결제 ── */}
-        <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5 sticky top-8 self-start">
-          <h2 className="text-[15px] font-extrabold text-brand-dark">캠페인 설정</h2>
-
-          {/* 작업 기간 */}
-          <div>
-            <label className="block text-[12px] font-bold text-brand-dark mb-1.5">작업 기간</label>
-            <p className="text-[11px] text-red-500 mb-2">* 주말 접수시 구동 시작일은 반드시 평일로 설정해주세요.</p>
-            <button className="h-8 w-8 flex items-center justify-center rounded-xl border border-brand-border hover:bg-brand-lighter transition-colors">
-              <svg className="w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </button>
-          </div>
-
-          {/* 일 작업량 */}
-          <div>
-            <label className="block text-[12px] font-bold text-brand-dark mb-1.5">일 작업량</label>
-            <input
-              type="number"
-              value={dailyQty}
-              onChange={e => setDailyQty(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-brand-border rounded-xl text-[14px] font-bold text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* 플레이스명 */}
-          <div>
-            <label className="block text-[12px] font-bold text-brand-dark mb-1.5">플레이스명</label>
-            <input
-              value={placeName}
-              onChange={e => setPlaceName(e.target.value)}
-              placeholder="예) 홍길동 칼국수"
-              className="w-full px-3 py-2 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* 플레이스 링크 */}
-          <div>
-            <label className="block text-[12px] font-bold text-brand-dark mb-1">플레이스 링크</label>
-            <p className="text-[11px] text-red-500 mb-1.5">* 모바일 기준으로 링크를 입력해주세요.</p>
-            <input
-              value={placeLink}
-              onChange={e => setPlaceLink(e.target.value)}
-              placeholder="https://m.place.naver.com/..."
-              className="w-full px-3 py-2 border border-brand-border rounded-xl text-[12px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* 순위 상승 희망 키워드 */}
-          <div>
-            <label className="block text-[12px] font-bold text-brand-dark mb-1.5">순위 상승 희망 키워드</label>
-            <input
-              value={rankKeyword}
-              onChange={e => setRankKeyword(e.target.value)}
-              placeholder="예) 마포 맛집"
-              className="w-full px-3 py-2 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* 작업 세팅 키워드 토글 */}
-          <div className="flex items-center justify-between">
-            <label className="text-[12px] font-bold text-brand-dark">작업 세팅 키워드</label>
-            <button
-              onClick={() => setAiToggle(v => !v)}
-              className={`relative w-10 h-5 rounded-full transition-colors ${aiToggle ? "bg-brand-primary" : "bg-brand-border"}`}
-            >
-              <span className={`absolute top-0.5 h-4 w-4 bg-white rounded-full shadow transition-transform ${aiToggle ? "translate-x-5" : "translate-x-0.5"}`} />
-            </button>
-          </div>
-
-          {/* AI 키워드 배너 */}
-          {aiToggle && (
-            <div className="rounded-2xl p-3.5 text-white flex items-center gap-3" style={{ background: "linear-gradient(135deg,#0EA5E9,#6366F1)" }}>
-              <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-[16px]">🤖</div>
-              <div>
-                <p className="text-[13px] font-extrabold leading-tight">AI 키워드 자동 세팅 작동중</p>
-                <p className="text-[11px] text-white/70 mt-0.5">최적의 키워드를 자동으로 설정합니다</p>
+                <button
+                  onClick={() => setAiToggle(v => !v)}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${aiToggle ? "bg-brand-primary" : "bg-brand-border"}`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 bg-white rounded-full shadow transition-transform ${aiToggle ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+                </button>
               </div>
+              {aiToggle && (
+                <div className="mt-3 rounded-2xl p-3.5 text-white flex items-center gap-3" style={{ background: "linear-gradient(135deg,#0D3473 0%,#16345C 45%,#111D37 100%)" }}>
+                  <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-[18px]">🤖</div>
+                  <div>
+                    <p className="text-[15px] font-extrabold leading-tight">AI 키워드 자동 세팅 작동중</p>
+                    <p className="text-[12px] text-white/70 mt-0.5">순위 상승에 유리한 키워드를 추천·적용합니다</p>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-
-          {/* 결제 섹션 */}
-          <div className="border-t border-brand-border pt-4">
-            <p className="text-[14px] font-extrabold text-brand-dark mb-3">4. 결제</p>
+          </div>
+        </section>
+        {/* 결제 */}
+        <section className="bg-white rounded-2xl border border-brand-border p-5 h-full flex flex-col">
+            <h3 className="text-[15px] font-extrabold text-brand-dark mb-3">결제</h3>
             <div className="space-y-2">
               {[
-                { label: "할인 적용", value: "쿠폰 확인", valueClass: "text-brand-primary text-[12px] font-bold cursor-pointer underline" },
-                { label: "보유 금액", value: "11,500 원", valueClass: "text-[14px] font-extrabold text-brand-dark" },
-                { label: "주문 금액", value: `${orderAmount.toLocaleString()} 원`, valueClass: "text-[14px] font-extrabold text-brand-dark" },
-                { label: "할인 금액", value: "-0 원", valueClass: "text-[14px] font-extrabold text-red-500" },
-                { label: "결제 금액", value: `${orderAmount.toLocaleString()} 원`, valueClass: "text-[14px] font-extrabold text-brand-dark" },
+                { label: "할인 적용", value: "쿠폰 확인", valueClass: "text-brand-primary text-[13px] font-bold cursor-pointer underline" },
+                { label: "보유 금액", value: "11,500 원", valueClass: "text-[15px] font-bold text-brand-dark tabular-nums" },
+                { label: "주문 금액", value: `${orderAmount.toLocaleString()} 원`, valueClass: "text-[15px] font-bold text-brand-dark tabular-nums" },
+                { label: "할인 금액", value: "-0 원", valueClass: "text-[15px] font-bold text-red-500 tabular-nums" },
               ].map((row, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span className="text-[12px] text-brand-sub">{row.label}</span>
+                  <span className="text-[13px] text-brand-sub">{row.label}</span>
                   <span className={row.valueClass}>{row.value}</span>
                 </div>
               ))}
+              <div className="flex items-center justify-between pt-3 mt-1 border-t border-brand-border">
+                <span className="text-[14px] font-bold text-brand-dark">결제 금액</span>
+                <span className="text-[22px] font-extrabold text-brand-primary tabular-nums">{orderAmount.toLocaleString()}<span className="text-[14px] font-medium text-brand-sub ml-1">원</span></span>
+              </div>
             </div>
-          </div>
 
-          {/* 캠페인 등록 버튼 */}
-          <button
-            onClick={handleSubmit}
-            disabled={isPending || !placeName || !placeLink || !rankKeyword}
-            className="w-full py-3.5 rounded-xl text-[14px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
-          >
-            {isPending ? "등록 중..." : "캠페인 등록 / 결제"}
-          </button>
-        </div>
-
+            <button
+              onClick={handleSubmit}
+              disabled={isPending || !placeName || !placeLink || !rankKeyword}
+              className="mt-auto w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
+            >
+              {isPending ? "등록 중..." : "캠페인 등록 / 결제"}
+            </button>
+          </section>
       </div>
     </div>
   );

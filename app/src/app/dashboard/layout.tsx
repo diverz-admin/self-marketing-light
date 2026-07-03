@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 const MOCK = { name: "사용자", email: "user@selfmarketing.kr" };
 
@@ -13,9 +14,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-brand-lighter flex flex-col">
       <header className="sticky top-0 z-50 h-[60px] bg-white border-b border-brand-border flex items-center justify-between px-6 shrink-0">
-        <Link href="/marketing" className="flex items-center gap-2.5">
-          <span className="h-8 w-8 rounded-[10px] bg-brand-primary flex items-center justify-center text-white font-extrabold text-sm">M</span>
-          <span className="font-extrabold text-[15px] text-brand-dark tracking-tight hidden sm:block">SelfMarketing</span>
+        <Link href="/marketing" className="flex items-center">
+          <Logo markClassName="h-7 w-auto" textClassName="h-4.5 w-auto" textColor="text-brand-dark" />
         </Link>
         <div className="flex items-center gap-2.5">
           <div className="h-7 w-7 rounded-full bg-brand-light border border-brand-border flex items-center justify-center shrink-0">
@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex flex-1 min-h-0">
         <aside className="w-[200px] shrink-0 bg-white border-r border-brand-border sticky top-[60px] h-[calc(100vh-60px)] flex-col hidden md:flex">
           <nav className="flex-1 overflow-y-auto py-2">
-            <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-brand-muted uppercase tracking-widest">브랜딩 관리</p>
+            <p className="px-4 pt-3 pb-1 text-[11px] font-bold text-brand-muted uppercase tracking-widest">브랜딩 관리</p>
             {NAV_ITEMS.map((item) => (
               <Link key={item.href} href={item.href} className="flex items-center gap-2.5 mx-2 px-3 py-2 rounded-xl text-sm font-medium text-brand-sub hover:bg-brand-light hover:text-brand-text transition-all">
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>{item.icon}</svg>

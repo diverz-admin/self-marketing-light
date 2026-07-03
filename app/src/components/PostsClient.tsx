@@ -102,7 +102,7 @@ export default function PostsClient({ initialPosts }: { initialPosts: MockPost[]
                 <input type="text" name="title" defaultValue={currentPost.title || ""} onChange={handleTitleChange} placeholder="예: Next.js 16 App Router 딥다이브" required className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>슬러그(경로명) *<span className="text-[11px] text-brand-primary ml-1.5 font-normal">URL로 사용됩니다</span></label>
+                <label className={labelClass}>슬러그(경로명) *<span className="text-[12px] text-brand-primary ml-1.5 font-normal">URL로 사용됩니다</span></label>
                 <input type="text" name="slug" value={currentPost.slug || ""} onChange={(e) => { setIsSlugManual(true); setCurrentPost((prev) => prev ? { ...prev, slug: e.target.value } : prev); }} placeholder="nextjs-16-deep-dive" required className={inputClass} />
               </div>
               <div>
@@ -137,8 +137,8 @@ export default function PostsClient({ initialPosts }: { initialPosts: MockPost[]
             <div key={post.id} className="bg-white border border-brand-border rounded-2xl p-5 hover:border-brand-primary/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${post.status === "published" ? "bg-brand-success-bg text-brand-success border-green-100" : "bg-brand-light text-brand-sub border-brand-border"}`}>{post.status === "published" ? "발행됨" : "임시저장"}</span>
-                  {post.tags?.slice(0, 3).map((tag, idx) => (<span key={idx} className="text-[11px] font-medium px-2 py-0.5 rounded bg-brand-light text-brand-sub">#{tag}</span>))}
+                  <span className={`text-[12px] font-semibold px-2 py-0.5 rounded border ${post.status === "published" ? "bg-brand-success-bg text-brand-success border-green-100" : "bg-brand-light text-brand-sub border-brand-border"}`}>{post.status === "published" ? "발행됨" : "임시저장"}</span>
+                  {post.tags?.slice(0, 3).map((tag, idx) => (<span key={idx} className="text-[12px] font-medium px-2 py-0.5 rounded bg-brand-light text-brand-sub">#{tag}</span>))}
                 </div>
                 <h3 className="text-sm font-bold text-brand-dark mb-0.5">{post.title}</h3>
                 <p className="text-xs text-brand-sub">/{post.slug} · {new Date(post.createdAt).toLocaleDateString()}</p>

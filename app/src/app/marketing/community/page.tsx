@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AdBanners from "@/components/marketing/AdBanners";
 
 const SECTIONS = [
   {
@@ -8,8 +7,8 @@ const SECTIONS = [
     desc: "마케팅 노하우, 정보, 질문을 자유롭게 공유하세요.",
     icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M12 11v4m0 0h-1.5M12 15h1.5",
     count: "7개 게시글",
-    color: "#0341C7",
-    bg: "linear-gradient(135deg,#0341C7,#0235A8)",
+    color: "#0D3473",
+    bg: "linear-gradient(135deg,#0D3473,#0D2148)",
   },
   {
     href: "/marketing/community/openchat",
@@ -36,15 +35,18 @@ export default function CommunityPage() {
   return (
     <div className="max-w-2xl mx-auto py-8 space-y-6">
 
+      {/* 브레드크럼 */}
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
+        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
+        <span>›</span>
+        <span className="text-brand-text font-medium">커뮤니티</span>
+      </nav>
+
       {/* 헤더 */}
       <div>
-        <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-1">DIVERZ Community</p>
-        <h1 className="text-[28px] font-extrabold text-brand-dark mb-2">커뮤니티</h1>
-        <p className="text-[14px] text-brand-sub">마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요.</p>
+        <h1 className="text-[24px] font-extrabold text-brand-dark tracking-tight">커뮤니티</h1>
+        <p className="text-[15px] text-brand-sub mt-1">마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요.</p>
       </div>
-
-      {/* 광고 배너 */}
-      <AdBanners />
 
       {/* 서브섹션 카드 */}
       <div className="grid gap-4">
@@ -69,11 +71,11 @@ export default function CommunityPage() {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[16px] font-bold text-brand-dark mb-0.5">{s.label}</p>
-              <p className="text-[12px] text-brand-sub truncate">{s.desc}</p>
+              <p className="text-[18px] font-bold text-brand-dark mb-0.5">{s.label}</p>
+              <p className="text-[13px] text-brand-sub truncate">{s.desc}</p>
             </div>
             <div className="shrink-0 flex flex-col items-end gap-1">
-              <span className="text-[11px] font-semibold text-brand-muted">{s.count}</span>
+              <span className="text-[12px] font-semibold text-brand-muted">{s.count}</span>
               <svg className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
@@ -84,7 +86,7 @@ export default function CommunityPage() {
 
       {/* 외부 채널 */}
       <div className="space-y-3">
-        <p className="text-[12px] font-semibold text-brand-muted uppercase tracking-wider">외부 채널</p>
+        <p className="text-[13px] font-semibold text-brand-muted uppercase tracking-wider">외부 채널</p>
 
         <div
           className="rounded-2xl overflow-hidden p-5"
@@ -97,12 +99,12 @@ export default function CommunityPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-[14px] font-bold text-[#3A1D1D]">카카오 오픈채팅</p>
-              <p className="text-[12px] text-[#3A1D1D]/65">실시간 마케팅 Q&A</p>
+              <p className="text-[16px] font-bold text-[#3A1D1D]">카카오 오픈채팅</p>
+              <p className="text-[13px] text-[#3A1D1D]/65">실시간 마케팅 Q&A</p>
             </div>
             <a
               href="/marketing/community/openchat"
-              className="px-4 py-2 rounded-xl text-[12px] font-bold bg-[#3A1D1D] text-[#FEE500]"
+              className="px-4 py-2 rounded-xl text-[13px] font-bold bg-[#3A1D1D] text-[#FEE500]"
             >
               참여하기
             </a>
@@ -115,15 +117,15 @@ export default function CommunityPage() {
         >
           <div className="flex items-center gap-4">
             <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-white/20">
-              <span className="text-[20px] font-extrabold text-white leading-none">N</span>
+              <span className="text-[22px] font-extrabold text-white leading-none">N</span>
             </div>
             <div className="flex-1">
-              <p className="text-[14px] font-bold text-white">네이버 카페</p>
-              <p className="text-[12px] text-white/65">마케팅 정보 공유 카페</p>
+              <p className="text-[16px] font-bold text-white">네이버 카페</p>
+              <p className="text-[13px] text-white/65">마케팅 정보 공유 카페</p>
             </div>
             <a
               href="/marketing/community/board"
-              className="px-4 py-2 rounded-xl text-[12px] font-bold bg-white text-green-700"
+              className="px-4 py-2 rounded-xl text-[13px] font-bold bg-white text-green-700"
             >
               방문하기
             </a>

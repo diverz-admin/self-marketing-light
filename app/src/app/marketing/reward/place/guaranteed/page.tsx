@@ -20,7 +20,7 @@ function PlaceRankMockup() {
       >
         {/* 상태바 */}
         <div className="relative bg-white flex items-center justify-between px-5 pt-3 pb-1">
-          <span className="text-[10px] font-semibold text-gray-800">9:41</span>
+          <span className="text-[11px] font-semibold text-gray-800">9:41</span>
           <div className="absolute left-1/2 -translate-x-1/2 top-2.5 w-[70px] h-[18px] bg-black rounded-full" />
           <div className="flex items-center gap-1">
             <svg className="w-3.5 h-3.5 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
@@ -39,8 +39,8 @@ function PlaceRankMockup() {
         {/* 검색창 */}
         <div className="bg-white px-3 pb-0">
           <div className="flex items-center gap-2 border-b-2 pb-2" style={{ borderColor: "#03C75A" }}>
-            <span className="font-extrabold text-[18px] leading-none" style={{ color: "#03C75A" }}>N</span>
-            <span className="flex-1 text-[13px] text-gray-800 font-medium">강남 맛집</span>
+            <span className="font-extrabold text-[20px] leading-none" style={{ color: "#03C75A" }}>N</span>
+            <span className="flex-1 text-[15px] text-gray-800 font-medium">강남 맛집</span>
             <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="8"/><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35"/>
             </svg>
@@ -49,7 +49,7 @@ function PlaceRankMockup() {
             {["지도","플레이스","블로그","이미지"].map((t, i) => (
               <span
                 key={t}
-                className={`text-[11px] shrink-0 pb-1.5 ${i === 1 ? "font-bold border-b-2" : "text-gray-400"}`}
+                className={`text-[12px] shrink-0 pb-1.5 ${i === 1 ? "font-bold border-b-2" : "text-gray-400"}`}
                 style={i === 1 ? { color: "#03C75A", borderColor: "#03C75A" } : {}}
               >
                 {t}
@@ -61,14 +61,14 @@ function PlaceRankMockup() {
         {/* 플레이스 목록 */}
         <div className="overflow-hidden" style={{ background: "#f5f5f5" }}>
           {/* 지도 영역 */}
-          <div className="relative h-[90px] mx-2 mt-2 rounded-xl overflow-hidden" style={{ background: "linear-gradient(135deg,#e8f5e9,#c8e6c9)" }}>
+          <div className="relative h-[90px] mx-2 mt-2 rounded-xl overflow-hidden" style={{ background: "linear-gradient(135deg,#EEF2FB,#D8E2F5)" }}>
             <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid slice">
-              <line x1="0" y1="45" x2="200" y2="45" stroke="#4CAF50" strokeWidth="2"/>
-              <line x1="100" y1="0" x2="100" y2="90" stroke="#4CAF50" strokeWidth="2"/>
-              <line x1="0" y1="22" x2="200" y2="22" stroke="#4CAF50" strokeWidth="0.8" opacity="0.5"/>
-              <line x1="0" y1="68" x2="200" y2="68" stroke="#4CAF50" strokeWidth="0.8" opacity="0.5"/>
-              <line x1="50" y1="0" x2="50" y2="90" stroke="#4CAF50" strokeWidth="0.8" opacity="0.5"/>
-              <line x1="150" y1="0" x2="150" y2="90" stroke="#4CAF50" strokeWidth="0.8" opacity="0.5"/>
+              <line x1="0" y1="45" x2="200" y2="45" stroke="#94A9D6" strokeWidth="2"/>
+              <line x1="100" y1="0" x2="100" y2="90" stroke="#94A9D6" strokeWidth="2"/>
+              <line x1="0" y1="22" x2="200" y2="22" stroke="#94A9D6" strokeWidth="0.8" opacity="0.5"/>
+              <line x1="0" y1="68" x2="200" y2="68" stroke="#94A9D6" strokeWidth="0.8" opacity="0.5"/>
+              <line x1="50" y1="0" x2="50" y2="90" stroke="#94A9D6" strokeWidth="0.8" opacity="0.5"/>
+              <line x1="150" y1="0" x2="150" y2="90" stroke="#94A9D6" strokeWidth="0.8" opacity="0.5"/>
             </svg>
             {/* 핀들 */}
             {[
@@ -80,12 +80,12 @@ function PlaceRankMockup() {
             ].map((pin) => (
               <div
                 key={pin.label}
-                className="absolute flex items-center justify-center font-extrabold text-[9px] text-white rounded-full shadow"
+                className="absolute flex items-center justify-center font-extrabold text-[10px] text-white rounded-full shadow"
                 style={{
                   left: pin.x, top: pin.y,
                   width: pin.highlight ? 20 : 15,
                   height: pin.highlight ? 20 : 15,
-                  background: pin.highlight ? "#03C75A" : "#555",
+                  background: pin.highlight ? "#0D3473" : "#555",
                   transform: "translate(-50%,-50%)",
                   zIndex: pin.highlight ? 2 : 1,
                 }}
@@ -106,25 +106,25 @@ function PlaceRankMockup() {
             ].map((item) => (
               <div
                 key={item.rank}
-                className={`rounded-xl p-2 flex items-center gap-2 ${item.highlight ? "bg-green-50 border border-green-200" : "bg-white"}`}
+                className={`rounded-xl p-2 flex items-center gap-2 ${item.highlight ? "bg-blue-50 border border-[#C9D8F5]" : "bg-white"}`}
               >
                 <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-extrabold shrink-0"
-                  style={{ background: item.highlight ? "#03C75A" : "#f0f0f0", color: item.highlight ? "white" : "#666" }}
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0"
+                  style={{ background: item.highlight ? "#0D3473" : "#f0f0f0", color: item.highlight ? "white" : "#666" }}
                 >
                   {item.rank}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-[9px] font-bold truncate ${item.highlight ? "text-green-800" : "text-gray-700"}`}>
+                  <p className={`text-[10px] font-bold truncate ${item.highlight ? "text-[#0D3473]" : "text-gray-700"}`}>
                     {item.name}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[8px] text-yellow-500">★ {item.score}</span>
-                    <span className="text-[7px] text-gray-400">리뷰 {item.reviews}</span>
+                    <span className="text-[9px] text-yellow-500">★ {item.score}</span>
+                    <span className="text-[8px] text-gray-400">리뷰 {item.reviews}</span>
                   </div>
                 </div>
                 {item.highlight && (
-                  <span className="text-[7px] font-extrabold px-1.5 py-0.5 rounded-full text-white shrink-0" style={{ background: "#03C75A" }}>
+                  <span className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full text-white shrink-0" style={{ background: "#0D3473" }}>
                     보장
                   </span>
                 )}
@@ -145,12 +145,12 @@ function PlaceRankMockup() {
 
       {/* 플로팅 배지 */}
       <div className="absolute -right-6 top-16 bg-white rounded-2xl shadow-xl px-4 py-2.5 border border-brand-border">
-        <p className="text-[9px] text-brand-muted mb-0.5">보장 순위</p>
-        <p className="text-[16px] font-extrabold leading-none" style={{ color: "#03C75A" }}>5위 이내</p>
+        <p className="text-[10px] text-brand-muted mb-0.5">보장 순위</p>
+        <p className="text-[18px] font-extrabold leading-none" style={{ color: "#0D3473" }}>5위 이내</p>
       </div>
       <div className="absolute -left-8 bottom-20 bg-white rounded-2xl shadow-xl px-4 py-2.5 border border-brand-border">
-        <p className="text-[9px] text-brand-muted mb-0.5">미달성 시</p>
-        <p className="text-[15px] font-extrabold leading-none text-brand-primary">100% 환불</p>
+        <p className="text-[10px] text-brand-muted mb-0.5">미달성 시</p>
+        <p className="text-[17px] font-extrabold leading-none text-brand-primary">100% 환불</p>
       </div>
     </div>
   );
@@ -172,26 +172,20 @@ const BENEFITS = [
     title: "5순위 이내 진입 보장",
     desc: "네이버 플레이스 검색 결과 5위 이내 진입을 약속드립니다. 달성 못하면 전액 환불.",
     icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z",
-    color: "text-green-600", bg: "bg-green-50",
+    color: "text-[#2E6BE0]", bg: "bg-blue-50",
   },
   {
     title: "알고리즘 친화적 유입",
     desc: "실제 사용자가 키워드를 검색하고 방문하는 방식이라 네이버 페널티 위험 없이 안전하게 순위를 올립니다.",
     icon: "M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z",
-    color: "text-blue-600", bg: "bg-blue-50",
+    color: "text-[#2E6BE0]", bg: "bg-blue-50",
   },
   {
     title: "매일 순위 트래킹",
     desc: "캠페인 기간 내 매일 키워드 순위를 모니터링하고, 순위 이탈 시 즉시 트래픽을 보강합니다.",
     icon: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941",
-    color: "text-purple-600", bg: "bg-purple-50",
+    color: "text-[#2E6BE0]", bg: "bg-blue-50",
   },
-];
-
-const WHY_TOP5 = [
-  { stat: "68%", label: "검색 유저의 클릭이 상위 5개에 집중" },
-  { stat: "3.2배", label: "5위권 내 플레이스의 방문자 증가" },
-  { stat: "92%", label: "플레이스 5위 이내 달성률 (지난 6개월)" },
 ];
 
 const FAQS = [
@@ -229,64 +223,46 @@ export default function PlaceGuaranteedPage() {
 
   return (
     <>
-      <div className="w-full flex gap-5 items-start">
+      {/* 브레드크럼 (전체 폭) */}
+      <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1 mb-4">
+        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
+        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span>리워드 마케팅</span>
+        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span className="text-brand-text font-medium">상위노출 보장형</span>
+      </div>
+
+      <div className="w-full flex gap-5 items-stretch">
 
         {/* ────────────────────────────────
             LEFT: 상세 랜딩페이지
         ──────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-4">
 
-          {/* 브레드크럼 */}
-          <div className="flex items-center gap-2 text-[12px] text-brand-muted px-1">
-            <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span>리워드 마케팅</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span className="text-brand-text font-medium">상위노출 보장형</span>
-          </div>
-
           {/* ══ HERO ══ */}
-          <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(135deg,#03C75A 0%,#028A3F 100%)" }}>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle,rgba(255,255,255,0.12),transparent 70%)", transform: "translate(25%,-35%)" }} />
-            <div className="absolute bottom-0 left-[40%] w-72 h-72 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle,rgba(255,255,255,0.06),transparent 70%)", transform: "translateY(40%)" }} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 relative z-10">
+          <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* 텍스트 */}
               <div className="px-10 py-14 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-white/20 text-white tracking-wide">NAVER PLACE</span>
-                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white/10 text-white/80">상위노출 보장형</span>
-                </div>
-                <h1 className="text-[38px] font-extrabold text-white leading-[1.2] mb-5">
-                  키워드 5순위 안,<br />
-                  <span className="text-white">보장합니다</span>
+                <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>NAVER PLACE / 상위노출 보장형</span>
+                <h1 className="text-[38px] font-extrabold text-white leading-[1.28] mb-4">
+                  리워드 유입으로 안전하게,<br />
+                  <span style={{ color: "#7EA6F5" }}>키워드 5순위 진입 보장.</span>
                 </h1>
-                <p className="text-[15px] text-white/75 leading-relaxed mb-8">
-                  네이버 플레이스 검색 결과 상위 5순위 진입을<br />
-                  리워드 유입 방식으로 안전하게 달성합니다.<br />
-                  미달성 시 100% 환불.
+                <p className="text-[15px] text-white/65 leading-relaxed mb-8">
+                  네이버 플레이스 검색 결과 상위 5순위 진입을 리워드 유입 방식으로<br />
+                  안전하게 달성하며, 미달성 시 결제 금액을 100% 환불해 드립니다.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => document.getElementById("contact-panel")?.scrollIntoView({ behavior: "smooth" })}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-extrabold text-green-700 bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
-                  >
-                    무료 진단 신청
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                  </button>
-                  <button
-                    onClick={() => document.getElementById("process")?.scrollIntoView({ behavior: "smooth" })}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-semibold text-white/80 cursor-pointer hover:text-white transition-all"
-                    style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
-                  >
-                    진행 방식 보기
-                  </button>
-                </div>
-                <div className="flex gap-8 mt-8 pt-8 border-t border-white/20">
-                  {WHY_TOP5.map((s) => (
-                    <div key={s.label}>
-                      <p className="text-[22px] font-extrabold text-white leading-none">{s.stat}</p>
-                      <p className="text-[11px] text-white/55 mt-1 leading-snug">{s.label}</p>
+                {/* 메타 정보 */}
+                <div className="inline-flex flex-wrap items-center gap-y-4 rounded-2xl px-6 py-5" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  {[
+                    { k: "보장 순위", v: "5위 이내" },
+                    { k: "보장 기간", v: "25일" },
+                    { k: "6개월 달성률", v: "92%" },
+                  ].map((m, i) => (
+                    <div key={m.k} className={`flex flex-col gap-1 pr-6 ${i > 0 ? "pl-6" : ""}`} style={i > 0 ? { borderLeft: "1px solid rgba(255,255,255,0.15)" } : {}}>
+                      <span className="text-[12px] text-white/50">{m.k}</span>
+                      <span className="text-[15px] font-bold text-white">{m.v}</span>
                     </div>
                   ))}
                 </div>
@@ -302,36 +278,36 @@ export default function PlaceGuaranteedPage() {
           {/* ══ 5순위가 중요한 이유 (white) ══ */}
           <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
             <div className="text-center mb-8">
-              <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-3">왜 5순위인가</p>
-              <h2 className="text-[28px] font-extrabold text-brand-dark mb-2">상위 5개에 클릭의 68%가 몰립니다</h2>
-              <p className="text-[14px] text-brand-sub">네이버 플레이스에서 6위 이하는 사실상 노출 효과가 없습니다.</p>
+              <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>왜 5순위인가</span>
+              <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">상위 5개에 <span style={{ color: "#2E6BE0" }}>클릭의 68%</span>가 몰립니다</h2>
+              <p className="text-[16px] text-brand-sub">네이버 플레이스에서 6위 이하는 사실상 노출 효과가 없습니다.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end mb-10">
               {[
-                { rank: "1위", pct: 100, color: "#03C75A", visitors: "1,200" },
-                { rank: "2위", pct: 78,  color: "#10B981", visitors: "940" },
-                { rank: "3위", pct: 55,  color: "#34D399", visitors: "660" },
-                { rank: "4위", pct: 32,  color: "#6EE7B7", visitors: "380" },
-                { rank: "5위", pct: 20,  color: "#A7F3D0", visitors: "240" },
+                { rank: "1위", pct: 100, color: "#0D3473", visitors: "1,200" },
+                { rank: "2위", pct: 78,  color: "#2E6BE0", visitors: "940" },
+                { rank: "3위", pct: 55,  color: "#5B84D6", visitors: "660" },
+                { rank: "4위", pct: 32,  color: "#88A9E8", visitors: "380" },
+                { rank: "5위", pct: 20,  color: "#BBCEF2", visitors: "240" },
               ].map((bar) => (
                 <div key={bar.rank} className="flex flex-col items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-brand-dark">{bar.visitors}명</span>
+                  <span className="text-[12px] font-bold text-brand-dark">{bar.visitors}명</span>
                   <div className="w-full rounded-t-xl" style={{ height: `${bar.pct * 1.2}px`, background: bar.color }} />
-                  <span className="text-[12px] font-extrabold text-brand-dark">{bar.rank}</span>
-                  <span className="text-[10px] text-brand-muted">{bar.pct}%</span>
+                  <span className="text-[13px] font-extrabold text-brand-dark">{bar.rank}</span>
+                  <span className="text-[11px] text-brand-muted">{bar.pct}%</span>
                 </div>
               ))}
             </div>
-            <p className="text-center text-[12px] text-brand-muted">* 월간 일평균 방문자 비율 기준 (업종 평균)</p>
+            <p className="text-center text-[13px] text-brand-muted">* 월간 일평균 방문자 비율 기준 (업종 평균)</p>
           </div>
 
           {/* ══ 3가지 혜택 (gray) ══ */}
           <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
             <div className="px-10 py-12">
               <div className="text-center mb-8">
-                <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-3">서비스 특징</p>
-                <h2 className="text-[28px] font-extrabold text-brand-dark mb-2">보장형이 다른 이유</h2>
-                <p className="text-[14px] text-brand-sub">단순 트래픽이 아닌 순위 보장, 그 차이가 다릅니다.</p>
+                <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>서비스 특징</span>
+                <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">단순 트래픽이 아닌 <span style={{ color: "#2E6BE0" }}>순위 보장</span></h2>
+                <p className="text-[16px] text-brand-sub">리워드 유입으로 안전하게, 5순위 진입을 약속드립니다.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {BENEFITS.map((b) => (
@@ -341,8 +317,8 @@ export default function PlaceGuaranteedPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d={b.icon} />
                       </svg>
                     </div>
-                    <p className={`text-[14px] font-extrabold mb-2 ${b.color}`}>{b.title}</p>
-                    <p className="text-[13px] text-brand-sub leading-relaxed">{b.desc}</p>
+                    <p className={`text-[16px] font-extrabold mb-2 ${b.color}`}>{b.title}</p>
+                    <p className="text-[15px] text-brand-sub leading-relaxed">{b.desc}</p>
                   </div>
                 ))}
               </div>
@@ -350,24 +326,24 @@ export default function PlaceGuaranteedPage() {
           </div>
 
           {/* ══ 진행 프로세스 (dark) ══ */}
-          <div id="process" className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#03C75A 0%,#028A3F 100%)" }}>
+          <div id="process" className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="px-10 py-12">
               <div className="text-center mb-8">
-                <p className="text-[11px] font-extrabold text-white/60 uppercase tracking-widest mb-3">진행 프로세스</p>
-                <h2 className="text-[28px] font-extrabold text-white mb-2">5단계로 5순위를 만듭니다</h2>
-                <p className="text-[14px] text-white/60">분석부터 보장 완료까지 모든 과정을 책임집니다.</p>
+                <p className="text-[12px] font-extrabold text-white/60 uppercase tracking-widest mb-3">진행 프로세스</p>
+                <h2 className="text-[31px] font-extrabold text-white mb-2">5단계로 5순위를 만듭니다</h2>
+                <p className="text-[16px] text-white/60">분석부터 보장 완료까지 모든 과정을 책임집니다.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
                 {PROCESS.map((p, i) => (
                   <div key={p.step} className="flex flex-col items-center text-center relative">
-                    <div className="h-12 w-12 rounded-full flex items-center justify-center mb-3 text-green-700 font-extrabold text-[14px]" style={{ background: "white" }}>
+                    <div className="h-12 w-12 rounded-full flex items-center justify-center mb-3 text-[#0D3473] font-extrabold text-[16px]" style={{ background: "white" }}>
                       {p.step}
                     </div>
                     {i < PROCESS.length - 1 && (
                       <div className="hidden sm:block absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
                     )}
-                    <p className="text-[13px] font-extrabold text-white mb-1.5">{p.title}</p>
-                    <p className="text-[11px] text-white/60 leading-relaxed">{p.desc}</p>
+                    <p className="text-[15px] font-extrabold text-white mb-1.5">{p.title}</p>
+                    <p className="text-[12px] text-white/60 leading-relaxed">{p.desc}</p>
                   </div>
                 ))}
               </div>
@@ -377,8 +353,8 @@ export default function PlaceGuaranteedPage() {
           {/* ══ FAQ (white) ══ */}
           <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
             <div className="max-w-2xl mx-auto">
-              <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
-              <h2 className="text-[28px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
+              <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
+              <h2 className="text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
               <div className="space-y-2">
                 {FAQS.map((faq, i) => (
                   <div key={i} className="border border-brand-border rounded-xl overflow-hidden">
@@ -386,13 +362,13 @@ export default function PlaceGuaranteedPage() {
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
                       className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors cursor-pointer"
                     >
-                      <span className="text-[14px] font-semibold text-brand-dark pr-4">{faq.q}</span>
+                      <span className="text-[16px] font-semibold text-brand-dark pr-4">{faq.q}</span>
                       <svg className={`w-4 h-4 text-brand-muted shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                     {openFaq === i && (
-                      <div className="px-5 pb-5 pt-3 text-[14px] text-brand-sub leading-relaxed border-t border-brand-border">
+                      <div className="px-5 pb-5 pt-3 text-[16px] text-brand-sub leading-relaxed border-t border-brand-border">
                         {faq.a}
                       </div>
                     )}
@@ -407,44 +383,35 @@ export default function PlaceGuaranteedPage() {
         {/* END LEFT */}
 
         {/* ────────────────────────────────
-            RIGHT: Fixed 문의하기 패널
+            RIGHT: Sticky 문의하기 패널
         ──────────────────────────────── */}
-        <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
-
-        <div
-          id="contact-panel"
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
-          style={{ top: "92px", maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
-        >
-          <div className="space-y-3 pb-3">
+        <div className="hidden lg:block w-64 xl:w-72 shrink-0">
+          <div id="contact-panel" className="sticky top-6 space-y-3 max-h-[calc(100vh-104px)] overflow-y-auto pr-0.5 scrollbar-none">
 
             {/* 메인 문의 카드 */}
-            <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#03C75A 0%,#028A3F 100%)" }}>
+            <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
               <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 110%, rgba(255,255,255,0.12), transparent 60%)" }} />
               <div className="relative z-10 px-5 py-6 text-center">
-                <div className="h-10 w-10 rounded-2xl mx-auto mb-3 flex items-center justify-center text-[20px]" style={{ background: "rgba(255,255,255,0.2)" }}>
-                  🛡️
-                </div>
-                <p className="text-[10px] font-extrabold text-white/60 uppercase tracking-widest mb-2">지금 바로 시작하세요</p>
-                <h2 className="text-[20px] font-extrabold text-white leading-tight mb-3">
+                <p className="text-[11px] font-extrabold text-white/60 uppercase tracking-widest mb-2">지금 바로 시작하세요</p>
+                <h2 className="text-[22px] font-extrabold text-white leading-tight mb-3">
                   플레이스 5순위,<br />
                   보장받으세요
                 </h2>
-                <p className="text-[11px] text-white/70 leading-relaxed mb-5">
+                <p className="text-[12px] text-white/70 leading-relaxed mb-5">
                   무료 진단으로 키워드 현재 순위와<br />
                   5순위 달성 가능성을 먼저 확인하세요.
                 </p>
                 <div className="space-y-2">
                   <button
                     onClick={() => alert("문의하기 연결 예정")}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-extrabold text-green-700 bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[15px] font-extrabold text-[#0D3473] bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
                   >
                     문의하기
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                   </button>
                   <button
                     onClick={() => alert("무료 진단 연결 예정")}
-                    className="w-full px-4 py-2.5 rounded-xl text-[12px] font-semibold text-white/80 cursor-pointer hover:text-white transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white/80 cursor-pointer hover:text-white transition-all"
                     style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
                   >
                     무료 순위 진단 신청
@@ -455,7 +422,7 @@ export default function PlaceGuaranteedPage() {
 
             {/* 보장 지표 카드 */}
             <div className="bg-white rounded-2xl border border-brand-border p-4">
-              <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">보장 현황</p>
+              <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">보장 현황</p>
               {[
                 { label: "보장 순위", value: "5위 이내" },
                 { label: "보장 기간", value: "25일" },
@@ -464,22 +431,22 @@ export default function PlaceGuaranteedPage() {
                 { label: "미달성 환불", value: "100%" },
               ].map((s) => (
                 <div key={s.label} className="flex items-center justify-between py-1.5 border-b border-brand-border last:border-0">
-                  <span className="text-[11px] text-brand-sub">{s.label}</span>
-                  <span className="text-[12px] font-extrabold text-brand-dark">{s.value}</span>
+                  <span className="text-[12px] text-brand-sub">{s.label}</span>
+                  <span className="text-[13px] font-extrabold text-brand-dark">{s.value}</span>
                 </div>
               ))}
-              <p className="text-[10px] text-brand-muted leading-relaxed mt-2">
+              <p className="text-[11px] text-brand-muted leading-relaxed mt-2">
                 * 1~5순위 유지 일수만 카운트됩니다. 순위 이탈 시 카운트 일시 정지 후 복귀 시 재개.
               </p>
             </div>
 
             {/* 포함 항목 카드 */}
             <div className="bg-brand-lighter rounded-2xl border border-brand-border p-4">
-              <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">서비스 포함 항목</p>
+              <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">서비스 포함 항목</p>
               <ul className="space-y-1.5">
                 {["키워드 현재 순위 무료 진단", "리워드 트래픽 캠페인 집행", "매일 순위 모니터링", "5순위 달성 완료 리포트", "미달성 시 전액 환불"].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-[11px] text-brand-sub">
-                    <svg className="w-3 h-3 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <li key={item} className="flex items-center gap-2 text-[12px] text-brand-sub">
+                    <svg className="w-3 h-3 shrink-0" style={{ color: "#2E6BE0" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
                     {item}

@@ -22,15 +22,15 @@ export default function ShoppingReviewDashboard() {
 
       {/* 헤더 */}
       <div>
-        <div className="flex items-center gap-2 text-[12px] text-brand-muted mb-3">
+        <div className="flex items-center gap-2 text-[13px] text-brand-muted mb-3">
           <span>리뷰·체험단</span>
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
           <span className="text-brand-text font-medium">네이버 쇼핑 리뷰</span>
         </div>
-        <h1 className="text-[22px] font-extrabold text-brand-dark tracking-tight">네이버 쇼핑 리뷰</h1>
-        <p className="text-[14px] text-brand-sub mt-1">리뷰 유형을 선택하여 캠페인을 시작하세요.</p>
+        <h1 className="text-[25px] font-extrabold text-brand-dark tracking-tight">네이버 쇼핑 리뷰</h1>
+        <p className="text-[16px] text-brand-sub mt-1">리뷰 유형을 선택하여 캠페인을 시작하세요.</p>
       </div>
 
       {/* 카드 그리드 */}
@@ -55,21 +55,21 @@ export default function ShoppingReviewDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" d={item.iconPath} />
                   </svg>
                 </span>
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${item.tagBg} ${item.tagText}`}>
+                <span className={`text-[12px] font-bold px-2.5 py-1 rounded-lg ${item.tagBg} ${item.tagText}`}>
                   {item.tag}
                 </span>
               </div>
 
               {/* 제목 + 설명 */}
               <div className="flex-1">
-                <h2 className="text-[16px] font-extrabold text-brand-dark mb-1.5">{item.label}</h2>
-                <p className="text-[13px] text-brand-sub leading-relaxed">{item.desc}</p>
+                <h2 className="text-[18px] font-extrabold text-brand-dark mb-1.5">{item.label}</h2>
+                <p className="text-[15px] text-brand-sub leading-relaxed">{item.desc}</p>
               </div>
 
               {/* 포인트 리스트 */}
               <ul className="space-y-1">
                 {item.points.map((pt) => (
-                  <li key={pt} className="flex items-center gap-2 text-[12px] text-brand-sub">
+                  <li key={pt} className="flex items-center gap-2 text-[13px] text-brand-sub">
                     <span className="w-1 h-1 rounded-full shrink-0 bg-brand-muted" />
                     {pt}
                   </li>
@@ -78,7 +78,7 @@ export default function ShoppingReviewDashboard() {
 
               {/* CTA */}
               <div className="flex items-center justify-between pt-3 border-t border-brand-border">
-                <span className="text-[13px] font-bold text-brand-primary">캠페인 시작하기</span>
+                <span className="text-[15px] font-bold text-brand-primary">캠페인 시작하기</span>
                 <span className="h-7 w-7 rounded-full bg-brand-lighter flex items-center justify-center group-hover:bg-brand-primary transition-colors">
                   <svg className="w-3.5 h-3.5 text-brand-primary group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

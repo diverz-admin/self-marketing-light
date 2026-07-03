@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 type Msg = { id: number; user: string; avatarColor: string; text: string; time: string; me?: boolean };
@@ -10,14 +11,14 @@ const TOPICS: Topic[] = [
   { id: "shopping", name: "쇼핑·쿠팡 리워드", emoji: "🛍️", color: "#8B5CF6", online: 98, desc: "상위노출·구매평 전략" },
   { id: "insta", name: "인스타·릴스 마케팅", emoji: "📸", color: "#E1306C", online: 73, desc: "릴스·공동구매·체험단" },
   { id: "youtube", name: "유튜브 채널 성장", emoji: "▶️", color: "#FF0000", online: 51, desc: "쇼츠·협찬·알고리즘" },
-  { id: "ads", name: "광고 세팅 Q&A", emoji: "🎯", color: "#0341C7", online: 64, desc: "META·네이버 SA 실시간 질문" },
+  { id: "ads", name: "광고 세팅 Q&A", emoji: "🎯", color: "#0D3473", online: 64, desc: "META·네이버 SA 실시간 질문" },
   { id: "free", name: "자유 수다방", emoji: "💬", color: "#F59E0B", online: 210, desc: "마케터들의 편한 대화방" },
 ];
 
 const INITIAL: Record<string, Msg[]> = {
   place: [
     { id: 1, user: "플레이스장인", avatarColor: "#03C75A", text: "방문자 리뷰 미션 진행하는데 저장수도 같이 올리니까 순위 확실히 오르네요 👍", time: "14:02" },
-    { id: 2, user: "신규사장님", avatarColor: "#0341C7", text: "오 저도 이번 주에 시작했는데 며칠 정도면 효과 보이나요?", time: "14:05" },
+    { id: 2, user: "신규사장님", avatarColor: "#0D3473", text: "오 저도 이번 주에 시작했는데 며칠 정도면 효과 보이나요?", time: "14:05" },
     { id: 3, user: "플레이스장인", avatarColor: "#03C75A", text: "보통 3~5일이면 변동 보입니다. 키워드 경쟁도에 따라 다르긴 해요!", time: "14:06" },
   ],
   shopping: [
@@ -32,12 +33,12 @@ const INITIAL: Record<string, Msg[]> = {
     { id: 1, user: "쇼츠연구소", avatarColor: "#FF0000", text: "쇼츠 조회수 터지려면 업로드 시간대도 은근 중요합니다", time: "11:30" },
   ],
   ads: [
-    { id: 1, user: "광고초보", avatarColor: "#0341C7", text: "META 픽셀 설치했는데 전환 이벤트가 안 잡혀요 ㅠㅠ 어디 봐야 하나요?", time: "15:01" },
+    { id: 1, user: "광고초보", avatarColor: "#0D3473", text: "META 픽셀 설치했는데 전환 이벤트가 안 잡혀요 ㅠㅠ 어디 봐야 하나요?", time: "15:01" },
     { id: 2, user: "퍼포먼스장", avatarColor: "#7C3AED", text: "이벤트 관리자에서 테스트 이벤트 탭 먼저 확인해보세요. 도메인 인증도 체크!", time: "15:03" },
   ],
   free: [
     { id: 1, user: "1년차마케터", avatarColor: "#F59E0B", text: "다들 오늘도 수고 많으십니다 🔥", time: "16:20" },
-    { id: 2, user: "대표님", avatarColor: "#0341C7", text: "ㅎㅎ 화이팅입니다 이번 분기 목표 가즈아", time: "16:21" },
+    { id: 2, user: "대표님", avatarColor: "#0D3473", text: "ㅎㅎ 화이팅입니다 이번 분기 목표 가즈아", time: "16:21" },
   ],
 };
 
@@ -74,7 +75,7 @@ export default function OpenChatPage() {
     const id = ++seq.current;
     setByTopic((prev) => ({
       ...prev,
-      [activeId]: [...(prev[activeId] ?? []), { id, user: "나", avatarColor: "#0341C7", text, time: nowTime(), me: true }],
+      [activeId]: [...(prev[activeId] ?? []), { id, user: "나", avatarColor: "#0D3473", text, time: nowTime(), me: true }],
     }));
     setDraft("");
 
@@ -95,19 +96,27 @@ export default function OpenChatPage() {
   return (
     <div className="max-w-6xl mx-auto py-8 space-y-6">
 
+      {/* 브레드크럼 */}
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
+        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
+        <span>›</span>
+        <Link href="/marketing/community" className="hover:text-brand-text">커뮤니티</Link>
+        <span>›</span>
+        <span className="text-brand-text font-medium">오픈채팅</span>
+      </nav>
+
       {/* 헤더 */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-1">DIVERZ Community</p>
-          <h1 className="text-[32px] font-extrabold text-brand-dark mb-2">오픈채팅</h1>
-          <p className="text-[15px] text-brand-sub">주제별 채팅방에서 마케터들과 실시간으로 소통하세요.</p>
+          <h1 className="text-[24px] font-extrabold text-brand-dark tracking-tight">오픈채팅</h1>
+          <p className="text-[15px] text-brand-sub mt-1">주제별 채팅방에서 마케터들과 실시간으로 소통하세요.</p>
         </div>
         <div className="shrink-0 mt-2 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-green-50 border border-green-100">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
           </span>
-          <span className="text-[13px] font-bold text-green-700">
+          <span className="text-[15px] font-bold text-green-700">
             {TOPICS.reduce((s, t) => s + t.online, 0).toLocaleString()}명 접속 중
           </span>
         </div>
@@ -119,8 +128,8 @@ export default function OpenChatPage() {
         {/* 주제 목록 */}
         <div className="rounded-2xl border border-brand-border bg-white overflow-hidden flex flex-col">
           <div className="px-5 py-4 border-b border-brand-border shrink-0">
-            <p className="text-[15px] font-extrabold text-brand-dark">주제별 채팅방</p>
-            <p className="text-[12px] text-brand-sub mt-0.5">{TOPICS.length}개의 실시간 채팅방</p>
+            <p className="text-[17px] font-extrabold text-brand-dark">주제별 채팅방</p>
+            <p className="text-[13px] text-brand-sub mt-0.5">{TOPICS.length}개의 실시간 채팅방</p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {TOPICS.map((t) => {
@@ -132,25 +141,25 @@ export default function OpenChatPage() {
                   key={t.id}
                   onClick={() => setActiveId(t.id)}
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
-                    on ? "bg-[#EEF2FF]" : "hover:bg-brand-lighter"
+                    on ? "bg-[#EAEFF9]" : "hover:bg-brand-lighter"
                   }`}
                 >
                   <span
-                    className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 text-[20px]"
+                    className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 text-[22px]"
                     style={{ background: `${t.color}1A` }}
                   >
                     {t.emoji}
                   </span>
                   <span className="flex-1 min-w-0">
-                    <span className={`block text-[14px] font-bold truncate ${on ? "text-brand-primary" : "text-brand-dark"}`}>
+                    <span className={`block text-[16px] font-bold truncate ${on ? "text-brand-primary" : "text-brand-dark"}`}>
                       {t.name}
                     </span>
-                    <span className="block text-[12px] text-brand-muted truncate">
+                    <span className="block text-[13px] text-brand-muted truncate">
                       {last ? `${last.me ? "나" : last.user}: ${last.text}` : t.desc}
                     </span>
                   </span>
                   <span className="shrink-0 flex flex-col items-end gap-1">
-                    <span className="flex items-center gap-1 text-[10.5px] font-semibold text-green-600">
+                    <span className="flex items-center gap-1 text-[12px] font-semibold text-green-600">
                       <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
                       {t.online}
                     </span>
@@ -165,17 +174,17 @@ export default function OpenChatPage() {
         <div className="rounded-2xl border border-brand-border bg-white overflow-hidden flex flex-col">
           {/* 채팅 헤더 */}
           <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-border shrink-0">
-            <span className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 text-[20px]" style={{ background: `${active.color}1A` }}>
+            <span className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 text-[22px]" style={{ background: `${active.color}1A` }}>
               {active.emoji}
             </span>
             <div className="min-w-0">
-              <p className="text-[16px] font-extrabold text-brand-dark truncate">{active.name}</p>
-              <p className="text-[12px] text-green-600 font-semibold flex items-center gap-1.5">
+              <p className="text-[18px] font-extrabold text-brand-dark truncate">{active.name}</p>
+              <p className="text-[13px] text-green-600 font-semibold flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
                 {active.online}명 접속 중
               </p>
             </div>
-            <button className="ml-auto shrink-0 px-3.5 py-2 rounded-lg text-[12px] font-semibold bg-brand-lighter text-brand-sub hover:bg-brand-border transition-colors">
+            <button className="ml-auto shrink-0 px-3.5 py-2 rounded-lg text-[13px] font-semibold bg-brand-lighter text-brand-sub hover:bg-brand-border transition-colors">
               나가기
             </button>
           </div>
@@ -183,33 +192,33 @@ export default function OpenChatPage() {
           {/* 메시지 영역 */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#FAFBFC]">
             <div className="flex justify-center">
-              <span className="text-[11px] text-brand-muted bg-white px-3 py-1 rounded-full border border-brand-border">
+              <span className="text-[12px] text-brand-muted bg-white px-3 py-1 rounded-full border border-brand-border">
                 {active.desc}
               </span>
             </div>
             {messages.map((m) =>
               m.me ? (
                 <div key={m.id} className="flex justify-end items-end gap-2">
-                  <span className="text-[10px] text-brand-muted mb-0.5">{m.time}</span>
-                  <div className="max-w-[70%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-brand-primary text-white text-[14px] leading-relaxed">
+                  <span className="text-[11px] text-brand-muted mb-0.5">{m.time}</span>
+                  <div className="max-w-[70%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-brand-primary text-white text-[16px] leading-relaxed">
                     {m.text}
                   </div>
                 </div>
               ) : (
                 <div key={m.id} className="flex items-start gap-2.5">
                   <span
-                    className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 text-white text-[13px] font-bold"
+                    className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 text-white text-[15px] font-bold"
                     style={{ background: m.avatarColor }}
                   >
                     {m.user.charAt(0)}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-brand-sub mb-1">{m.user}</p>
+                    <p className="text-[13px] font-semibold text-brand-sub mb-1">{m.user}</p>
                     <div className="flex items-end gap-2">
-                      <div className="max-w-[70%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white border border-brand-border text-brand-dark text-[14px] leading-relaxed">
+                      <div className="max-w-[70%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white border border-brand-border text-brand-dark text-[16px] leading-relaxed">
                         {m.text}
                       </div>
-                      <span className="text-[10px] text-brand-muted mb-0.5 shrink-0">{m.time}</span>
+                      <span className="text-[11px] text-brand-muted mb-0.5 shrink-0">{m.time}</span>
                     </div>
                   </div>
                 </div>
@@ -231,7 +240,7 @@ export default function OpenChatPage() {
                   }
                 }}
                 placeholder={`${active.name}에 메시지 보내기...`}
-                className="flex-1 px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[14px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-colors"
+                className="flex-1 px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[16px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-colors"
               />
               <button
                 onClick={send}

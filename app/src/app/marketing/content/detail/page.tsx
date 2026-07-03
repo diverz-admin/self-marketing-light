@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRailLeft } from "@/components/marketing/useRailLeft";
 
 /* ── 상세페이지 목업 ─────────────────────────── */
 function DetailMockup() {
@@ -23,11 +24,11 @@ function DetailMockup() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-[7px] font-bold text-emerald-400">AI 이미지</p>
+              <p className="text-[8px] font-bold text-emerald-400">AI 이미지</p>
             </div>
           </div>
           {/* AI 뱃지 */}
-          <div className="absolute top-2 right-2 text-[7px] font-extrabold px-1.5 py-0.5 rounded-md text-white" style={{ background: "#8B5CF6" }}>AI</div>
+          <div className="absolute top-2 right-2 text-[8px] font-extrabold px-1.5 py-0.5 rounded-md text-white" style={{ background: "#8B5CF6" }}>AI</div>
         </div>
 
         {/* 카피 영역 */}
@@ -65,7 +66,7 @@ function DetailMockup() {
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             ))}
-            <span className="text-[7px] text-emerald-400 font-bold ml-1">4.9</span>
+            <span className="text-[8px] text-emerald-400 font-bold ml-1">4.9</span>
           </div>
           <div className="h-1 w-full rounded-full mb-0.5" style={{ background: "rgba(255,255,255,0.12)" }} />
           <div className="h-1 w-3/4 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }} />
@@ -74,7 +75,7 @@ function DetailMockup() {
         {/* CTA 버튼 */}
         <div className="px-3 pb-3">
           <div className="h-6 w-full rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-            <span className="text-[8px] font-extrabold text-white">구매하기</span>
+            <span className="text-[9px] font-extrabold text-white">구매하기</span>
           </div>
         </div>
       </div>
@@ -94,20 +95,20 @@ function DetailMockup() {
             style={{ background: `${s.color}18`, border: `1px solid ${s.color}40`, marginLeft: `${i % 2 === 0 ? 0 : 8}px` }}
           >
             <div className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-            <span className="text-[8px] font-bold" style={{ color: s.color }}>{s.label}</span>
+            <span className="text-[9px] font-bold" style={{ color: s.color }}>{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* 배지들 */}
       <div
-        className="absolute top-[96px] left-[-6px] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
+        className="absolute top-[96px] left-[-6px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
         style={{ background: "#8B5CF6" }}
       >
         AI 이미지 생성
       </div>
       <div
-        className="absolute bottom-[30px] right-[4px] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
+        className="absolute bottom-[30px] right-[4px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
         style={{ background: "#10B981" }}
       >
         전환율 최적화
@@ -134,21 +135,21 @@ const FEATURES = [
           <div key={item.label} className="flex items-start gap-3">
             <div className="flex flex-col items-center shrink-0 mt-1">
               <div
-                className="h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-extrabold shrink-0"
-                style={{ background: item.done ? item.color : "#E5E8EB", color: item.done ? "white" : "#6B7684" }}
+                className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0"
+                style={{ background: item.done ? item.color : "#E2E6ED", color: item.done ? "white" : "#5B6472" }}
               >
                 {item.done ? "✓" : i + 1}
               </div>
               {i < arr.length - 1 && (
-                <div className="w-px h-3 mt-0.5" style={{ background: item.done ? `${item.color}50` : "#E5E8EB" }} />
+                <div className="w-px h-3 mt-0.5" style={{ background: item.done ? `${item.color}50` : "#E2E6ED" }} />
               )}
             </div>
             <div
               className="flex-1 rounded-xl px-3 py-2"
-              style={{ background: item.done ? `${item.color}10` : "#F9FAFB", border: `1px solid ${item.done ? `${item.color}30` : "#E5E8EB"}` }}
+              style={{ background: item.done ? `${item.color}10` : "#F5F6F8", border: `1px solid ${item.done ? `${item.color}30` : "#E2E6ED"}` }}
             >
-              <p className="text-[11px] font-bold leading-tight" style={{ color: item.done ? item.color : "#6B7684" }}>{item.label}</p>
-              <p className="text-[9px] mt-0.5" style={{ color: item.done ? `${item.color}99` : "#9CA3AF" }}>{item.sub}</p>
+              <p className="text-[12px] font-bold leading-tight" style={{ color: item.done ? item.color : "#5B6472" }}>{item.label}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: item.done ? `${item.color}99` : "#9CA3AF" }}>{item.sub}</p>
             </div>
           </div>
         ))}
@@ -165,7 +166,7 @@ const FEATURES = [
     visual: (
       <div className="w-full max-w-[280px] space-y-2.5">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-3">AI Image Generation</p>
+          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">AI Image Generation</p>
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: "제품컷", color: "#10B981", icon: "📦" },
@@ -179,23 +180,23 @@ const FEATURES = [
                 style={{ background: `${item.color}12`, border: `1px solid ${item.color}25` }}
               >
                 <span className="text-xl">{item.icon}</span>
-                <span className="text-[9px] font-bold" style={{ color: item.color }}>{item.label}</span>
+                <span className="text-[10px] font-bold" style={{ color: item.color }}>{item.label}</span>
               </div>
             ))}
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md px-4 py-3 flex items-center gap-3">
           <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#8B5CF620" }}>
-            <span className="text-[14px]">✨</span>
+            <span className="text-[16px]">✨</span>
           </div>
           <div>
-            <p className="text-[11px] font-bold text-gray-700">별도 촬영 비용 0원</p>
-            <p className="text-[9px] text-gray-400">AI로 프리미엄 이미지 생성</p>
+            <p className="text-[12px] font-bold text-gray-700">별도 촬영 비용 0원</p>
+            <p className="text-[10px] text-gray-400">AI로 프리미엄 이미지 생성</p>
           </div>
         </div>
       </div>
     ),
-    bg: "#F9FAFB",
+    bg: "#F5F6F8",
     accent: "#8B5CF6",
   },
   {
@@ -206,7 +207,7 @@ const FEATURES = [
     visual: (
       <div className="w-full max-w-[280px] space-y-2">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-3">Section Stack</p>
+          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">Section Stack</p>
           {[
             { label: "히어로 + 핵심 카피", px: "5,000px", color: "#10B981" },
             { label: "특장점 3–5가지", px: "10,000px", color: "#34D399" },
@@ -216,13 +217,13 @@ const FEATURES = [
           ].map((s) => (
             <div key={s.label} className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-              <span className="text-[10px] text-gray-600 flex-1">{s.label}</span>
-              <span className="text-[9px] font-bold" style={{ color: s.color }}>{s.px}</span>
+              <span className="text-[11px] text-gray-600 flex-1">{s.label}</span>
+              <span className="text-[10px] font-bold" style={{ color: s.color }}>{s.px}</span>
             </div>
           ))}
           <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-            <span className="text-[9px] font-bold text-gray-400">총 분량</span>
-            <span className="text-[10px] font-extrabold text-violet-600">41,000px+</span>
+            <span className="text-[10px] font-bold text-gray-400">총 분량</span>
+            <span className="text-[11px] font-extrabold text-violet-600">41,000px+</span>
           </div>
         </div>
       </div>
@@ -329,6 +330,7 @@ function Check({ color }: { color: string }) {
 }
 
 export default function DetailPage() {
+  const { railRef, railLeft } = useRailLeft();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -339,15 +341,15 @@ export default function DetailPage() {
 
         {/* ── 오른쪽 고정 CTA 패널 ────── */}
         <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
-          style={{ top: "92px" }}
+          className="hidden lg:block fixed z-30 w-64 xl:w-72"
+          style={{ top: 92, left: railLeft, visibility: railLeft == null ? "hidden" : "visible" }}
         >
           <div className="rounded-2xl overflow-hidden shadow-xl border border-emerald-100">
             <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-              <p className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Detail Page</p>
-              <p className="text-[17px] font-extrabold text-white leading-tight mb-1">기획부터 AI 이미지까지</p>
-              <p className="text-[17px] font-extrabold text-white leading-tight mb-5">원스톱 제작</p>
-              <p className="text-[11px] text-white/55 leading-relaxed mb-5">
+              <p className="text-[11px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Detail Page</p>
+              <p className="text-[19px] font-extrabold text-white leading-tight mb-1">기획부터 AI 이미지까지</p>
+              <p className="text-[19px] font-extrabold text-white leading-tight mb-5">원스톱 제작</p>
+              <p className="text-[12px] text-white/55 leading-relaxed mb-5">
                 전환율 중심 기획 · AI 이미지 생성<br />감성 디자인 · Figma 납품까지<br />한 팀이 끝까지 담당합니다.
               </p>
               <div className="space-y-2">
@@ -358,22 +360,22 @@ export default function DetailPage() {
                 ].map((t) => (
                   <div key={t.label} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/10">
                     <div>
-                      <span className="text-[12px] font-bold text-white block leading-tight">{t.label}</span>
-                      <span className="text-[10px] text-white/40">{t.sub}</span>
+                      <span className="text-[13px] font-bold text-white block leading-tight">{t.label}</span>
+                      <span className="text-[11px] text-white/40">{t.sub}</span>
                     </div>
-                    <span className="text-[12px] font-extrabold text-emerald-200">{t.price}</span>
+                    <span className="text-[13px] font-extrabold text-emerald-200">{t.price}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="bg-white px-4 py-5 space-y-2.5">
               <button
-                className="w-full py-3 rounded-xl text-[13px] font-extrabold text-white transition-opacity hover:opacity-85"
+                className="w-full py-3 rounded-xl text-[15px] font-extrabold text-white transition-opacity hover:opacity-85"
                 style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}
               >
                 무료 상세페이지 상담 신청
               </button>
-              <button className="w-full py-3 rounded-xl text-[13px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
+              <button className="w-full py-3 rounded-xl text-[15px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
                 카카오로 문의하기
               </button>
             </div>
@@ -381,7 +383,7 @@ export default function DetailPage() {
         </div>
 
         {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub mb-6 px-1">
+        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub mb-6 px-1">
           <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
           <span>›</span>
           <span className="text-brand-muted">콘텐츠</span>
@@ -393,18 +395,18 @@ export default function DetailPage() {
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#022C22 0%,#064E3B 55%,#065F46 100%)" }}>
           <div className="px-8 py-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-extrabold text-emerald-300 uppercase tracking-[0.2em] mb-3">Detail Page</p>
-              <h1 className="text-[30px] font-extrabold text-white leading-tight mb-4">
+              <p className="text-[12px] font-extrabold text-emerald-300 uppercase tracking-[0.2em] mb-3">Detail Page</p>
+              <h1 className="text-[34px] font-extrabold text-white leading-tight mb-4">
                 팔리는 상세페이지,<br />
                 기획이 먼저입니다
               </h1>
-              <p className="text-[14px] text-white/75 leading-relaxed mb-6">
+              <p className="text-[16px] text-white/75 leading-relaxed mb-6">
                 전환율 기반 기획 · AI 이미지 생성 · 감성 디자인<br />
                 스마트스토어·쿠팡·자사몰 모두 대응합니다.
               </p>
               <div className="flex flex-wrap gap-2">
                 {["전환율 최적화", "AI 이미지 포함", "Figma 납품", "7일 완성"].map((t) => (
-                  <span key={t} className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
+                  <span key={t} className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
                     {t}
                   </span>
                 ))}
@@ -423,8 +425,8 @@ export default function DetailPage() {
               { num: "7일", label: "최단 납품 기간" },
             ].map((s) => (
               <div key={s.label} className="text-center px-2">
-                <p className="text-[24px] font-extrabold text-emerald-600 leading-tight">{s.num}</p>
-                <p className="text-[12px] text-brand-sub mt-0.5">{s.label}</p>
+                <p className="text-[27px] font-extrabold text-emerald-600 leading-tight">{s.num}</p>
+                <p className="text-[13px] text-brand-sub mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -439,20 +441,20 @@ export default function DetailPage() {
           >
             <div className={`px-8 py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
+                <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
                   FEATURE {f.no}
                 </p>
-                <h2 className="text-[22px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
+                <h2 className="text-[25px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
                   {f.title}
                 </h2>
-                <p className="text-[13px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
+                <p className="text-[15px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
                 <ul className="space-y-2">
                   {f.points.map((pt) => (
                     <li key={pt} className="flex items-center gap-2">
                       <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke={f.accent} strokeWidth={2.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
-                      <span className="text-[12px] font-semibold text-brand-dark">{pt}</span>
+                      <span className="text-[13px] font-semibold text-brand-dark">{pt}</span>
                     </li>
                   ))}
                 </ul>
@@ -467,26 +469,24 @@ export default function DetailPage() {
         {/* ── 프로세스 ────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#022C22 0%,#064E3B 100%)" }}>
           <div className="px-8 py-10">
-            <p className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-widest mb-2">Process</p>
-            <h2 className="text-[22px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
-            <div className="space-y-0">
+            <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#6EE7B7" }}>Process</p>
+            <h2 className="text-[25px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {PROCESS.map((p, i) => (
-                <div key={p.step} className="flex gap-4">
-                  <div className="flex flex-col items-center shrink-0">
-                    <div
-                      className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
-                      style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}
-                    >
-                      {p.step}
-                    </div>
-                    {i < PROCESS.length - 1 && (
-                      <div className="w-px flex-1 my-1" style={{ background: "rgba(16,185,129,0.3)" }} />
-                    )}
+                <div key={p.step} className="relative rounded-2xl p-5 flex flex-col"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  {/* 단계 연결 화살표 (데스크톱) */}
+                  {i < PROCESS.length - 1 && (
+                    <svg className="hidden lg:block absolute top-9 -right-3 w-5 h-5 text-white/25 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center text-[15px] font-extrabold text-white mb-4 shrink-0"
+                    style={{ background: "linear-gradient(135deg,#10B981,#059669)", boxShadow: "0 6px 16px rgba(16,185,129,0.35)" }}>
+                    {p.step}
                   </div>
-                  <div className={`pb-6 ${i === PROCESS.length - 1 ? "pb-0" : ""}`}>
-                    <p className="text-[14px] font-bold text-white mb-1">{p.title}</p>
-                    <p className="text-[12px] text-emerald-300/55 leading-relaxed">{p.desc}</p>
-                  </div>
+                  <p className="text-[15px] font-bold text-white mb-1.5 leading-snug">{p.title}</p>
+                  <p className="text-[13px] text-white/50 leading-relaxed">{p.desc}</p>
                 </div>
               ))}
             </div>
@@ -495,9 +495,9 @@ export default function DetailPage() {
 
         {/* ── 가격 플랜 ───────────────────────── */}
         <section className="rounded-2xl bg-brand-lighter border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">Pricing</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
-          <p className="text-[13px] text-brand-sub mb-8">제품 종류와 목적에 맞는 플랜을 선택하세요.</p>
+          <p className="text-[12px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">Pricing</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
+          <p className="text-[15px] text-brand-sub mb-8">제품 종류와 목적에 맞는 플랜을 선택하세요.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {TIERS.map((tier) => (
@@ -511,60 +511,60 @@ export default function DetailPage() {
               >
                 {tier.best && (
                   <div
-                    className="absolute top-4 right-4 text-white text-[10px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
+                    className="absolute top-4 right-4 text-white text-[11px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
                     style={{ background: "linear-gradient(135deg,#8B5CF6,#6D28D9)" }}
                   >
                     BEST
                   </div>
                 )}
                 <div className="px-5 pt-5 pb-8" style={{ background: tier.grad }}>
-                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
-                  <p className="text-white text-[18px] font-extrabold">{tier.name}</p>
+                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
+                  <p className="text-white text-[20px] font-extrabold">{tier.name}</p>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-white text-[28px] font-extrabold">{tier.price}</span>
-                    <span className="text-white/70 text-[13px] font-semibold">{tier.unit}</span>
+                    <span className="text-white text-[31px] font-extrabold">{tier.price}</span>
+                    <span className="text-white/70 text-[15px] font-semibold">{tier.unit}</span>
                   </div>
-                  <p className="text-white/40 text-[10px] mt-0.5">VAT 별도</p>
+                  <p className="text-white/40 text-[11px] mt-0.5">VAT 별도</p>
                   <div className="mt-3 flex items-center gap-1.5 bg-white/15 rounded-lg px-2.5 py-1.5 w-fit">
                     <svg className="w-3 h-3 text-white/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-white text-[11px] font-bold">{tier.duration} 소요</span>
+                    <span className="text-white text-[12px] font-bold">{tier.duration} 소요</span>
                   </div>
                 </div>
                 <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
                   <ul className="space-y-1.5">
                     {tier.targets.map((t, i) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <Check color={tier.checkColor} />
-                        <span className="text-[11px] text-brand-sub leading-snug">{t}</span>
+                        <span className="text-[12px] text-brand-sub leading-snug">{t}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">스펙</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">스펙</p>
                   <ul className="space-y-1.5">
                     {tier.specs.map((s, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="text-[10px] font-bold text-brand-muted w-10 shrink-0 pt-[1px]">{s.label}</span>
-                        <span className="text-[11px] text-brand-dark leading-snug">{s.value}</span>
+                        <span className="text-[11px] font-bold text-brand-muted w-10 shrink-0 pt-[1px]">{s.label}</span>
+                        <span className="text-[12px] text-brand-dark leading-snug">{s.value}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 py-4 flex-1">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">포함 구성</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">포함 구성</p>
                   <ul className="space-y-1.5">
                     {tier.includes.map((inc, i) => (
                       <li key={i} className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tier.grad.includes("#") ? (tier.grad.split(",")[1]?.trim().replace(")", "") ?? "#10B981") : "#10B981" }} />
-                        <span className={`text-[11px] leading-snug ${inc === tier.highlight ? "font-bold text-brand-dark" : "text-brand-sub"}`}>
+                        <span className={`text-[12px] leading-snug ${inc === tier.highlight ? "font-bold text-brand-dark" : "text-brand-sub"}`}>
                           {inc}
                         </span>
                         {inc === tier.highlight && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-600 shrink-0">추가</span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-600 shrink-0">추가</span>
                         )}
                       </li>
                     ))}
@@ -572,7 +572,7 @@ export default function DetailPage() {
                 </div>
                 <div className="px-4 pb-4 pt-2">
                   <button
-                    className="w-full py-2.5 rounded-xl text-[13px] font-bold text-white hover:opacity-85 transition-opacity"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-bold text-white hover:opacity-85 transition-opacity"
                     style={{ background: tier.grad }}
                   >
                     문의하기
@@ -585,8 +585,8 @@ export default function DetailPage() {
 
         {/* ── FAQ ────────────────────────────── */}
         <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
+          <p className="text-[12px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">FAQ</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
           <div className="space-y-2">
             {FAQS.map((faq, i) => (
               <div key={i} className="rounded-2xl border border-brand-border overflow-hidden">
@@ -594,7 +594,7 @@ export default function DetailPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors"
                 >
-                  <span className="text-[13px] font-bold text-brand-dark">{faq.q}</span>
+                  <span className="text-[15px] font-bold text-brand-dark">{faq.q}</span>
                   <svg
                     className={`w-4 h-4 text-brand-muted shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
@@ -604,7 +604,7 @@ export default function DetailPage() {
                 </button>
                 {openFaq === i && (
                   <div className="px-5 pb-4 border-t border-brand-border bg-brand-lighter">
-                    <p className="text-[13px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
+                    <p className="text-[15px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
                   </div>
                 )}
               </div>
@@ -618,14 +618,14 @@ export default function DetailPage() {
           style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}
         >
           <div>
-            <p className="text-[11px] font-extrabold text-emerald-100/50 uppercase tracking-widest mb-1">무료 상담</p>
-            <p className="text-[20px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
+            <p className="text-[12px] font-extrabold text-emerald-100/50 uppercase tracking-widest mb-1">무료 상담</p>
+            <p className="text-[22px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <button className="px-6 py-3 rounded-xl text-[13px] font-extrabold bg-white text-emerald-700 hover:bg-emerald-50 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-extrabold bg-white text-emerald-700 hover:bg-emerald-50 transition-colors">
               무료 상담 신청
             </button>
-            <button className="px-6 py-3 rounded-xl text-[13px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
               카카오로 문의
             </button>
           </div>
@@ -636,7 +636,7 @@ export default function DetailPage() {
           <svg className="w-4 h-4 text-brand-muted shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
-          <p className="text-[11px] text-brand-muted leading-relaxed">
+          <p className="text-[12px] text-brand-muted leading-relaxed">
             작업기간은 영업일 기준이며, 피드백 속도 및 수정 횟수에 따라 달라질 수 있습니다. 가격은 VAT 별도이며, 세부 범위에 따라 변동될 수 있습니다.
           </p>
         </div>
@@ -644,7 +644,7 @@ export default function DetailPage() {
       </div>
 
       {/* 오른쪽 고정 패널 자리 확보용 */}
-      <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
+      <div ref={railRef} className="hidden lg:block w-64 xl:w-72 shrink-0" />
 
     </div>
   );

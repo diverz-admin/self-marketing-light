@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRailLeft } from "@/components/marketing/useRailLeft";
 
 /* ── 브랜드 아이덴티티 목업 ──────────────────── */
 function BrandingMockup() {
@@ -14,18 +15,18 @@ function BrandingMockup() {
         style={{ background: "linear-gradient(160deg,#6366F1 0%,#4338CA 100%)" }}
       >
         <div className="px-5 pt-5 pb-4">
-          <p className="text-[9px] font-extrabold text-white/40 uppercase tracking-[0.2em] mb-1">Brand Identity</p>
-          <p className="text-[17px] font-extrabold text-white leading-tight mb-3">브랜드<br />가이드북</p>
+          <p className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] mb-1">Brand Identity</p>
+          <p className="text-[19px] font-extrabold text-white leading-tight mb-3">브랜드<br />가이드북</p>
           {/* 컬러 팔레트 */}
           <div className="flex gap-1.5 mb-4">
-            {["#6366F1","#F59E0B","#10B981","#191F28","#F9FAFB"].map((c) => (
+            {["#6366F1","#F59E0B","#10B981","#111D37","#F5F6F8"].map((c) => (
               <div key={c} className="w-5 h-5 rounded-full border border-white/20" style={{ background: c }} />
             ))}
           </div>
           {/* 폰트 샘플 */}
           <div className="space-y-1">
-            <p className="text-white text-[13px] font-extrabold leading-none">Aa</p>
-            <p className="text-white/50 text-[9px] font-medium">Pretendard / 600</p>
+            <p className="text-white text-[15px] font-extrabold leading-none">Aa</p>
+            <p className="text-white/50 text-[10px] font-medium">Pretendard / 600</p>
           </div>
         </div>
         {/* 하단 줄무늬 */}
@@ -40,11 +41,11 @@ function BrandingMockup() {
       <div className="absolute right-0 top-6 w-[120px] h-[120px] rounded-2xl shadow-xl bg-white flex flex-col items-center justify-center border border-gray-100">
         <div className="h-10 w-10 rounded-xl mb-2" style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}>
           <div className="h-full w-full rounded-xl flex items-center justify-center">
-            <span className="text-white font-extrabold text-[18px]">B</span>
+            <span className="text-white font-extrabold text-[20px]">B</span>
           </div>
         </div>
-        <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">BRAND</p>
-        <p className="text-[11px] font-extrabold text-gray-700 tracking-tight">STUDIO</p>
+        <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">BRAND</p>
+        <p className="text-[12px] font-extrabold text-gray-700 tracking-tight">STUDIO</p>
       </div>
 
       {/* 명함 카드 */}
@@ -53,32 +54,32 @@ function BrandingMockup() {
         style={{ background: "linear-gradient(135deg,#1E1B4B,#312E81)" }}
       >
         <div className="px-4 pt-3">
-          <p className="text-white text-[11px] font-extrabold mb-0.5">김대표</p>
-          <p className="text-white/50 text-[8px] mb-2">CEO · BRAND STUDIO</p>
-          <p className="text-white/40 text-[7px]">eggcorp2024@gmail.com</p>
-          <p className="text-white/40 text-[7px]">010-0000-0000</p>
+          <p className="text-white text-[12px] font-extrabold mb-0.5">김대표</p>
+          <p className="text-white/50 text-[9px] mb-2">CEO · BRAND STUDIO</p>
+          <p className="text-white/40 text-[8px]">eggcorp2024@gmail.com</p>
+          <p className="text-white/40 text-[8px]">010-0000-0000</p>
         </div>
         <div className="absolute bottom-2 right-2 h-6 w-6 rounded-lg" style={{ background: "rgba(255,255,255,0.12)" }}>
-          <span className="flex items-center justify-center h-full text-white font-extrabold text-[10px]">B</span>
+          <span className="flex items-center justify-center h-full text-white font-extrabold text-[11px]">B</span>
         </div>
       </div>
 
       {/* 키 메시지 카드 */}
       <div className="absolute left-8 bottom-0 w-[200px] bg-white rounded-2xl shadow-xl border border-gray-100 px-4 py-3">
-        <p className="text-[8px] font-bold text-gray-300 uppercase tracking-widest mb-1">Key Message</p>
-        <p className="text-[13px] font-extrabold text-gray-800 leading-snug">"신뢰를 설계하는<br />브랜드 전략"</p>
+        <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-1">Key Message</p>
+        <p className="text-[15px] font-extrabold text-gray-800 leading-snug">"신뢰를 설계하는<br />브랜드 전략"</p>
         <div className="mt-2 flex gap-1.5">
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">전략</span>
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">아이덴티티</span>
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">시스템</span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">전략</span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">아이덴티티</span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-500">시스템</span>
         </div>
       </div>
 
       {/* 플로팅 배지 */}
-      <div className="absolute -right-2 bottom-[100px] bg-indigo-600 text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg">
+      <div className="absolute -right-2 bottom-[100px] bg-indigo-600 text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg">
         가이드북 제작
       </div>
-      <div className="absolute -left-2 top-[100px] bg-amber-400 text-amber-900 text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg">
+      <div className="absolute -left-2 top-[100px] bg-amber-400 text-amber-900 text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg">
         로고 디자인
       </div>
     </div>
@@ -94,7 +95,7 @@ const FEATURES = [
     points: ["브랜드 인터뷰 (대표 1:1)", "시장 포지셔닝 정리", "핵심 타겟 & 페르소나 설정", "브랜드 스토리 & 슬로건 도출"],
     visual: (
       <div className="w-full max-w-[280px] bg-white rounded-2xl border border-gray-100 shadow-md p-5">
-        <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">Brand Strategy</p>
+        <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-3">Brand Strategy</p>
         {[
           { label: "브랜드 미션", value: "신뢰를 설계한다", color: "#6366F1" },
           { label: "핵심 타겟", value: "30대 스타트업 대표", color: "#F59E0B" },
@@ -102,9 +103,9 @@ const FEATURES = [
           { label: "슬로건", value: "브랜드가 말한다", color: "#6366F1" },
         ].map((item) => (
           <div key={item.label} className="mb-3">
-            <p className="text-[9px] font-bold text-gray-400 mb-0.5">{item.label}</p>
+            <p className="text-[10px] font-bold text-gray-400 mb-0.5">{item.label}</p>
             <div className="h-7 rounded-lg flex items-center px-2.5" style={{ background: `${item.color}15` }}>
-              <span className="text-[11px] font-bold" style={{ color: item.color }}>{item.value}</span>
+              <span className="text-[12px] font-bold" style={{ color: item.color }}>{item.value}</span>
             </div>
           </div>
         ))}
@@ -123,34 +124,34 @@ const FEATURES = [
         {/* 로고 */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4 flex items-center gap-3">
           <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}>
-            <span className="text-white font-extrabold text-[20px]">B</span>
+            <span className="text-white font-extrabold text-[22px]">B</span>
           </div>
           <div>
-            <p className="text-[14px] font-extrabold text-gray-800 tracking-tight">BRAND</p>
-            <p className="text-[10px] font-semibold text-gray-400 tracking-[0.2em]">STUDIO</p>
+            <p className="text-[16px] font-extrabold text-gray-800 tracking-tight">BRAND</p>
+            <p className="text-[11px] font-semibold text-gray-400 tracking-[0.2em]">STUDIO</p>
           </div>
         </div>
         {/* 컬러 팔레트 */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Color Palette</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Color Palette</p>
           <div className="flex gap-2">
             {[
               { color: "#6366F1", name: "Primary" },
               { color: "#4338CA", name: "Dark" },
               { color: "#E0E7FF", name: "Light" },
               { color: "#F59E0B", name: "Accent" },
-              { color: "#191F28", name: "Black" },
+              { color: "#111D37", name: "Black" },
             ].map((c) => (
               <div key={c.name} className="flex-1">
                 <div className="h-8 rounded-lg mb-1" style={{ background: c.color }} />
-                <p className="text-[7px] font-bold text-gray-400 text-center">{c.name}</p>
+                <p className="text-[8px] font-bold text-gray-400 text-center">{c.name}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
     ),
-    bg: "#F9FAFB",
+    bg: "#F5F6F8",
     accent: "#6366F1",
   },
   {
@@ -164,8 +165,8 @@ const FEATURES = [
         style={{ background: "linear-gradient(160deg,#1E1B4B 0%,#312E81 100%)" }}
       >
         <div className="px-5 pt-5 pb-6">
-          <p className="text-[9px] font-extrabold text-white/30 uppercase tracking-[0.2em] mb-1">Brand Guidebook</p>
-          <p className="text-[18px] font-extrabold text-white leading-tight mb-4">브랜드가 일관되면<br />신뢰가 쌓입니다</p>
+          <p className="text-[10px] font-extrabold text-white/30 uppercase tracking-[0.2em] mb-1">Brand Guidebook</p>
+          <p className="text-[20px] font-extrabold text-white leading-tight mb-4">브랜드가 일관되면<br />신뢰가 쌓입니다</p>
           {[
             "01. 브랜드 스토리",
             "02. 로고 사용 규칙",
@@ -175,13 +176,13 @@ const FEATURES = [
           ].map((item) => (
             <div key={item} className="flex items-center gap-2 mb-2">
               <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
-              <span className="text-[11px] text-white/60">{item}</span>
+              <span className="text-[12px] text-white/60">{item}</span>
             </div>
           ))}
           <div className="mt-4 flex items-center gap-2">
-            <span className="text-[9px] font-bold px-2 py-1 rounded-lg bg-white/10 text-white/60">PDF</span>
-            <span className="text-[9px] font-bold px-2 py-1 rounded-lg bg-white/10 text-white/60">Figma</span>
-            <span className="text-[9px] font-bold px-2 py-1 rounded-lg bg-indigo-500/40 text-indigo-300">15–70p</span>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-white/10 text-white/60">PDF</span>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-white/10 text-white/60">Figma</span>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-500/40 text-indigo-300">15–70p</span>
           </div>
         </div>
       </div>
@@ -307,6 +308,7 @@ function Check({ color }: { color: string }) {
 }
 
 export default function BrandingPage() {
+  const { railRef, railLeft } = useRailLeft();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -317,15 +319,15 @@ export default function BrandingPage() {
 
       {/* ── 오른쪽 고정 CTA 패널 (fixed) ────── */}
       <div
-        className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
-        style={{ top: "92px" }}
+        className="hidden lg:block fixed z-30 w-64 xl:w-72"
+        style={{ top: 92, left: railLeft, visibility: railLeft == null ? "hidden" : "visible" }}
       >
         <div className="rounded-2xl overflow-hidden shadow-xl border border-indigo-100">
           <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}>
-            <p className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Total Branding</p>
-            <p className="text-[17px] font-extrabold text-white leading-tight mb-1">브랜드 전략부터</p>
-            <p className="text-[17px] font-extrabold text-white leading-tight mb-5">가이드북까지</p>
-            <p className="text-[11px] text-white/50 leading-relaxed mb-5">
+            <p className="text-[11px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Total Branding</p>
+            <p className="text-[19px] font-extrabold text-white leading-tight mb-1">브랜드 전략부터</p>
+            <p className="text-[19px] font-extrabold text-white leading-tight mb-5">가이드북까지</p>
+            <p className="text-[12px] text-white/50 leading-relaxed mb-5">
               인터뷰 기반 전략 설계부터<br />로고·가이드북 납품까지<br />원스톱으로 진행합니다.
             </p>
             <div className="space-y-2">
@@ -336,22 +338,22 @@ export default function BrandingPage() {
               ].map((t) => (
                 <div key={t.label} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/10">
                   <div>
-                    <span className="text-[12px] font-bold text-white block leading-tight">{t.label}</span>
-                    <span className="text-[10px] text-white/40">{t.sub}</span>
+                    <span className="text-[13px] font-bold text-white block leading-tight">{t.label}</span>
+                    <span className="text-[11px] text-white/40">{t.sub}</span>
                   </div>
-                  <span className="text-[12px] font-extrabold text-indigo-200">{t.price}</span>
+                  <span className="text-[13px] font-extrabold text-indigo-200">{t.price}</span>
                 </div>
               ))}
             </div>
           </div>
           <div className="bg-white px-4 py-5 space-y-2.5">
             <button
-              className="w-full py-3 rounded-xl text-[13px] font-extrabold text-white transition-opacity hover:opacity-85"
+              className="w-full py-3 rounded-xl text-[15px] font-extrabold text-white transition-opacity hover:opacity-85"
               style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}
             >
               무료 브랜딩 상담 신청
             </button>
-            <button className="w-full py-3 rounded-xl text-[13px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
+            <button className="w-full py-3 rounded-xl text-[15px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
               카카오로 문의하기
             </button>
           </div>
@@ -359,7 +361,7 @@ export default function BrandingPage() {
       </div>
 
         {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub mb-6 px-1">
+        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub mb-6 px-1">
           <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
           <span>›</span>
           <span className="text-brand-muted">콘텐츠</span>
@@ -371,18 +373,18 @@ export default function BrandingPage() {
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#1E1B4B 0%,#312E81 60%,#4338CA 100%)" }}>
           <div className="px-8 py-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-extrabold text-indigo-300/70 uppercase tracking-[0.2em] mb-3">Total Branding</p>
-              <h1 className="text-[30px] font-extrabold text-white leading-tight mb-4">
+              <p className="text-[12px] font-extrabold text-indigo-300/70 uppercase tracking-[0.2em] mb-3">Total Branding</p>
+              <h1 className="text-[34px] font-extrabold text-white leading-tight mb-4">
                 브랜드가<br />
                 말하게 만드세요
               </h1>
-              <p className="text-[14px] text-indigo-200/75 leading-relaxed mb-6">
+              <p className="text-[16px] text-indigo-200/75 leading-relaxed mb-6">
                 전략 · 아이덴티티 · 가이드북까지<br />
                 브랜드의 처음부터 끝을 설계합니다.
               </p>
               <div className="flex flex-wrap gap-2">
                 {["브랜드 전략", "로고 디자인", "가이드북", "명함"].map((t) => (
-                  <span key={t} className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-white/10 text-indigo-100 border border-white/10">
+                  <span key={t} className="text-[12px] font-bold px-3 py-1.5 rounded-lg bg-white/10 text-indigo-100 border border-white/10">
                     {t}
                   </span>
                 ))}
@@ -401,8 +403,8 @@ export default function BrandingPage() {
               { num: "15일", label: "평균 납품 기간" },
             ].map((s) => (
               <div key={s.label} className="text-center px-2">
-                <p className="text-[28px] font-extrabold text-indigo-600 leading-tight">{s.num}</p>
-                <p className="text-[12px] text-brand-sub mt-0.5">{s.label}</p>
+                <p className="text-[31px] font-extrabold text-indigo-600 leading-tight">{s.num}</p>
+                <p className="text-[13px] text-brand-sub mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -418,20 +420,20 @@ export default function BrandingPage() {
             <div className={`px-8 py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
               {/* 텍스트 */}
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
+                <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
                   FEATURE {f.no}
                 </p>
-                <h2 className="text-[22px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
+                <h2 className="text-[25px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
                   {f.title}
                 </h2>
-                <p className="text-[13px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
+                <p className="text-[15px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
                 <ul className="space-y-2">
                   {f.points.map((pt) => (
                     <li key={pt} className="flex items-center gap-2">
                       <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke={f.accent} strokeWidth={2.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
-                      <span className="text-[12px] font-semibold text-brand-dark">{pt}</span>
+                      <span className="text-[13px] font-semibold text-brand-dark">{pt}</span>
                     </li>
                   ))}
                 </ul>
@@ -447,15 +449,15 @@ export default function BrandingPage() {
         {/* ── 프로세스 ────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#0F0B2D 0%,#1E1B4B 100%)" }}>
           <div className="px-8 py-10">
-            <p className="text-[11px] font-extrabold text-indigo-400/60 uppercase tracking-widest mb-2">Process</p>
-            <h2 className="text-[22px] font-extrabold text-white mb-8">5단계 브랜딩 프로세스</h2>
+            <p className="text-[12px] font-extrabold text-indigo-400/60 uppercase tracking-widest mb-2">Process</p>
+            <h2 className="text-[25px] font-extrabold text-white mb-8">5단계 브랜딩 프로세스</h2>
             <div className="space-y-0">
               {PROCESS.map((p, i) => (
                 <div key={p.step} className="flex gap-4 group">
                   {/* 스텝 라인 */}
                   <div className="flex flex-col items-center shrink-0">
                     <div
-                      className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
+                      className="h-8 w-8 rounded-full flex items-center justify-center text-[12px] font-extrabold text-white shrink-0"
                       style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}
                     >
                       {p.step}
@@ -466,8 +468,8 @@ export default function BrandingPage() {
                   </div>
                   {/* 내용 */}
                   <div className={`pb-6 ${i === PROCESS.length - 1 ? "pb-0" : ""}`}>
-                    <p className="text-[14px] font-bold text-white mb-1">{p.title}</p>
-                    <p className="text-[12px] text-indigo-200/60 leading-relaxed">{p.desc}</p>
+                    <p className="text-[16px] font-bold text-white mb-1">{p.title}</p>
+                    <p className="text-[13px] text-indigo-200/60 leading-relaxed">{p.desc}</p>
                   </div>
                 </div>
               ))}
@@ -477,9 +479,9 @@ export default function BrandingPage() {
 
         {/* ── 가격 플랜 ───────────────────────── */}
         <section className="rounded-2xl bg-brand-lighter border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">Pricing</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
-          <p className="text-[13px] text-brand-sub mb-8">브랜드 단계와 예산에 맞는 플랜을 선택하세요.</p>
+          <p className="text-[12px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">Pricing</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
+          <p className="text-[15px] text-brand-sub mb-8">브랜드 단계와 예산에 맞는 플랜을 선택하세요.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {TIERS.map((tier) => (
@@ -493,47 +495,47 @@ export default function BrandingPage() {
               >
                 {tier.best && (
                   <div
-                    className="absolute top-4 right-4 text-white text-[10px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
+                    className="absolute top-4 right-4 text-white text-[11px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
                     style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}
                   >
                     BEST
                   </div>
                 )}
                 <div className="px-5 pt-5 pb-8" style={{ background: tier.grad }}>
-                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
-                  <p className="text-white text-[18px] font-extrabold">{tier.name}</p>
+                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
+                  <p className="text-white text-[20px] font-extrabold">{tier.name}</p>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-white text-[28px] font-extrabold">{tier.price}</span>
-                    <span className="text-white/70 text-[13px] font-semibold">{tier.unit}</span>
+                    <span className="text-white text-[31px] font-extrabold">{tier.price}</span>
+                    <span className="text-white/70 text-[15px] font-semibold">{tier.unit}</span>
                   </div>
-                  <p className="text-white/40 text-[10px] mt-0.5">VAT 별도</p>
+                  <p className="text-white/40 text-[11px] mt-0.5">VAT 별도</p>
                   <div className="mt-3 flex items-center gap-1.5 bg-white/15 rounded-lg px-2.5 py-1.5 w-fit">
                     <svg className="w-3 h-3 text-white/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-white text-[11px] font-bold">{tier.duration} 소요</span>
+                    <span className="text-white text-[12px] font-bold">{tier.duration} 소요</span>
                   </div>
                 </div>
                 <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
                   <ul className="space-y-1.5">
                     {tier.targets.map((t, i) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <Check color={tier.checkColor} />
-                        <span className="text-[11px] text-brand-sub leading-snug">{t}</span>
+                        <span className="text-[12px] text-brand-sub leading-snug">{t}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 py-4 flex-1">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">구성</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">구성</p>
                   <ul className="space-y-2">
                     {tier.sections.map((s, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="mt-[4px] w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tier.grad.includes("#") ? tier.grad.split(",")[1]?.trim().split(")")[0] ?? "#6366F1" : "#6366F1" }} />
                         <div>
-                          <p className="text-[11px] font-bold text-brand-dark leading-snug">{s.label}</p>
-                          {s.detail && <p className="text-[10px] text-brand-muted mt-0.5">{s.detail}</p>}
+                          <p className="text-[12px] font-bold text-brand-dark leading-snug">{s.label}</p>
+                          {s.detail && <p className="text-[11px] text-brand-muted mt-0.5">{s.detail}</p>}
                         </div>
                       </li>
                     ))}
@@ -541,7 +543,7 @@ export default function BrandingPage() {
                 </div>
                 <div className="px-4 pb-4 pt-2">
                   <button
-                    className="w-full py-2.5 rounded-xl text-[13px] font-bold text-white hover:opacity-85 transition-opacity"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-bold text-white hover:opacity-85 transition-opacity"
                     style={{ background: tier.grad }}
                   >
                     문의하기
@@ -554,8 +556,8 @@ export default function BrandingPage() {
 
         {/* ── FAQ ────────────────────────────── */}
         <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
+          <p className="text-[12px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">FAQ</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
           <div className="space-y-2">
             {FAQS.map((faq, i) => (
               <div key={i} className="rounded-2xl border border-brand-border overflow-hidden">
@@ -563,7 +565,7 @@ export default function BrandingPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors"
                 >
-                  <span className="text-[13px] font-bold text-brand-dark">{faq.q}</span>
+                  <span className="text-[15px] font-bold text-brand-dark">{faq.q}</span>
                   <svg
                     className={`w-4 h-4 text-brand-muted shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
@@ -573,7 +575,7 @@ export default function BrandingPage() {
                 </button>
                 {openFaq === i && (
                   <div className="px-5 pb-4 border-t border-brand-border bg-brand-lighter">
-                    <p className="text-[13px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
+                    <p className="text-[15px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
                   </div>
                 )}
               </div>
@@ -587,14 +589,14 @@ export default function BrandingPage() {
           style={{ background: "linear-gradient(135deg,#6366F1,#4338CA)" }}
         >
           <div>
-            <p className="text-[11px] font-extrabold text-indigo-200/60 uppercase tracking-widest mb-1">무료 상담</p>
-            <p className="text-[20px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
+            <p className="text-[12px] font-extrabold text-indigo-200/60 uppercase tracking-widest mb-1">무료 상담</p>
+            <p className="text-[22px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <button className="px-6 py-3 rounded-xl text-[13px] font-extrabold bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-extrabold bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
               무료 상담 신청
             </button>
-            <button className="px-6 py-3 rounded-xl text-[13px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
               카카오로 문의
             </button>
           </div>
@@ -605,7 +607,7 @@ export default function BrandingPage() {
           <svg className="w-4 h-4 text-brand-muted shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
-          <p className="text-[11px] text-brand-muted leading-relaxed">
+          <p className="text-[12px] text-brand-muted leading-relaxed">
             소요기간은 영업일 기준이 아니며, 브랜드 환경 및 피드백 속도에 따라 달라질 수 있습니다. 가격은 VAT 별도이며, 세부 범위에 따라 변동될 수 있습니다.
           </p>
         </div>
@@ -613,7 +615,7 @@ export default function BrandingPage() {
       </div>
 
       {/* 오른쪽 고정 패널 자리 확보용 */}
-      <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
+      <div ref={railRef} className="hidden lg:block w-64 xl:w-72 shrink-0" />
 
     </div>
   );

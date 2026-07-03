@@ -80,9 +80,7 @@ function AccordionDetail({
 }: AccordionDetailProps) {
   const pct = campaign.totalCount === 0 ? 0 : Math.round((campaign.doneCount / campaign.totalCount) * 100);
   const infoItems = [
-    { label: "캠페인 유형",   value: campaign.productType ?? campaign.type },
     { label: "등록 URL",      value: campaign.postingUrl, link: true },
-    { label: "해시태그",      value: campaign.hashtags.join("  ") },
     { label: "캠페인 요청일", value: campaign.requestDate ?? campaign.startDate },
     { label: "결제 금액",     value: `${campaign.amount.toLocaleString()}원` },
   ];
@@ -91,7 +89,7 @@ function AccordionDetail({
     <div className="bg-brand-lighter border-t border-brand-border px-5 py-5 space-y-5">
       {/* 진행 현황 */}
       <div>
-        <p className="text-[11px] font-bold text-brand-muted uppercase tracking-wide mb-3">진행 현황</p>
+        <p className="text-[12px] font-bold text-brand-muted uppercase tracking-wide mb-3">진행 현황</p>
         <div className="grid grid-cols-4 gap-3">
           {[
             { label: "모집 인원", value: `${campaign.totalCount}명`,                         color: "text-brand-dark"    },
@@ -100,8 +98,8 @@ function AccordionDetail({
             { label: "잔여",      value: `${campaign.totalCount - campaign.doneCount}명`,    color: "text-amber-600"     },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-brand-border p-3 text-center">
-              <p className="text-[11px] text-brand-muted mb-1">{s.label}</p>
-              <p className={`text-[17px] font-extrabold ${s.color}`}>{s.value}</p>
+              <p className="text-[12px] text-brand-muted mb-1">{s.label}</p>
+              <p className={`text-[19px] font-extrabold ${s.color}`}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -109,24 +107,24 @@ function AccordionDetail({
           <div className="flex-1 h-2 bg-brand-border rounded-full overflow-hidden">
             <div className="h-full bg-brand-primary rounded-full" style={{ width: `${pct}%` }} />
           </div>
-          <span className="text-[11px] font-bold text-brand-primary shrink-0">{pct}%</span>
+          <span className="text-[12px] font-bold text-brand-primary shrink-0">{pct}%</span>
         </div>
       </div>
 
       {/* 캠페인 정보 */}
       <div>
-        <p className="text-[11px] font-bold text-brand-muted uppercase tracking-wide mb-3">캠페인 정보</p>
+        <p className="text-[12px] font-bold text-brand-muted uppercase tracking-wide mb-3">캠페인 정보</p>
         <div className="bg-white rounded-xl border border-brand-border divide-y divide-brand-border">
           {infoItems.map((item) => (
             <div key={item.label} className="flex items-center px-4 py-2.5 gap-4">
-              <span className="text-[12px] text-brand-muted w-24 shrink-0">{item.label}</span>
+              <span className="text-[13px] text-brand-muted w-24 shrink-0">{item.label}</span>
               {item.link ? (
                 <a href={item.value} target="_blank" rel="noreferrer"
-                  className="text-[12px] text-brand-primary underline underline-offset-2 truncate hover:opacity-75 transition-opacity">
+                  className="text-[13px] text-brand-primary underline underline-offset-2 truncate hover:opacity-75 transition-opacity">
                   {item.value}
                 </a>
               ) : (
-                <span className="text-[12px] text-brand-dark">{item.value}</span>
+                <span className="text-[13px] text-brand-dark">{item.value}</span>
               )}
             </div>
           ))}
@@ -136,11 +134,11 @@ function AccordionDetail({
       {/* 블로그 작성 URL */}
       {showPostUrls && (
         <div>
-          <p className="text-[11px] font-bold text-brand-muted uppercase tracking-wide mb-3">
+          <p className="text-[12px] font-bold text-brand-muted uppercase tracking-wide mb-3">
             블로그 작성 URL <span className="text-brand-primary font-extrabold ml-1">{campaign.postUrls?.length ?? 0}</span>
           </p>
           {!campaign.postUrls || campaign.postUrls.length === 0 ? (
-            <div className="bg-white rounded-xl border border-brand-border py-8 text-center text-[13px] text-brand-muted">
+            <div className="bg-white rounded-xl border border-brand-border py-8 text-center text-[15px] text-brand-muted">
               아직 제출된 URL이 없습니다.
             </div>
           ) : (
@@ -149,21 +147,21 @@ function AccordionDetail({
                 <thead>
                   <tr className="bg-brand-lighter border-b border-brand-border">
                     {["블로거명", "작성 URL", "작성일"].map((h) => (
-                      <th key={h} className="px-4 py-2.5 text-[11px] font-bold text-brand-muted">{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-[12px] font-bold text-brand-muted">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-border">
                   {campaign.postUrls.map((p, i) => (
                     <tr key={i} className="hover:bg-brand-lighter/60 transition-colors">
-                      <td className="px-4 py-2.5 text-[12px] font-semibold text-brand-dark whitespace-nowrap">{p.name}</td>
+                      <td className="px-4 py-2.5 text-[13px] font-semibold text-brand-dark whitespace-nowrap">{p.name}</td>
                       <td className="px-4 py-2.5">
                         <a href={p.url} target="_blank" rel="noreferrer"
-                          className="text-[12px] text-brand-primary underline underline-offset-2 break-all hover:opacity-75 transition-opacity">
+                          className="text-[13px] text-brand-primary underline underline-offset-2 break-all hover:opacity-75 transition-opacity">
                           {p.url}
                         </a>
                       </td>
-                      <td className="px-4 py-2.5 text-[12px] text-brand-sub whitespace-nowrap">{p.writtenAt}</td>
+                      <td className="px-4 py-2.5 text-[13px] text-brand-sub whitespace-nowrap">{p.writtenAt}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -175,11 +173,11 @@ function AccordionDetail({
 
       {/* 신청자 목록 / 작성리스트 */}
       {showApplicants && <div>
-        <p className="text-[11px] font-bold text-brand-muted uppercase tracking-wide mb-3">
+        <p className="text-[12px] font-bold text-brand-muted uppercase tracking-wide mb-3">
           {applicantSectionLabel} <span className="text-brand-primary font-extrabold ml-1">{campaign.applicants.length}</span>
         </p>
         {campaign.applicants.length === 0 ? (
-          <div className="bg-white rounded-xl border border-brand-border py-8 text-center text-[13px] text-brand-muted">
+          <div className="bg-white rounded-xl border border-brand-border py-8 text-center text-[15px] text-brand-muted">
             아직 데이터가 없습니다.
           </div>
         ) : (
@@ -188,7 +186,7 @@ function AccordionDetail({
               <thead>
                 <tr className="bg-brand-lighter border-b border-brand-border">
                   {["블로거명", "블로그 URL", applicantDateLabel, ...(showReviewStatus ? ["리뷰 상태"] : [])].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-[11px] font-bold text-brand-muted">{h}</th>
+                    <th key={h} className="px-4 py-2.5 text-[12px] font-bold text-brand-muted">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -197,17 +195,17 @@ function AccordionDetail({
                   const rs = REVIEW_STATUS_CONFIG[ap.reviewStatus];
                   return (
                     <tr key={i} className="hover:bg-brand-lighter/60 transition-colors">
-                      <td className="px-4 py-2.5 text-[12px] font-semibold text-brand-dark">{ap.name}</td>
+                      <td className="px-4 py-2.5 text-[13px] font-semibold text-brand-dark">{ap.name}</td>
                       <td className="px-4 py-2.5">
                         <a href={ap.blogUrl} target="_blank" rel="noreferrer"
-                          className="text-[12px] text-brand-primary underline underline-offset-2 truncate max-w-[200px] block hover:opacity-75">
+                          className="text-[13px] text-brand-primary underline underline-offset-2 truncate max-w-[200px] block hover:opacity-75">
                           {ap.blogUrl}
                         </a>
                       </td>
-                      <td className="px-4 py-2.5 text-[12px] text-brand-sub whitespace-nowrap">{ap.submittedAt}</td>
+                      <td className="px-4 py-2.5 text-[13px] text-brand-sub whitespace-nowrap">{ap.submittedAt}</td>
                       {showReviewStatus && (
                         <td className="px-4 py-2.5">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-bold ${rs.bg} ${rs.text}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[12px] font-bold ${rs.bg} ${rs.text}`}>
                             {ap.reviewStatus}
                           </span>
                         </td>
@@ -274,7 +272,7 @@ export default function ReviewManageTable({
   return (
     <div className="w-full space-y-5">
       {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
         <span className="text-brand-muted">{breadcrumbPlatform}</span>
@@ -290,7 +288,7 @@ export default function ReviewManageTable({
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex-shrink-0 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${
+              className={`flex-shrink-0 px-4 py-2 rounded-xl text-[15px] font-bold transition-all ${
                 isActive ? "bg-brand-primary text-white shadow-sm" : "text-brand-sub hover:bg-brand-lighter hover:text-brand-dark"
               }`}
             >
@@ -300,27 +298,27 @@ export default function ReviewManageTable({
         })}
       </div>
 
-      {/* 요약 카드 */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "전체 캠페인", value: campaigns.length, color: "text-brand-dark",  grad: "linear-gradient(135deg,#10B981,#059669)", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-          { label: "진행중",     value: running,           color: "text-green-600",   grad: "linear-gradient(135deg,#3B82F6,#6366F1)", icon: "M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" },
-          { label: "대기중",     value: pending,           color: "text-amber-600",   grad: "linear-gradient(135deg,#F59E0B,#D97706)", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-2xl border border-brand-border p-4 flex items-center gap-3">
-            <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: stat.grad }}>
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={stat.icon} />
-              </svg>
-            </span>
-            <div>
-              <p className="text-[12px] text-brand-sub">{stat.label}</p>
-              <p className={`text-[22px] font-extrabold leading-tight ${stat.color}`}>
-                {stat.value}<span className="text-[13px] font-medium text-brand-muted ml-1">건</span>
-              </p>
-            </div>
-          </div>
-        ))}
+      {/* 상단 요약 배너 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* 전체 캠페인 (네이비) */}
+        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+          style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+          <span className="text-[13px] font-bold text-white/60">전체 캠페인</span>
+          <p className="text-[30px] font-extrabold leading-none tabular-nums">{campaigns.length}<span className="text-[15px] font-medium text-white/55 ml-1">건</span></p>
+        </div>
+
+        {/* 진행중 (블루) */}
+        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+          style={{ background: "linear-gradient(135deg,#2E6BE0 0%,#1D4ED8 100%)" }}>
+          <span className="text-[13px] font-bold text-white/65">진행중</span>
+          <p className="text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[15px] font-medium text-white/60 ml-1">건</span></p>
+        </div>
+
+        {/* 대기중 (화이트) */}
+        <div className="rounded-2xl border border-brand-border bg-white p-5 min-h-[112px] flex flex-col justify-between">
+          <span className="text-[13px] font-bold text-brand-muted">대기중</span>
+          <p className="text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{pending}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span></p>
+        </div>
       </div>
 
       {/* 테이블 */}
@@ -329,7 +327,7 @@ export default function ReviewManageTable({
           <div className="flex items-center gap-2">
             {FILTER_OPTIONS.map((opt) => (
               <button key={opt} onClick={() => { setFilter(opt); setExpandedId(null); }}
-                className={`px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
                   filter === opt ? "bg-brand-primary text-white" : "bg-brand-lighter text-brand-sub hover:bg-brand-border"
                 }`}
               >
@@ -343,11 +341,11 @@ export default function ReviewManageTable({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
               </svg>
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="캠페인명, 키워드 검색"
-                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[12px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48"
+                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48"
               />
             </div>
             <Link href={createHref}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[13px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -363,14 +361,14 @@ export default function ReviewManageTable({
               <tr className="border-b border-brand-border bg-brand-lighter">
                 <th className="w-10" />
                 {["캠페인명", ...(showChannel ? ["채널"] : []), "키워드", "모집 인원", "진행률", "캠페인 요청일", "결제 금액", "상태"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[11px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-[12px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={showChannel ? 9 : 8} className="px-4 py-16 text-center text-[14px] text-brand-muted">
+                  <td colSpan={showChannel ? 9 : 8} className="px-4 py-16 text-center text-[16px] text-brand-muted">
                     조건에 맞는 캠페인이 없습니다.
                   </td>
                 </tr>
@@ -393,32 +391,32 @@ export default function ReviewManageTable({
                         </svg>
                       </td>
                       <td className="px-4 py-3.5">
-                        <p className="text-[13px] font-semibold text-brand-dark truncate max-w-[160px]">{c.campaignName}</p>
+                        <p className="text-[15px] font-semibold text-brand-dark truncate max-w-[160px]">{c.campaignName}</p>
                         {c.productType && (
-                          <span className={`inline-flex mt-1 items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                          <span className={`inline-flex mt-1 items-center px-1.5 py-0.5 rounded-md text-[11px] font-bold ${
                             c.productType === "제품제공" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
                           }`}>{c.productType}</span>
                         )}
                       </td>
                       {showChannel && (
                         <td className="px-4 py-3.5">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold ${
                             c.channel === "쿠팡" ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"
                           }`}>{c.channel ?? "네이버 쇼핑"}</span>
                         </td>
                       )}
                       <td className="px-4 py-3.5">
-                        <span className="text-[12px] text-brand-sub">{c.keyword}</span>
+                        <span className="text-[13px] text-brand-sub">{c.keyword}</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[13px] font-bold text-brand-dark">{c.totalCount.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">명</span>
+                        <span className="text-[15px] font-bold text-brand-dark">{c.totalCount.toLocaleString()}</span>
+                        <span className="text-[12px] text-brand-muted ml-0.5">명</span>
                       </td>
                       <td className="px-4 py-3.5 min-w-[100px]">
                         <div className="space-y-1">
                           <div className="flex justify-between">
-                            <span className="text-[11px] text-brand-muted">{c.doneCount}/{c.totalCount}</span>
-                            <span className="text-[11px] font-bold text-brand-primary">{pct}%</span>
+                            <span className="text-[12px] text-brand-muted">{c.doneCount}/{c.totalCount}</span>
+                            <span className="text-[12px] font-bold text-brand-primary">{pct}%</span>
                           </div>
                           <div className="h-1.5 bg-brand-border rounded-full overflow-hidden w-24">
                             <div className="h-full bg-brand-primary rounded-full" style={{ width: `${pct}%` }} />
@@ -426,14 +424,14 @@ export default function ReviewManageTable({
                         </div>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[11.5px] text-brand-sub">{c.requestDate ?? c.startDate}</span>
+                        <span className="text-[13px] text-brand-sub">{c.requestDate ?? c.startDate}</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[13px] font-extrabold text-brand-dark">{c.amount.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">원</span>
+                        <span className="text-[15px] font-extrabold text-brand-dark">{c.amount.toLocaleString()}</span>
+                        <span className="text-[12px] text-brand-muted ml-0.5">원</span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
                       </td>
                     </tr>
                     {isOpen && (
@@ -458,7 +456,7 @@ export default function ReviewManageTable({
         </div>
 
         <div className="px-5 py-3 border-t border-brand-border">
-          <p className="text-[12px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
+          <p className="text-[13px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
         </div>
       </div>
     </div>

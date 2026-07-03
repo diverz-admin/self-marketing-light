@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import React from "react";
+import Logo from "@/components/Logo";
 
 const SERVICES = [
   {
@@ -83,14 +84,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-brand-border bg-white/95 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold text-base">
-              M
-            </span>
-            <span className="font-bold text-lg text-brand-dark tracking-tight">
-              SelfMarketing
-            </span>
-          </div>
+          <Logo markClassName="h-8 w-auto" textClassName="h-5 w-auto" textColor="text-brand-dark" />
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-brand-sub">
             <a
               href="#services"
@@ -130,7 +124,7 @@ export default function HomePage() {
         {/* Hero */}
         <section className="bg-brand-dark text-white">
           <div className="max-w-6xl mx-auto px-6 py-24 md:py-36">
-            <span className="inline-block text-[13px] font-bold px-3 py-1 rounded-full bg-brand-primary/20 text-brand-primary mb-6">
+            <span className="inline-block text-[15px] font-bold px-3 py-1 rounded-full bg-brand-primary/20 text-brand-primary mb-6">
               셀프 마케팅 플랫폼
             </span>
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.15] mb-6 max-w-2xl">
@@ -172,7 +166,7 @@ export default function HomePage() {
               {STEPS.map((step, i) => (
                 <div key={step.num} className="flex items-center">
                   <div className="text-center px-3 md:px-5">
-                    <span className="block text-[11px] font-bold text-brand-primary mb-1">
+                    <span className="block text-[12px] font-bold text-brand-primary mb-1">
                       {step.num}
                     </span>
                     <span className="text-sm font-semibold text-brand-text">
@@ -216,7 +210,7 @@ export default function HomePage() {
                   className="bg-white rounded-2xl border border-brand-border p-6 hover:border-brand-primary/30 hover:shadow-sm transition-all"
                 >
                   <span
-                    className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded mb-4 ${svc.tagColor}`}
+                    className={`inline-block text-[12px] font-bold px-2 py-0.5 rounded mb-4 ${svc.tagColor}`}
                   >
                     {svc.tag}
                   </span>
@@ -321,14 +315,9 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-brand-border bg-white py-10">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-sub">
-          <div className="flex items-center gap-2">
-            <span className="h-6 w-6 rounded bg-brand-primary flex items-center justify-center text-white font-bold text-xs">
-              M
-            </span>
-            <span className="font-bold text-brand-dark">SelfMarketing</span>
-          </div>
+          <Logo markClassName="h-6 w-auto" textClassName="h-4 w-auto" textColor="text-brand-sub" />
           <span>
-            &copy; {new Date().getFullYear()} SelfMarketing. All rights
+            &copy; {new Date().getFullYear()} BLUE EGG. All rights
             reserved.
           </span>
         </div>

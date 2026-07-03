@@ -44,7 +44,7 @@ export default function BlogReporterManagePage() {
   return (
     <ReviewManageTable
       campaigns={CAMPAIGNS}
-      breadcrumbLabel="블로그리뷰(기자단)"
+      breadcrumbLabel="블로그배포"
       createHref="/marketing/review/place/blog-reporter"
       showApplicants={false}
       showPostUrls={true}

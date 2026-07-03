@@ -112,7 +112,7 @@ export default function GoogleRewardManagePage() {
 
   return (
     <div className="w-full space-y-4">
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
         <span className="text-brand-muted">구글</span>
@@ -128,10 +128,10 @@ export default function GoogleRewardManagePage() {
           { label: "총 집행 금액", value: `${totalCost.toLocaleString()}원`,    icon: "💰" },
         ].map((kpi) => (
           <div key={kpi.label} className="bg-white rounded-2xl border border-brand-border p-4 flex items-center gap-3">
-            <span className="text-[22px]">{kpi.icon}</span>
+            <span className="text-[25px]">{kpi.icon}</span>
             <div>
-              <p className="text-[11px] text-brand-muted">{kpi.label}</p>
-              <p className="text-[18px] font-extrabold text-brand-dark">{kpi.value}</p>
+              <p className="text-[12px] text-brand-muted">{kpi.label}</p>
+              <p className="text-[20px] font-extrabold text-brand-dark">{kpi.value}</p>
             </div>
           </div>
         ))}
@@ -140,9 +140,9 @@ export default function GoogleRewardManagePage() {
       {/* Header */}
       <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-[15px] font-extrabold text-brand-dark">캠페인 목록</h2>
+          <h2 className="text-[17px] font-extrabold text-brand-dark">캠페인 목록</h2>
           <Link href="/marketing/reward/google"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold text-white"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[15px] font-bold text-white"
             style={{ background: "linear-gradient(135deg,#EA4335,#FBBC05)" }}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -157,7 +157,7 @@ export default function GoogleRewardManagePage() {
             {STATUS_TABS.map((t) => (
               <button key={t}
                 onClick={() => setTab(t)}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-bold transition-all ${
                   tab === t ? "bg-brand-dark text-white" : "bg-brand-lighter text-brand-sub hover:text-brand-text"
                 }`}>
                 {t}
@@ -170,24 +170,24 @@ export default function GoogleRewardManagePage() {
             </svg>
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="키워드 / URL 검색"
-              className="pl-8 pr-3 py-1.5 border border-brand-border rounded-lg text-[12px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-44" />
+              className="pl-8 pr-3 py-1.5 border border-brand-border rounded-lg text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-44" />
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-[13px]">
+          <table className="w-full text-[15px]">
             <thead>
               <tr className="border-b border-brand-border">
                 {["매체/서비스", "사이트 URL", "키워드", "일 작업량", "기간", "총 비용", "순위", "상태", "관리"].map((h) => (
-                  <th key={h} className="pb-2 text-left text-[11px] font-bold text-brand-muted whitespace-nowrap pr-3 last:pr-0">{h}</th>
+                  <th key={h} className="pb-2 text-left text-[12px] font-bold text-brand-muted whitespace-nowrap pr-3 last:pr-0">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-[13px] text-brand-muted">캠페인이 없습니다.</td>
+                  <td colSpan={9} className="py-12 text-center text-[15px] text-brand-muted">캠페인이 없습니다.</td>
                 </tr>
               ) : filtered.map((c) => {
                 const sc = STATUS_CONFIG[c.status];
@@ -197,22 +197,22 @@ export default function GoogleRewardManagePage() {
                   <tr key={c.id} className="border-b border-brand-border/50 hover:bg-brand-lighter/50 transition-colors">
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg flex items-center justify-center text-white text-[11px] font-extrabold shrink-0"
+                        <div className="h-7 w-7 rounded-lg flex items-center justify-center text-white text-[12px] font-extrabold shrink-0"
                           style={{ background: "linear-gradient(135deg,#EA4335,#FBBC05)" }}>G</div>
                         <div>
-                          <p className="font-bold text-brand-dark text-[12px]">{c.media}</p>
-                          <p className="text-[11px] text-brand-muted">{SERVICE_LABELS[c.service]}</p>
+                          <p className="font-bold text-brand-dark text-[13px]">{c.media}</p>
+                          <p className="text-[12px] text-brand-muted">{SERVICE_LABELS[c.service]}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-3 pr-3 max-w-[160px]">
-                      <p className="truncate text-brand-sub text-[11px]">{c.siteUrl}</p>
+                      <p className="truncate text-brand-sub text-[12px]">{c.siteUrl}</p>
                     </td>
                     <td className="py-3 pr-3">
                       <span className="font-medium text-brand-dark">{c.keyword}</span>
                     </td>
                     <td className="py-3 pr-3 text-brand-sub">{c.dailyQty.toLocaleString()}</td>
-                    <td className="py-3 pr-3 whitespace-nowrap text-brand-sub text-[11px]">
+                    <td className="py-3 pr-3 whitespace-nowrap text-brand-sub text-[12px]">
                       <p>{c.startDate}</p>
                       <p>~{c.endDate}</p>
                     </td>
@@ -221,26 +221,26 @@ export default function GoogleRewardManagePage() {
                       {c.rank != null ? (
                         <div className="flex items-center gap-1">
                           <span className="font-extrabold text-brand-dark">{c.rank}위</span>
-                          {rankUp && <span className="text-[11px] text-green-500 font-bold">▲{Math.abs(c.rankDiff)}</span>}
-                          {rankDown && <span className="text-[11px] text-red-500 font-bold">▼{c.rankDiff}</span>}
-                          {!rankUp && !rankDown && <span className="text-[11px] text-brand-muted">-</span>}
+                          {rankUp && <span className="text-[12px] text-green-500 font-bold">▲{Math.abs(c.rankDiff)}</span>}
+                          {rankDown && <span className="text-[12px] text-red-500 font-bold">▼{c.rankDiff}</span>}
+                          {!rankUp && !rankDown && <span className="text-[12px] text-brand-muted">-</span>}
                         </div>
                       ) : (
                         <span className="text-brand-muted">-</span>
                       )}
                     </td>
                     <td className="py-3 pr-3">
-                      <span className={`px-2 py-1 rounded-lg text-[11px] font-bold ${sc.bg} ${sc.text}`}>{sc.label}</span>
+                      <span className={`px-2 py-1 rounded-lg text-[12px] font-bold ${sc.bg} ${sc.text}`}>{sc.label}</span>
                     </td>
                     <td className="py-3">
                       <div className="flex gap-1.5">
                         {c.status === "running" && (
-                          <button className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">정지</button>
+                          <button className="px-2 py-1 rounded-lg text-[12px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">정지</button>
                         )}
                         {c.status === "paused" && (
-                          <button className="px-2 py-1 rounded-lg text-[11px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">재개</button>
+                          <button className="px-2 py-1 rounded-lg text-[12px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">재개</button>
                         )}
-                        <button className="px-2 py-1 rounded-lg text-[11px] font-bold bg-brand-lighter text-brand-sub hover:text-brand-text transition-colors">상세</button>
+                        <button className="px-2 py-1 rounded-lg text-[12px] font-bold bg-brand-lighter text-brand-sub hover:text-brand-text transition-colors">상세</button>
                       </div>
                     </td>
                   </tr>

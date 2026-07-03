@@ -144,13 +144,13 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: M
           projectsList.map((project) => (
             <div key={project.id} className="bg-white border border-brand-border rounded-2xl p-5 hover:border-brand-primary/30 transition-colors">
               <div className="flex items-start gap-2 mb-3 flex-wrap">
-                {project.isFeatured && (<span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100">대표</span>)}
-                {project.tags?.slice(0, 3).map((tag, idx) => (<span key={idx} className="text-[11px] font-medium px-2 py-0.5 rounded bg-blue-50 text-brand-primary">{tag}</span>))}
+                {project.isFeatured && (<span className="text-[12px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100">대표</span>)}
+                {project.tags?.slice(0, 3).map((tag, idx) => (<span key={idx} className="text-[12px] font-medium px-2 py-0.5 rounded bg-blue-50 text-brand-primary">{tag}</span>))}
               </div>
               <h3 className="text-sm font-bold text-brand-dark mb-1.5 truncate">{project.title}</h3>
               <p className="text-xs text-brand-sub leading-relaxed line-clamp-2 mb-4">{project.description || "설명이 없습니다."}</p>
               <div className="flex items-center justify-between pt-3 border-t border-brand-border">
-                <span className="text-[11px] text-brand-sub">{new Date(project.createdAt).toLocaleDateString()}</span>
+                <span className="text-[12px] text-brand-sub">{new Date(project.createdAt).toLocaleDateString()}</span>
                 <div className="flex gap-1.5">
                   <button onClick={() => handleEdit(project)} className="px-3 py-1.5 bg-brand-light hover:bg-blue-50 hover:text-brand-primary text-brand-sub rounded-lg text-xs font-semibold transition-colors cursor-pointer">수정</button>
                   <button onClick={() => handleDelete(project.id)} className="px-3 py-1.5 bg-brand-light hover:bg-red-50 hover:text-brand-error text-brand-sub rounded-lg text-xs font-semibold transition-colors cursor-pointer">삭제</button>

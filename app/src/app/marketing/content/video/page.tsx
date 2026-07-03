@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRailLeft } from "@/components/marketing/useRailLeft";
 
 /* ── 영상 편집기 목업 ────────────────────────── */
 function VideoMockup() {
@@ -20,7 +21,7 @@ function VideoMockup() {
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#F59E0B" }} />
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#10B981" }} />
           </div>
-          <span className="text-[7px] font-bold" style={{ color: "rgba(255,165,0,0.5)" }}>PREMIERE PRO</span>
+          <span className="text-[8px] font-bold" style={{ color: "rgba(255,165,0,0.5)" }}>PREMIERE PRO</span>
           <div className="w-4 h-4" />
         </div>
 
@@ -35,9 +36,9 @@ function VideoMockup() {
             </svg>
           </div>
           {/* 4K 배지 */}
-          <div className="absolute top-2 right-2 text-[7px] font-extrabold px-1.5 py-0.5 rounded-md text-white" style={{ background: "#F97316" }}>4K</div>
+          <div className="absolute top-2 right-2 text-[8px] font-extrabold px-1.5 py-0.5 rounded-md text-white" style={{ background: "#F97316" }}>4K</div>
           {/* 시간 */}
-          <div className="absolute bottom-2 right-2 text-[8px] font-bold text-white/70">00:58</div>
+          <div className="absolute bottom-2 right-2 text-[9px] font-bold text-white/70">00:58</div>
         </div>
 
         {/* 타임라인 */}
@@ -55,7 +56,7 @@ function VideoMockup() {
             { label: "GFX", color: "#8B5CF6", width: "40%" },
           ].map((track) => (
             <div key={track.label} className="flex items-center gap-2 mb-1.5">
-              <span className="text-[7px] font-bold w-5 shrink-0" style={{ color: track.color }}>{track.label}</span>
+              <span className="text-[8px] font-bold w-5 shrink-0" style={{ color: track.color }}>{track.label}</span>
               <div className="flex-1 h-3 rounded-sm overflow-hidden" style={{ background: "#1E1800" }}>
                 <div className="h-full rounded-sm" style={{ width: track.width, background: `${track.color}55`, borderLeft: `2px solid ${track.color}` }} />
               </div>
@@ -66,7 +67,7 @@ function VideoMockup() {
         {/* 하단 도구 바 */}
         <div className="px-3 py-2 flex items-center gap-3" style={{ background: "#1A1400" }}>
           {["✂", "⏭", "🔊", "📤"].map((icon, i) => (
-            <div key={i} className="h-5 w-5 rounded-md flex items-center justify-center text-[9px]" style={{ background: "rgba(249,115,22,0.15)" }}>
+            <div key={i} className="h-5 w-5 rounded-md flex items-center justify-center text-[10px]" style={{ background: "rgba(249,115,22,0.15)" }}>
               {icon}
             </div>
           ))}
@@ -89,21 +90,21 @@ function VideoMockup() {
             className="w-[96px] rounded-xl px-2.5 py-2 flex items-center justify-between shadow-md"
             style={{ background: `${fmt.color}18`, border: `1px solid ${fmt.color}40` }}
           >
-            <span className="text-[9px] font-bold" style={{ color: fmt.color }}>{fmt.label}</span>
-            <span className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-md" style={{ background: `${fmt.color}30`, color: fmt.color }}>{fmt.ratio}</span>
+            <span className="text-[10px] font-bold" style={{ color: fmt.color }}>{fmt.label}</span>
+            <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style={{ background: `${fmt.color}30`, color: fmt.color }}>{fmt.ratio}</span>
           </div>
         ))}
       </div>
 
       {/* 배지 */}
       <div
-        className="absolute top-[88px] left-[-6px] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
+        className="absolute top-[88px] left-[-6px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
         style={{ background: "#8B5CF6" }}
       >
         모션 그래픽
       </div>
       <div
-        className="absolute bottom-[50px] right-[4px] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
+        className="absolute bottom-[50px] right-[4px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
         style={{ background: "#F97316" }}
       >
         멀티 포맷 납품
@@ -136,10 +137,10 @@ const FEATURES = [
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold text-brand-dark">{item.type}</p>
-              <p className="text-[10px] text-brand-muted">{item.platform}</p>
+              <p className="text-[13px] font-bold text-brand-dark">{item.type}</p>
+              <p className="text-[11px] text-brand-muted">{item.platform}</p>
             </div>
-            <span className="text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0" style={{ background: `${item.color}15`, color: item.color }}>{item.duration}</span>
+            <span className="text-[11px] font-extrabold px-2 py-1 rounded-lg shrink-0" style={{ background: `${item.color}15`, color: item.color }}>{item.duration}</span>
           </div>
         ))}
       </div>
@@ -155,7 +156,7 @@ const FEATURES = [
     visual: (
       <div className="w-full max-w-[280px] space-y-2.5">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-3">Production Elements</p>
+          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">Production Elements</p>
           {[
             { label: "자막 디자인", icon: "T", color: "#F97316" },
             { label: "모션 그래픽", icon: "✦", color: "#EF4444" },
@@ -165,12 +166,12 @@ const FEATURES = [
           ].map((el) => (
             <div key={el.label} className="flex items-center gap-3 mb-2.5 last:mb-0">
               <div
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-[12px] font-extrabold shrink-0"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-[13px] font-extrabold shrink-0"
                 style={{ background: `${el.color}18`, color: el.color }}
               >
                 {el.icon}
               </div>
-              <span className="text-[12px] font-semibold text-brand-dark flex-1">{el.label}</span>
+              <span className="text-[13px] font-semibold text-brand-dark flex-1">{el.label}</span>
               <div className="w-16 h-1.5 rounded-full overflow-hidden bg-gray-100">
                 <div className="h-full rounded-full" style={{ width: "100%", background: el.color }} />
               </div>
@@ -179,7 +180,7 @@ const FEATURES = [
         </div>
       </div>
     ),
-    bg: "#F9FAFB",
+    bg: "#F5F6F8",
     accent: "#EF4444",
   },
   {
@@ -190,7 +191,7 @@ const FEATURES = [
     visual: (
       <div className="w-full max-w-[280px]">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-5">
-          <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mb-4">Multi-Format Output</p>
+          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-4">Multi-Format Output</p>
           <div className="flex items-end justify-center gap-4">
             {/* 16:9 */}
             <div className="flex flex-col items-center gap-2">
@@ -199,8 +200,8 @@ const FEATURES = [
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="rgba(255,255,255,0.8)"><path d="M8 5v14l11-7z"/></svg>
                 </div>
               </div>
-              <span className="text-[8px] font-bold text-orange-500">16:9</span>
-              <span className="text-[7px] text-gray-400">YouTube</span>
+              <span className="text-[9px] font-bold text-orange-500">16:9</span>
+              <span className="text-[8px] text-gray-400">YouTube</span>
             </div>
             {/* 1:1 */}
             <div className="flex flex-col items-center gap-2">
@@ -209,8 +210,8 @@ const FEATURES = [
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="rgba(255,255,255,0.8)"><path d="M8 5v14l11-7z"/></svg>
                 </div>
               </div>
-              <span className="text-[8px] font-bold text-pink-500">1:1</span>
-              <span className="text-[7px] text-gray-400">Instagram</span>
+              <span className="text-[9px] font-bold text-pink-500">1:1</span>
+              <span className="text-[8px] text-gray-400">Instagram</span>
             </div>
             {/* 9:16 */}
             <div className="flex flex-col items-center gap-2">
@@ -219,15 +220,15 @@ const FEATURES = [
                   <svg className="w-3 h-3" viewBox="0 0 24 24" fill="rgba(255,255,255,0.8)"><path d="M8 5v14l11-7z"/></svg>
                 </div>
               </div>
-              <span className="text-[8px] font-bold text-violet-500">9:16</span>
-              <span className="text-[7px] text-gray-400">Reels</span>
+              <span className="text-[9px] font-bold text-violet-500">9:16</span>
+              <span className="text-[8px] text-gray-400">Reels</span>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
             <div className="h-5 w-5 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#F9731615" }}>
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="#F97316"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
             </div>
-            <span className="text-[10px] font-semibold text-brand-sub">모든 포맷 동시 납품 포함</span>
+            <span className="text-[11px] font-semibold text-brand-sub">모든 포맷 동시 납품 포함</span>
           </div>
         </div>
       </div>
@@ -354,6 +355,7 @@ function Check({ color }: { color: string }) {
 }
 
 export default function VideoPage() {
+  const { railRef, railLeft } = useRailLeft();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -363,15 +365,15 @@ export default function VideoPage() {
 
         {/* ── 우측 고정 CTA 패널 ────── */}
         <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72 right-8"
-          style={{ top: "92px" }}
+          className="hidden lg:block fixed z-30 w-64 xl:w-72"
+          style={{ top: 92, left: railLeft, visibility: railLeft == null ? "hidden" : "visible" }}
         >
           <div className="rounded-2xl overflow-hidden shadow-xl border border-orange-100">
             <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(135deg,#F97316,#C2410C)" }}>
-              <p className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Video Production</p>
-              <p className="text-[17px] font-extrabold text-white leading-tight mb-1">기획부터 납품까지</p>
-              <p className="text-[17px] font-extrabold text-white leading-tight mb-5">원스톱 영상 제작</p>
-              <p className="text-[11px] text-white/55 leading-relaxed mb-5">
+              <p className="text-[11px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Video Production</p>
+              <p className="text-[19px] font-extrabold text-white leading-tight mb-1">기획부터 납품까지</p>
+              <p className="text-[19px] font-extrabold text-white leading-tight mb-5">원스톱 영상 제작</p>
+              <p className="text-[12px] text-white/55 leading-relaxed mb-5">
                 스크립트·모션그래픽·자막 디자인<br />멀티 포맷 납품까지<br />한 팀이 끝까지 담당합니다.
               </p>
               <div className="space-y-2">
@@ -382,22 +384,22 @@ export default function VideoPage() {
                 ].map((t) => (
                   <div key={t.label} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/10">
                     <div>
-                      <span className="text-[12px] font-bold text-white block leading-tight">{t.label}</span>
-                      <span className="text-[10px] text-white/40">{t.sub}</span>
+                      <span className="text-[13px] font-bold text-white block leading-tight">{t.label}</span>
+                      <span className="text-[11px] text-white/40">{t.sub}</span>
                     </div>
-                    <span className="text-[12px] font-extrabold text-orange-200">{t.price}</span>
+                    <span className="text-[13px] font-extrabold text-orange-200">{t.price}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="bg-white px-4 py-5 space-y-2.5">
               <button
-                className="w-full py-3 rounded-xl text-[13px] font-extrabold text-white transition-opacity hover:opacity-85"
+                className="w-full py-3 rounded-xl text-[15px] font-extrabold text-white transition-opacity hover:opacity-85"
                 style={{ background: "linear-gradient(135deg,#F97316,#C2410C)" }}
               >
                 무료 영상 제작 상담 신청
               </button>
-              <button className="w-full py-3 rounded-xl text-[13px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
+              <button className="w-full py-3 rounded-xl text-[15px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
                 카카오로 문의하기
               </button>
             </div>
@@ -405,7 +407,7 @@ export default function VideoPage() {
         </div>
 
         {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub mb-6 px-1">
+        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub mb-6 px-1">
           <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
           <span>›</span>
           <span className="text-brand-muted">콘텐츠</span>
@@ -417,18 +419,18 @@ export default function VideoPage() {
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#1C0900 0%,#431005 55%,#7C2D00 100%)" }}>
           <div className="px-8 py-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-extrabold text-orange-300 uppercase tracking-[0.2em] mb-3">Video Production</p>
-              <h1 className="text-[30px] font-extrabold text-white leading-tight mb-4">
+              <p className="text-[12px] font-extrabold text-orange-300 uppercase tracking-[0.2em] mb-3">Video Production</p>
+              <h1 className="text-[34px] font-extrabold text-white leading-tight mb-4">
                 영상 하나가<br />
                 브랜드를 바꿉니다
               </h1>
-              <p className="text-[14px] text-white/75 leading-relaxed mb-6">
+              <p className="text-[16px] text-white/75 leading-relaxed mb-6">
                 숏폼부터 브랜드 필름까지<br />
                 기획 · 모션 · 멀티 포맷 납품까지 원스톱으로.
               </p>
               <div className="flex flex-wrap gap-2">
                 {["모션 그래픽", "4K 고화질", "멀티 포맷", "저작권 BGM"].map((t) => (
-                  <span key={t} className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
+                  <span key={t} className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
                     {t}
                   </span>
                 ))}
@@ -447,8 +449,8 @@ export default function VideoPage() {
               { num: "7일", label: "최단 납품 기간" },
             ].map((s) => (
               <div key={s.label} className="text-center px-2">
-                <p className="text-[28px] font-extrabold text-orange-500 leading-tight">{s.num}</p>
-                <p className="text-[12px] text-brand-sub mt-0.5">{s.label}</p>
+                <p className="text-[31px] font-extrabold text-orange-500 leading-tight">{s.num}</p>
+                <p className="text-[13px] text-brand-sub mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -463,20 +465,20 @@ export default function VideoPage() {
           >
             <div className={`px-8 py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
+                <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
                   FEATURE {f.no}
                 </p>
-                <h2 className="text-[22px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
+                <h2 className="text-[25px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
                   {f.title}
                 </h2>
-                <p className="text-[13px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
+                <p className="text-[15px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
                 <ul className="space-y-2">
                   {f.points.map((pt) => (
                     <li key={pt} className="flex items-center gap-2">
                       <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke={f.accent} strokeWidth={2.8}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
-                      <span className="text-[12px] font-semibold text-brand-dark">{pt}</span>
+                      <span className="text-[13px] font-semibold text-brand-dark">{pt}</span>
                     </li>
                   ))}
                 </ul>
@@ -491,26 +493,24 @@ export default function VideoPage() {
         {/* ── 프로세스 ────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#1C0900 0%,#431005 100%)" }}>
           <div className="px-8 py-10">
-            <p className="text-[11px] font-extrabold text-orange-400/70 uppercase tracking-widest mb-2">Process</p>
-            <h2 className="text-[22px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
-            <div className="space-y-0">
+            <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#FDBA74" }}>Process</p>
+            <h2 className="text-[25px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {PROCESS.map((p, i) => (
-                <div key={p.step} className="flex gap-4">
-                  <div className="flex flex-col items-center shrink-0">
-                    <div
-                      className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
-                      style={{ background: "linear-gradient(135deg,#F97316,#EA580C)" }}
-                    >
-                      {p.step}
-                    </div>
-                    {i < PROCESS.length - 1 && (
-                      <div className="w-px flex-1 my-1" style={{ background: "rgba(249,115,22,0.3)" }} />
-                    )}
+                <div key={p.step} className="relative rounded-2xl p-5 flex flex-col"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  {/* 단계 연결 화살표 (데스크톱) */}
+                  {i < PROCESS.length - 1 && (
+                    <svg className="hidden lg:block absolute top-9 -right-3 w-5 h-5 text-white/25 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center text-[15px] font-extrabold text-white mb-4 shrink-0"
+                    style={{ background: "linear-gradient(135deg,#F97316,#EA580C)", boxShadow: "0 6px 16px rgba(249,115,22,0.35)" }}>
+                    {p.step}
                   </div>
-                  <div className={`pb-6 ${i === PROCESS.length - 1 ? "pb-0" : ""}`}>
-                    <p className="text-[14px] font-bold text-white mb-1">{p.title}</p>
-                    <p className="text-[12px] text-orange-200/55 leading-relaxed">{p.desc}</p>
-                  </div>
+                  <p className="text-[15px] font-bold text-white mb-1.5 leading-snug">{p.title}</p>
+                  <p className="text-[13px] text-white/50 leading-relaxed">{p.desc}</p>
                 </div>
               ))}
             </div>
@@ -519,9 +519,9 @@ export default function VideoPage() {
 
         {/* ── 가격 플랜 ───────────────────────── */}
         <section className="rounded-2xl bg-brand-lighter border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-orange-500 uppercase tracking-widest mb-2">Pricing</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
-          <p className="text-[13px] text-brand-sub mb-8">채널·목적·예산에 맞는 플랜을 선택하세요.</p>
+          <p className="text-[12px] font-extrabold text-orange-500 uppercase tracking-widest mb-2">Pricing</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
+          <p className="text-[15px] text-brand-sub mb-8">채널·목적·예산에 맞는 플랜을 선택하세요.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {TIERS.map((tier) => (
@@ -535,70 +535,70 @@ export default function VideoPage() {
               >
                 {tier.best && (
                   <div
-                    className="absolute top-4 right-4 text-white text-[10px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
+                    className="absolute top-4 right-4 text-white text-[11px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
                     style={{ background: "linear-gradient(135deg,#1E1B4B,#4338CA)" }}
                   >
                     BEST
                   </div>
                 )}
                 <div className="px-5 pt-5 pb-8" style={{ background: tier.grad }}>
-                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
-                  <p className="text-white text-[18px] font-extrabold">{tier.name}</p>
+                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
+                  <p className="text-white text-[20px] font-extrabold">{tier.name}</p>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-white text-[28px] font-extrabold">{tier.price}</span>
-                    <span className="text-white/70 text-[13px] font-semibold">{tier.unit}</span>
+                    <span className="text-white text-[31px] font-extrabold">{tier.price}</span>
+                    <span className="text-white/70 text-[15px] font-semibold">{tier.unit}</span>
                   </div>
-                  <p className="text-white/40 text-[10px] mt-0.5">VAT 별도</p>
+                  <p className="text-white/40 text-[11px] mt-0.5">VAT 별도</p>
                   <div className="mt-3 flex items-center gap-1.5 bg-white/15 rounded-lg px-2.5 py-1.5 w-fit">
                     <svg className="w-3 h-3 text-white/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-white text-[11px] font-bold">{tier.duration} 소요</span>
+                    <span className="text-white text-[12px] font-bold">{tier.duration} 소요</span>
                   </div>
                 </div>
                 <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
                   <ul className="space-y-1.5">
                     {tier.targets.map((t, i) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <Check color={tier.checkColor} />
-                        <span className="text-[11px] text-brand-sub leading-snug">{t}</span>
+                        <span className="text-[12px] text-brand-sub leading-snug">{t}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">스펙</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">스펙</p>
                   <ul className="space-y-1.5">
                     {tier.specs.map((s, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="text-[10px] font-bold text-brand-muted w-8 shrink-0 pt-[1px]">{s.label}</span>
-                        <span className="text-[11px] text-brand-dark leading-snug">{s.value}</span>
+                        <span className="text-[11px] font-bold text-brand-muted w-8 shrink-0 pt-[1px]">{s.label}</span>
+                        <span className="text-[12px] text-brand-dark leading-snug">{s.value}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 py-4 flex-1">
-                  <p className="text-[9px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">포함 구성</p>
+                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">포함 구성</p>
                   {tier.highlight && (
-                    <div className="mb-2.5 flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-[10px] font-bold" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", color: "#C2410C" }}>
+                    <div className="mb-2.5 flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] font-bold" style={{ background: "#FFF7ED", border: "1px solid #FED7AA", color: "#C2410C" }}>
                       <span>★</span>
                       <span className="flex-1">{tier.highlight}</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-md font-extrabold" style={{ background: "#F97316", color: "white" }}>추가</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md font-extrabold" style={{ background: "#F97316", color: "white" }}>추가</span>
                     </div>
                   )}
                   <ul className="space-y-1.5">
                     {tier.includes.map((inc, i) => (
                       <li key={i} className="flex items-start gap-1.5">
                         <span className="mt-[3px] w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tier.id === "standard" ? "#F97316" : tier.id === "deluxe" ? "#DC2626" : "#6366F1" }} />
-                        <span className="text-[11px] text-brand-sub leading-snug">{inc}</span>
+                        <span className="text-[12px] text-brand-sub leading-snug">{inc}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="px-4 pb-4 pt-2">
                   <button
-                    className="w-full py-2.5 rounded-xl text-[13px] font-bold text-white hover:opacity-85 transition-opacity"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-bold text-white hover:opacity-85 transition-opacity"
                     style={{ background: tier.grad }}
                   >
                     문의하기
@@ -611,8 +611,8 @@ export default function VideoPage() {
 
         {/* ── FAQ ────────────────────────────── */}
         <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
-          <p className="text-[11px] font-extrabold text-orange-500 uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-[22px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
+          <p className="text-[12px] font-extrabold text-orange-500 uppercase tracking-widest mb-2">FAQ</p>
+          <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
           <div className="space-y-2">
             {FAQS.map((faq, i) => (
               <div key={i} className="rounded-2xl border border-brand-border overflow-hidden">
@@ -620,7 +620,7 @@ export default function VideoPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors"
                 >
-                  <span className="text-[13px] font-bold text-brand-dark">{faq.q}</span>
+                  <span className="text-[15px] font-bold text-brand-dark">{faq.q}</span>
                   <svg
                     className={`w-4 h-4 text-brand-muted shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
@@ -630,7 +630,7 @@ export default function VideoPage() {
                 </button>
                 {openFaq === i && (
                   <div className="px-5 pb-4 border-t border-brand-border bg-brand-lighter">
-                    <p className="text-[13px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
+                    <p className="text-[15px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
                   </div>
                 )}
               </div>
@@ -644,14 +644,14 @@ export default function VideoPage() {
           style={{ background: "linear-gradient(135deg,#F97316,#C2410C)" }}
         >
           <div>
-            <p className="text-[11px] font-extrabold text-orange-100/50 uppercase tracking-widest mb-1">무료 상담</p>
-            <p className="text-[20px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
+            <p className="text-[12px] font-extrabold text-orange-100/50 uppercase tracking-widest mb-1">무료 상담</p>
+            <p className="text-[22px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <button className="px-6 py-3 rounded-xl text-[13px] font-extrabold bg-white text-orange-600 hover:bg-orange-50 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-extrabold bg-white text-orange-600 hover:bg-orange-50 transition-colors">
               무료 상담 신청
             </button>
-            <button className="px-6 py-3 rounded-xl text-[13px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
+            <button className="px-6 py-3 rounded-xl text-[15px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
               카카오로 문의
             </button>
           </div>
@@ -662,7 +662,7 @@ export default function VideoPage() {
           <svg className="w-4 h-4 text-brand-muted shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
-          <p className="text-[11px] text-brand-muted leading-relaxed">
+          <p className="text-[12px] text-brand-muted leading-relaxed">
             소요기간은 영업일 기준이며, 촬영 여부·피드백 속도에 따라 달라질 수 있습니다. 가격은 VAT 별도이며, 세부 범위에 따라 변동될 수 있습니다.
           </p>
         </div>
@@ -670,7 +670,7 @@ export default function VideoPage() {
       </div>
 
       {/* 오른쪽 고정 패널 자리 확보용 */}
-      <div className="hidden lg:block w-64 xl:w-72 shrink-0" />
+      <div ref={railRef} className="hidden lg:block w-64 xl:w-72 shrink-0" />
 
     </div>
   );

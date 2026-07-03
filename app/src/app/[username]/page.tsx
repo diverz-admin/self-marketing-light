@@ -108,7 +108,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         {/* Profile Card Section */}
         <section id="about" className="bg-white/70 backdrop-blur-md border border-white/60 shadow-xl rounded-3xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
           <div className="flex-1 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-brand-primary text-[10px] font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-brand-primary text-[11px] font-bold">
               💼 BRAND PROFILE CARD
             </div>
             <h1 className="text-3xl md:text-4xl font-display font-black text-slate-800 leading-tight">
@@ -199,14 +199,14 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     <div>
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         {project.isFeatured && (
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
                             ⭐ 대표작
                           </span>
                         )}
                         {project.tags && project.tags.map((tag, idx) => (
                           <span
                             key={idx}
-                            className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-brand-primary"
+                            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-brand-primary"
                           >
                             {tag}
                           </span>
@@ -271,7 +271,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     {post.tags && post.tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"
                       >
                         #{tag}
                       </span>
@@ -280,7 +280,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   <h3 className="text-base font-bold text-slate-800 hover:text-brand-secondary transition-colors mb-1">
                     {post.title}
                   </h3>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="flex items-center justify-between text-[12px] text-slate-400">
                     <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
                     <span className="font-bold text-brand-primary">읽기 &rarr;</span>
                   </div>
@@ -294,7 +294,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {/* Footer */}
       <footer className="border-t border-slate-200/50 py-8 bg-white mt-20 relative z-10 text-center text-xs text-slate-400">
-        &copy; {new Date().getFullYear()} {user.name}. Self Branding Page. Powered by SelfMarketing.
+        &copy; {new Date().getFullYear()} {user.name}. Self Branding Page. Powered by BLUE EGG.
       </footer>
     </div>
   );

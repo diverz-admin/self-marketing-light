@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-
-const TABS = [
-  { label: "상품 체험단", href: "/marketing/review/shopping/product-experience" },
-];
 
 const CHANNELS = [
   {
@@ -33,7 +28,7 @@ const PRODUCT_TYPES = [
     price: 2000,
     tag: "체험형",
     tagColor: "bg-brand-lighter text-brand-primary",
-    grad: "linear-gradient(135deg,#0341C7,#6366F1)",
+    grad: "linear-gradient(135deg,#0D3473,#6366F1)",
     iconPath: "M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9",
   },
   {
@@ -49,7 +44,6 @@ const PRODUCT_TYPES = [
 ];
 
 export default function ShoppingProductExperiencePage() {
-  const pathname = usePathname();
 
   const [channel, setChannel] = useState("네이버 쇼핑");
   const [selectedType, setSelectedType] = useState("제품제공");
@@ -87,13 +81,13 @@ export default function ShoppingProductExperiencePage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-[20px] font-extrabold text-brand-dark mb-2">캠페인 등록 완료</h2>
-          <p className="text-[14px] text-brand-sub mb-8">검수 후 1~2일 내 캠페인이 시작됩니다.</p>
+          <h2 className="text-[22px] font-extrabold text-brand-dark mb-2">캠페인 등록 완료</h2>
+          <p className="text-[16px] text-brand-sub mb-8">검수 후 1~2일 내 캠페인이 시작됩니다.</p>
           <div className="flex gap-3 justify-center">
-            <Link href="/marketing/review/shopping" className="px-5 py-3 rounded-2xl text-[14px] font-bold bg-brand-primary text-white">
+            <Link href="/marketing/review/shopping" className="px-5 py-3 rounded-2xl text-[16px] font-bold bg-brand-primary text-white">
               캠페인 목록으로
             </Link>
-            <button onClick={() => setSubmitted(false)} className="px-5 py-3 rounded-2xl text-[14px] font-bold bg-brand-lighter text-brand-text border border-brand-border cursor-pointer">
+            <button onClick={() => setSubmitted(false)} className="px-5 py-3 rounded-2xl text-[16px] font-bold bg-brand-lighter text-brand-text border border-brand-border cursor-pointer">
               새 캠페인 등록
             </button>
           </div>
@@ -105,7 +99,7 @@ export default function ShoppingProductExperiencePage() {
   return (
     <div className="w-full space-y-4">
       {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
         <span className="text-brand-muted">쇼핑 리뷰</span>
@@ -115,19 +109,6 @@ export default function ShoppingProductExperiencePage() {
         <span className="text-brand-text font-medium">{channel} · 상품 체험단</span>
       </nav>
 
-      {/* 탭 */}
-      <div className="bg-white rounded-2xl border border-brand-border px-2 py-2 flex items-center gap-1 overflow-x-auto">
-        {TABS.map((tab) => (
-          <Link key={tab.href} href={tab.href}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${
-              pathname === tab.href ? "bg-brand-primary text-white shadow-sm" : "text-brand-sub hover:bg-brand-lighter hover:text-brand-dark"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
-
       {/* 2-column layout */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 items-start">
 
@@ -135,17 +116,17 @@ export default function ShoppingProductExperiencePage() {
         <div className="space-y-5">
 
           {/* 채널 선택 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4">
+          <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="flex items-center gap-3">
-              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0EA5E9,#2563EB)" }}>
+              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.15)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </span>
               <div>
-                <h2 className="text-[15px] font-bold text-brand-dark">채널 선택</h2>
-                <p className="text-[12px] text-brand-sub">리뷰를 진행할 채널을 선택하세요</p>
+                <h2 className="text-[17px] font-bold text-white">채널 선택</h2>
+                <p className="text-[13px] text-white/60">리뷰를 진행할 채널을 선택하세요</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -156,7 +137,7 @@ export default function ShoppingProductExperiencePage() {
                     key={ch.id}
                     onClick={() => setChannel(ch.id)}
                     className={`flex items-center gap-3 rounded-2xl p-4 text-left border-2 transition-all ${
-                      active ? "border-brand-primary shadow-[0_0_0_3px_rgba(3,65,199,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
+                      active ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
                     }`}
                   >
                     <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: ch.grad }}>
@@ -165,8 +146,8 @@ export default function ShoppingProductExperiencePage() {
                       </svg>
                     </span>
                     <div>
-                      <p className="text-[14px] font-extrabold text-brand-dark">{ch.name}</p>
-                      <p className="text-[11.5px] text-brand-sub leading-snug">{ch.desc}</p>
+                      <p className="text-[16px] font-extrabold text-brand-dark">{ch.name}</p>
+                      <p className="text-[13px] text-brand-sub leading-snug">{ch.desc}</p>
                     </div>
                   </button>
                 );
@@ -183,8 +164,8 @@ export default function ShoppingProductExperiencePage() {
                 </svg>
               </span>
               <div>
-                <h2 className="text-[15px] font-bold text-brand-dark">타입 선택</h2>
-                <p className="text-[12px] text-brand-sub">체험 방식을 선택하세요</p>
+                <h2 className="text-[17px] font-bold text-brand-dark">타입 선택</h2>
+                <p className="text-[13px] text-brand-sub">체험 방식을 선택하세요</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -195,20 +176,17 @@ export default function ShoppingProductExperiencePage() {
                     key={t.id}
                     onClick={() => setSelectedType(t.id)}
                     className={`rounded-2xl p-5 text-left border-2 transition-all ${
-                      active ? "border-brand-primary shadow-[0_0_0_3px_rgba(3,65,199,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
+                      active ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: t.grad }}>
-                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d={t.iconPath} />
-                        </svg>
-                      </span>
-                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${t.tagColor}`}>{t.tag}</span>
+                    <div className="flex items-start justify-between gap-2 mb-4">
+                      <div className="min-w-0">
+                        <p className="text-[17px] font-extrabold text-brand-dark mb-1.5">{t.name}</p>
+                        <p className="text-[13px] text-brand-sub leading-relaxed">{t.desc}</p>
+                      </div>
+                      <span className={`shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-lg ${t.tagColor}`}>{t.tag}</span>
                     </div>
-                    <p className="text-[15px] font-extrabold text-brand-dark mb-1.5">{t.name}</p>
-                    <p className="text-[12px] text-brand-sub leading-relaxed mb-4">{t.desc}</p>
-                    <p className="text-[19px] font-extrabold text-[#1A237E]">{t.price.toLocaleString()}원 <span className="text-[12px] font-normal text-brand-sub">/ 1인</span></p>
+                    <p className="text-[21px] font-extrabold text-[#1A237E]">{t.price.toLocaleString()}원 <span className="text-[13px] font-normal text-brand-sub">/ 1인</span></p>
                   </button>
                 );
               })}
@@ -218,14 +196,14 @@ export default function ShoppingProductExperiencePage() {
           {/* 스케줄 설정 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
             <div className="flex items-center gap-3">
-              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0341C7,#6366F1)" }}>
+              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </span>
               <div>
-                <h2 className="text-[15px] font-bold text-brand-dark">스케줄 설정</h2>
-                <p className="text-[12px] text-brand-sub">모집 인원을 설정하세요</p>
+                <h2 className="text-[17px] font-bold text-brand-dark">스케줄 설정</h2>
+                <p className="text-[13px] text-brand-sub">모집 인원을 설정하세요</p>
               </div>
             </div>
 
@@ -233,43 +211,43 @@ export default function ShoppingProductExperiencePage() {
               <svg className="w-4 h-4 text-brand-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
-              <p className="text-[12.5px] text-brand-primary leading-relaxed">
+              <p className="text-[14px] text-brand-primary leading-relaxed">
                 리뷰는 <span className="font-bold">상품 구매 후 일주일(7일) 이내</span>에 작성되어야 합니다.
               </p>
             </div>
 
             <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-3">모집 인원 <span className="text-red-500">*</span></p>
+              <p className="text-[15px] font-semibold text-brand-dark mb-3">모집 인원 <span className="text-red-500">*</span></p>
               <div className="flex items-center gap-2">
-                <span className="text-[13px] text-brand-sub shrink-0">총</span>
+                <span className="text-[15px] text-brand-sub shrink-0">총</span>
                 <input
                   type="number"
                   value={totalCount}
                   onChange={(e) => setTotalCount(Math.max(1, Number(e.target.value)))}
-                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[20px] font-extrabold text-brand-primary text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[22px] font-extrabold text-brand-primary text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                   min={1}
                 />
-                <span className="text-[13px] text-brand-sub shrink-0">/</span>
-                <span className="text-[13px] text-brand-sub shrink-0">일</span>
+                <span className="text-[15px] text-brand-sub shrink-0">/</span>
+                <span className="text-[15px] text-brand-sub shrink-0">일</span>
                 <input
                   type="number"
                   value={dailyCount}
                   onChange={(e) => setDailyCount(e.target.value)}
                   placeholder="일"
-                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[14px] font-bold text-brand-dark text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+                  className="flex-1 min-w-0 px-2 py-2 border border-brand-border rounded-xl text-[16px] font-bold text-brand-dark text-center bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
                   min={1}
                 />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-              <p className="text-[12.5px] font-extrabold text-red-600 mb-2">모집 인원 관련 주의사항</p>
+              <p className="text-[14px] font-extrabold text-red-600 mb-2">모집 인원 관련 주의사항</p>
               <ul className="space-y-1.5">
                 {[
                   "1일 오픈 건 수 부족 시 마지막 날 잔여 수량이 전부 오픈됩니다.",
                   "인원 오기입으로 인해 발생되는 문제는 책임지지 않습니다.",
                 ].map((note, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px] text-red-500">
+                  <li key={i} className="flex items-start gap-2 text-[13px] text-red-500">
                     <span className="font-bold shrink-0 mt-px">⊕</span>
                     {note}
                   </li>
@@ -287,18 +265,18 @@ export default function ShoppingProductExperiencePage() {
                 </svg>
               </span>
               <div>
-                <h2 className="text-[15px] font-bold text-brand-dark">필수 정보</h2>
-                <p className="text-[12px] text-brand-sub">캠페인에 필요한 상품 정보를 입력하세요</p>
+                <h2 className="text-[17px] font-bold text-brand-dark">필수 정보</h2>
+                <p className="text-[13px] text-brand-sub">캠페인에 필요한 상품 정보를 입력하세요</p>
               </div>
             </div>
 
             <div>
-              <p className="text-[13px] font-semibold text-brand-dark mb-2.5">제목 유형 <span className="text-red-500">*</span></p>
+              <p className="text-[15px] font-semibold text-brand-dark mb-2.5">제목 유형 <span className="text-red-500">*</span></p>
               <div className="flex items-center gap-6 flex-wrap">
                 {["상품명", "상품명 + 키워드", "키워드"].map((v) => (
                   <label key={v} className="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" name="titleType" checked={titleType === v} onChange={() => setTitleType(v)} className="w-4 h-4 accent-[#0341C7]" />
-                    <span className="text-[13px] text-brand-dark">{v}</span>
+                    <input type="radio" name="titleType" checked={titleType === v} onChange={() => setTitleType(v)} className="w-4 h-4 accent-[#0D3473]" />
+                    <span className="text-[15px] text-brand-dark">{v}</span>
                   </label>
                 ))}
               </div>
@@ -310,21 +288,21 @@ export default function ShoppingProductExperiencePage() {
               { label: "구매 키워드", value: mainKeyword,   onChange: setMainKeyword,   placeholder: "1개만 반영됩니다." },
             ].map((field) => (
               <div key={field.label}>
-                <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
                   {field.label} <span className="text-red-500">*</span>
                 </label>
                 <input
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                  className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
             ))}
 
             <div>
-              <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
-                작성 가이드 <span className="text-[12px] font-normal text-brand-muted">(선택)</span>
+              <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                작성 가이드 <span className="text-[13px] font-normal text-brand-muted">(선택)</span>
               </label>
               <textarea
                 value={writeGuide}
@@ -332,9 +310,9 @@ export default function ShoppingProductExperiencePage() {
                 maxLength={500}
                 rows={6}
                 placeholder={`예시)\n-강조하고 싶은 키워드나 내용\n-꼭 언급되어야 할 상품 특징\n-사용/섭취 방법 안내\n-주의사항`}
-                className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
+                className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
               />
-              <p className="text-right text-[11px] text-brand-muted mt-1">{writeGuide.length} / 500</p>
+              <p className="text-right text-[12px] text-brand-muted mt-1">{writeGuide.length} / 500</p>
             </div>
           </div>
 
@@ -348,16 +326,16 @@ export default function ShoppingProductExperiencePage() {
                   </svg>
                 </span>
                 <div>
-                  <h2 className="text-[15px] font-bold text-brand-dark">이미지 등록</h2>
-                  <p className="text-[12px] text-brand-sub">포토리뷰 여부를 설정하세요</p>
+                  <h2 className="text-[17px] font-bold text-brand-dark">이미지 등록</h2>
+                  <p className="text-[13px] text-brand-sub">포토리뷰 여부를 설정하세요</p>
                 </div>
               </div>
 
               {/* 포토리뷰 On/Off 토글 */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[13px] font-semibold text-brand-dark">포토리뷰 <span className="text-[12px] font-normal text-brand-sub">(선택)</span></p>
-                  <p className="text-[12px] text-brand-sub mt-0.5">
+                  <p className="text-[15px] font-semibold text-brand-dark">포토리뷰 <span className="text-[13px] font-normal text-brand-sub">(선택)</span></p>
+                  <p className="text-[13px] text-brand-sub mt-0.5">
                     {photoReview ? "구글 드라이브 링크로 포스팅 이미지를 전달합니다" : "포토리뷰를 사용하지 않습니다"}
                   </p>
                 </div>
@@ -375,20 +353,20 @@ export default function ShoppingProductExperiencePage() {
               {photoReview && (
                 <>
                   <div>
-                    <label className="block text-[13px] font-semibold text-brand-dark mb-1.5">
+                    <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
                       포스팅 이미지{" "}
-                      <span className="text-[12px] font-normal text-brand-primary cursor-pointer hover:underline">(구글 드라이브링크)</span>
+                      <span className="text-[13px] font-normal text-brand-primary cursor-pointer hover:underline">(구글 드라이브링크)</span>
                     </label>
                     <input
                       value={postingUrl}
                       onChange={(e) => setPostingUrl(e.target.value)}
                       placeholder="https://drive.google.com/drive/folders/..."
-                      className="w-full px-0 py-2 border-b border-brand-border text-[13px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                      className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
                     />
                   </div>
 
                   <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-                    <p className="text-[12.5px] font-extrabold text-red-600 mb-2">AI 이미지 자동 분류기 사용 주의사항</p>
+                    <p className="text-[14px] font-extrabold text-red-600 mb-2">AI 이미지 자동 분류기 사용 주의사항</p>
                     <ul className="space-y-1.5">
                       {[
                         "구글 드라이브 링크만 가능합니다.",
@@ -396,7 +374,7 @@ export default function ShoppingProductExperiencePage() {
                         "인물 모자이크를 지원하지 않습니다.",
                         "드라이브에는 이미지 파일만 존재해야합니다.(폴더 포함X)",
                       ].map((note, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[12px] text-red-500">
+                        <li key={i} className="flex items-start gap-2 text-[13px] text-red-500">
                           <span className="font-bold shrink-0 mt-px">⊕</span>
                           {note}
                         </li>
@@ -419,29 +397,29 @@ export default function ShoppingProductExperiencePage() {
               </svg>
             </span>
             <div>
-              <h2 className="text-[15px] font-bold text-brand-dark">캠페인 설정</h2>
-              <p className="text-[12px] text-brand-sub">결제 및 동의 후 캠페인을 등록하세요</p>
+              <h2 className="text-[17px] font-bold text-brand-dark">캠페인 설정</h2>
+              <p className="text-[13px] text-brand-sub">결제 및 동의 후 캠페인을 등록하세요</p>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4">
             <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter border border-brand-border rounded-xl">
-              <span className="text-[14px] font-bold text-brand-dark">결제 금액</span>
+              <span className="text-[16px] font-bold text-brand-dark">결제 금액</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-[20px] font-extrabold text-brand-primary">{orderAmount.toLocaleString()}</span>
-                <span className="text-[13px] text-brand-sub">원</span>
+                <span className="text-[22px] font-extrabold text-brand-primary">{orderAmount.toLocaleString()}</span>
+                <span className="text-[15px] text-brand-sub">원</span>
               </div>
             </div>
 
             {orderAmount > balance && (
-              <p className="text-[12px] text-red-500 font-medium -mt-1">포인트가 부족합니다.</p>
+              <p className="text-[13px] text-red-500 font-medium -mt-1">포인트가 부족합니다.</p>
             )}
 
             <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter rounded-xl">
-              <span className="text-[14px] font-bold text-brand-dark">보유 금액</span>
+              <span className="text-[16px] font-bold text-brand-dark">보유 금액</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-[20px] font-extrabold text-brand-dark">{balance.toLocaleString()}</span>
-                <span className="text-[13px] text-brand-sub">원</span>
+                <span className="text-[22px] font-extrabold text-brand-dark">{balance.toLocaleString()}</span>
+                <span className="text-[15px] text-brand-sub">원</span>
               </div>
             </div>
 
@@ -457,9 +435,9 @@ export default function ShoppingProductExperiencePage() {
                     type="checkbox"
                     checked={agreements[item.key]}
                     onChange={(e) => setAgreements((p) => ({ ...p, [item.key]: e.target.checked }))}
-                    className="w-4 h-4 mt-0.5 accent-[#0341C7] shrink-0"
+                    className="w-4 h-4 mt-0.5 accent-[#0D3473] shrink-0"
                   />
-                  <span className="text-[12.5px] text-brand-dark leading-relaxed">{item.node}</span>
+                  <span className="text-[14px] text-brand-dark leading-relaxed">{item.node}</span>
                 </label>
               ))}
             </div>
@@ -467,7 +445,7 @@ export default function ShoppingProductExperiencePage() {
             <button
               onClick={handleSubmit}
               disabled={isPending || !agreements.req1 || !agreements.req2}
-              className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 rounded-xl text-[17px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isPending ? "등록 중..." : (
                 <>

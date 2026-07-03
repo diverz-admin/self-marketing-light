@@ -137,19 +137,19 @@ function SingleRankChart({ campaign, color }: { campaign: typeof MOCK_CAMPAIGNS[
     <div className="bg-white rounded-2xl border border-brand-border p-4">
       <div className="flex items-start justify-between mb-3">
         <div className="min-w-0">
-          <p className="text-[13.5px] font-extrabold text-brand-dark truncate">{campaign.productName}</p>
+          <p className="text-[15px] font-extrabold text-brand-dark truncate">{campaign.productName}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <svg className="w-3 h-3 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
             </svg>
-            <span className="text-[12px] text-brand-sub">{campaign.keyword}</span>
+            <span className="text-[13px] text-brand-sub">{campaign.keyword}</span>
           </div>
         </div>
         <div className="text-right shrink-0 ml-3">
-          <p className="text-[22px] font-extrabold text-brand-dark leading-none">
-            {latestRank}<span className="text-[13px] font-medium text-brand-muted ml-0.5">위</span>
+          <p className="text-[25px] font-extrabold text-brand-dark leading-none">
+            {latestRank}<span className="text-[15px] font-medium text-brand-muted ml-0.5">위</span>
           </p>
-          <p className={`text-[11px] font-bold mt-0.5 flex items-center justify-end gap-0.5 ${improved ? "text-green-500" : "text-red-400"}`}>
+          <p className={`text-[12px] font-bold mt-0.5 flex items-center justify-end gap-0.5 ${improved ? "text-green-500" : "text-red-400"}`}>
             {improved ? (
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
             ) : (
@@ -166,7 +166,7 @@ function SingleRankChart({ campaign, color }: { campaign: typeof MOCK_CAMPAIGNS[
           <thead>
             <tr>
               {history.map((d, i) => (
-                <th key={i} className="px-2 py-1.5 text-[11px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
+                <th key={i} className="px-2 py-1.5 text-[12px] font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg">
                   {d.date}
                 </th>
               ))}
@@ -175,21 +175,21 @@ function SingleRankChart({ campaign, color }: { campaign: typeof MOCK_CAMPAIGNS[
           <tbody>
             <tr>
               {history.map((d, i) => (
-                <td key={i} className={`px-2 py-2 text-[13px] font-extrabold border-b border-brand-border ${i === history.length - 1 ? "text-brand-dark" : "text-brand-sub"}`}>
+                <td key={i} className={`px-2 py-2 text-[15px] font-extrabold border-b border-brand-border ${i === history.length - 1 ? "text-brand-dark" : "text-brand-sub"}`}>
                   {d.rank}위
                 </td>
               ))}
             </tr>
             <tr>
               {history.map((d, i) => {
-                if (i === 0) return <td key={i} className="px-2 py-1.5 text-[11px] text-brand-muted">-</td>;
+                if (i === 0) return <td key={i} className="px-2 py-1.5 text-[12px] text-brand-muted">-</td>;
                 const diff = history[i - 1].rank - d.rank;
                 return (
                   <td key={i} className="px-2 py-1.5">
                     {diff === 0 ? (
-                      <span className="text-[11px] text-brand-muted">-</span>
+                      <span className="text-[12px] text-brand-muted">-</span>
                     ) : (
-                      <span className={`inline-flex items-center justify-center gap-0.5 text-[11px] font-bold ${diff > 0 ? "text-green-500" : "text-red-400"}`}>
+                      <span className={`inline-flex items-center justify-center gap-0.5 text-[12px] font-bold ${diff > 0 ? "text-green-500" : "text-red-400"}`}>
                         {diff > 0 ? (
                           <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                         ) : (
@@ -232,10 +232,10 @@ function SingleRankChart({ campaign, color }: { campaign: typeof MOCK_CAMPAIGNS[
           ))}
         </svg>
         {tooltip && (
-          <div className="absolute pointer-events-none z-20 bg-[#1A1E2E] text-white px-3 py-2 rounded-xl text-[12px] shadow-xl whitespace-nowrap"
+          <div className="absolute pointer-events-none z-20 bg-[#1A1E2E] text-white px-3 py-2 rounded-xl text-[13px] shadow-xl whitespace-nowrap"
             style={{ left: `${tooltip.pctX}%`, top: `${tooltip.pctY}%`, transform: "translate(-50%, -130%)" }}>
             <p className="text-white/60">{tooltip.date}</p>
-            <p className="font-extrabold text-[14px]" style={{ color }}>{tooltip.rank}위</p>
+            <p className="font-extrabold text-[16px]" style={{ color }}>{tooltip.rank}위</p>
             <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0"
               style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #1A1E2E" }} />
           </div>
@@ -254,8 +254,8 @@ function RankChartSection({ campaigns }: { campaigns: typeof MOCK_CAMPAIGNS }) {
         <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
         </svg>
-        <h3 className="text-[14px] font-extrabold text-brand-dark">키워드별 순위 트래킹</h3>
-        <span className="text-[11px] text-brand-muted">최근 7일 · 낮은 숫자가 상위 노출</span>
+        <h3 className="text-[16px] font-extrabold text-brand-dark">키워드별 순위 트래킹</h3>
+        <span className="text-[12px] text-brand-muted">최근 7일 · 낮은 숫자가 상위 노출</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {chartCampaigns.map((c, i) => (
@@ -287,7 +287,7 @@ export default function CoupangManagePage() {
 
   return (
     <div className="w-full space-y-5">
-      <nav className="flex items-center gap-1.5 text-[13px] text-brand-sub">
+      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
         <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
         <span>›</span>
         <Link href="/marketing/reward/coupang" className="hover:text-brand-text">쿠팡</Link>
@@ -309,9 +309,9 @@ export default function CoupangManagePage() {
               </svg>
             </span>
             <div>
-              <p className="text-[12px] text-brand-sub">{stat.label}</p>
-              <p className={`text-[22px] font-extrabold leading-tight ${stat.color}`}>
-                {stat.value}<span className="text-[13px] font-medium text-brand-muted ml-1">건</span>
+              <p className="text-[13px] text-brand-sub">{stat.label}</p>
+              <p className={`text-[25px] font-extrabold leading-tight ${stat.color}`}>
+                {stat.value}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span>
               </p>
             </div>
           </div>
@@ -324,7 +324,7 @@ export default function CoupangManagePage() {
           <div className="flex items-center gap-2">
             {FILTER_OPTIONS.map((opt) => (
               <button key={opt} onClick={() => setFilter(opt)}
-                className={`px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
                   filter === opt ? "bg-brand-primary text-white" : "bg-brand-lighter text-brand-sub hover:bg-brand-border"
                 }`}
               >
@@ -338,11 +338,11 @@ export default function CoupangManagePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
               </svg>
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="상품명, 키워드 검색"
-                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[12px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48"
+                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48"
               />
             </div>
             <Link href="/marketing/reward/coupang"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[13px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -357,24 +357,24 @@ export default function CoupangManagePage() {
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
                 {["상품명", "상품 링크", "키워드", "현재 순위", "일 작업량", "기간", "주문금액", "상태", "관리"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[11px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-[12px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border">
               {filtered.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-16 text-center text-[14px] text-brand-muted">조건에 맞는 캠페인이 없습니다.</td></tr>
+                <tr><td colSpan={9} className="px-4 py-16 text-center text-[16px] text-brand-muted">조건에 맞는 캠페인이 없습니다.</td></tr>
               ) : (
                 filtered.map((c) => {
                   const st = STATUS_CONFIG[c.status];
                   return (
                     <tr key={c.id} className="hover:bg-brand-lighter/50 transition-colors">
                       <td className="px-4 py-3.5">
-                        <p className="text-[13px] font-semibold text-brand-dark truncate max-w-[140px]">{c.productName}</p>
+                        <p className="text-[15px] font-semibold text-brand-dark truncate max-w-[140px]">{c.productName}</p>
                       </td>
                       <td className="px-4 py-3.5">
                         <a href={c.productUrl} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-[12px] text-brand-primary hover:underline">
+                          className="flex items-center gap-1 text-[13px] text-brand-primary hover:underline">
                           <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                           </svg>
@@ -382,16 +382,16 @@ export default function CoupangManagePage() {
                         </a>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-[12px] font-medium text-brand-sub">{c.keyword}</span>
+                        <span className="text-[13px] font-medium text-brand-sub">{c.keyword}</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         {c.rank === null ? (
-                          <span className="text-[12px] text-brand-muted">-</span>
+                          <span className="text-[13px] text-brand-muted">-</span>
                         ) : (
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[14px] font-extrabold text-brand-dark">{c.rank}위</span>
+                            <span className="text-[16px] font-extrabold text-brand-dark">{c.rank}위</span>
                             {c.rankDiff !== 0 && (
-                              <span className={`flex items-center gap-0.5 text-[11px] font-bold ${c.rankDiff < 0 ? "text-green-500" : "text-red-400"}`}>
+                              <span className={`flex items-center gap-0.5 text-[12px] font-bold ${c.rankDiff < 0 ? "text-green-500" : "text-red-400"}`}>
                                 {c.rankDiff < 0 ? (
                                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                                 ) : (
@@ -404,33 +404,33 @@ export default function CoupangManagePage() {
                         )}
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[13px] font-bold text-brand-dark">{c.dailyQty.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">건/일</span>
+                        <span className="text-[15px] font-bold text-brand-dark">{c.dailyQty.toLocaleString()}</span>
+                        <span className="text-[12px] text-brand-muted ml-0.5">건/일</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[11.5px] text-brand-sub">{c.startDate}</span>
+                        <span className="text-[13px] text-brand-sub">{c.startDate}</span>
                         <span className="text-brand-muted mx-1">~</span>
-                        <span className="text-[11.5px] text-brand-sub">{c.endDate}</span>
+                        <span className="text-[13px] text-brand-sub">{c.endDate}</span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
-                        <span className="text-[13px] font-extrabold text-brand-dark">{c.orderAmount.toLocaleString()}</span>
-                        <span className="text-[11px] text-brand-muted ml-0.5">원</span>
+                        <span className="text-[15px] font-extrabold text-brand-dark">{c.orderAmount.toLocaleString()}</span>
+                        <span className="text-[12px] text-brand-muted ml-0.5">원</span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5">
                           {c.status === "running" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">일시정지</button>
+                            <button className="px-2.5 py-1 rounded-lg text-[12px] font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">일시정지</button>
                           )}
                           {c.status === "paused" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">재시작</button>
+                            <button className="px-2.5 py-1 rounded-lg text-[12px] font-bold bg-green-50 text-green-600 hover:bg-green-100 transition-colors">재시작</button>
                           )}
                           {c.status !== "done" && (
-                            <button className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">중단</button>
+                            <button className="px-2.5 py-1 rounded-lg text-[12px] font-bold bg-red-50 text-red-500 hover:bg-red-100 transition-colors">중단</button>
                           )}
-                          {c.status === "done" && <span className="text-[11px] text-brand-muted">-</span>}
+                          {c.status === "done" && <span className="text-[12px] text-brand-muted">-</span>}
                         </div>
                       </td>
                     </tr>
@@ -442,7 +442,7 @@ export default function CoupangManagePage() {
         </div>
 
         <div className="px-5 py-3 border-t border-brand-border">
-          <p className="text-[12px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
+          <p className="text-[13px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
         </div>
       </div>
 
