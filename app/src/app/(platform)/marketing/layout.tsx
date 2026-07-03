@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import SidebarNav from "@/components/marketing/SidebarNav";
 import ContentArea from "@/components/marketing/ContentArea";
-import Logo from "@/components/Logo";
 
 const MOCK = {
   name: "사용자",
@@ -22,7 +22,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         {/* 로고 */}
         <div className="px-5 pt-5 pb-4 shrink-0">
           <Link href="/marketing" className="flex flex-col gap-1.5">
-            <Logo markClassName="h-8.5 w-auto" textClassName="h-5 w-auto" textColor="text-[#111D37]" />
+            <Image src="/blue-egg-logo.png" alt="BLUE EGG biz" width={242} height={113} priority className="h-10 w-auto" />
             <p className="text-[11px] text-[#99A0AC] leading-tight pl-0.5">셀프 마케팅 플랫폼</p>
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         <header className="sticky top-0 z-50 h-[72px] bg-white border-b border-[#E2E6ED] flex items-center gap-4 px-5 md:px-6 shrink-0">
           {/* 모바일 전용 로고 */}
           <Link href="/marketing" className="md:hidden shrink-0">
-            <Logo markClassName="h-7 w-auto" textClassName="h-4.5 w-auto" textColor="text-[#111D37]" />
+            <Image src="/blue-egg-logo.png" alt="BLUE EGG biz" width={242} height={113} priority className="h-8 w-auto" />
           </Link>
 
           {/* 검색창 */}
