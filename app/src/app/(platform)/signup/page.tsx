@@ -2,10 +2,10 @@
 
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
-import { login } from "@/app/auth/actions";
+import { signup } from "@/app/(platform)/auth/actions";
 import Logo from "@/components/Logo";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -14,7 +14,7 @@ export default function LoginPage() {
     setError(null);
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await login(formData);
+      const result = await signup(formData);
       if (result?.error) setError(result.error);
     });
   };
@@ -27,8 +27,8 @@ export default function LoginPage() {
           <Logo markClassName="h-9 w-auto" textClassName="h-5.5 w-auto" textColor="text-brand-dark" />
         </Link>
 
-        <h1 className="text-[29px] font-extrabold text-brand-dark mb-1 tracking-tight">로그인</h1>
-        <p className="text-[16px] text-brand-sub mb-8">서비스 이용을 위해 로그인해 주세요</p>
+        <h1 className="text-[29px] font-extrabold text-brand-dark mb-1 tracking-tight">계정 만들기</h1>
+        <p className="text-[16px] text-brand-sub mb-8">광고대행사 없이 직접 마케팅을 시작하세요</p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
           {error && (
@@ -36,6 +36,20 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+
+          <div>
+            <label htmlFor="name" className="block text-[16px] font-semibold text-brand-dark mb-2">
+              이름
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              placeholder="홍길동"
+              className="w-full px-4 py-[15px] border border-brand-border rounded-2xl bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all text-[17px]"
+            />
+          </div>
 
           <div>
             <label htmlFor="email" className="block text-[16px] font-semibold text-brand-dark mb-2">
@@ -60,9 +74,8 @@ export default function LoginPage() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
               required
-              placeholder="비밀번호를 입력하세요"
+              placeholder="6자 이상"
               className="w-full px-4 py-[15px] border border-brand-border rounded-2xl bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all text-[17px]"
             />
           </div>
@@ -72,15 +85,15 @@ export default function LoginPage() {
             disabled={isPending}
             className="w-full py-[17px] rounded-2xl text-[17px] font-bold text-white bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer mt-1"
           >
-            {isPending ? "로그인 중..." : "로그인"}
+            {isPending ? "계정 생성 중..." : "가입하기"}
           </button>
         </form>
 
         <div className="mt-6 pt-6 border-t border-brand-border text-center">
           <p className="text-[16px] text-brand-sub">
-            계정이 없으신가요?{" "}
-            <Link href="/signup" className="font-semibold text-brand-primary hover:underline">
-              회원가입
+            이미 계정이 있으신가요?{" "}
+            <Link href="/login" className="font-semibold text-brand-primary hover:underline">
+              로그인
             </Link>
           </p>
         </div>
