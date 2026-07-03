@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { PLATFORM_ENTRY } from "@/utils/platform";
 
 const NAV = [
   { label: "서비스", href: "/#services" },
@@ -34,19 +35,19 @@ export default function SiteLayout({
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/login"
+            <a
+              href={PLATFORM_ENTRY}
               className="hover:text-brand-text transition-colors"
             >
               로그인
-            </Link>
+            </a>
           </nav>
-          <Link
-            href="/signup"
+          <a
+            href={PLATFORM_ENTRY}
             className="px-4 py-2 rounded-lg text-sm font-semibold bg-electric text-white hover:bg-electric-hover transition-colors"
           >
             무료로 시작하기
-          </Link>
+          </a>
         </div>
       </header>
 

@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ContactForm from "./_components/ContactForm";
+import { PLATFORM_ENTRY } from "@/utils/platform";
 
 /* ── 데이터 ─────────────────────────────────────────── */
 
@@ -167,12 +168,12 @@ export default function HomePage() {
               대시보드로 확인하세요. 상담도, 계약도, 거품도 없습니다.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mb-12">
-              <Link
-                href="/signup"
+              <a
+                href={PLATFORM_ENTRY}
                 className="px-7 py-4 rounded-xl text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)] w-fit"
               >
                 무료로 시작하기
-              </Link>
+              </a>
               <Link
                 href="/contact"
                 className="px-7 py-4 rounded-xl text-sm font-bold bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20 transition-colors w-fit"
@@ -428,12 +429,12 @@ export default function HomePage() {
               <br />
               실제 고객 후기로 확인하세요.
             </p>
-            <Link
-              href="/signup"
+            <a
+              href={PLATFORM_ENTRY}
               className="inline-flex px-7 py-4 rounded-full text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)]"
             >
               후기 확인하기
-            </Link>
+            </a>
             <p className="text-[11px] text-white/30 mt-8">
               ※ 후기·수치는 예시이며, 실제 고객 인터뷰 영상으로 교체 예정입니다.
             </p>
@@ -485,12 +486,12 @@ export default function HomePage() {
             무료로 가입하고 원하는 서비스를 바로 주문하세요.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/signup"
+            <a
+              href={PLATFORM_ENTRY}
               className="px-8 py-4 rounded-xl text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)]"
             >
               무료 계정 만들기
-            </Link>
+            </a>
             <Link
               href="/pricing"
               className="px-8 py-4 rounded-xl text-sm font-bold bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20 transition-colors"
