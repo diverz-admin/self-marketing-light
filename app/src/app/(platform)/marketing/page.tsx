@@ -44,9 +44,9 @@ const SHADOW = { boxShadow: "0 1px 3px rgba(17,29,55,0.05), 0 1px 2px rgba(17,29
 
 /* ── 캠페인 데이터 ── */
 const CAMPAIGNS = [
-  { id: 1, status: "반려", statusColor: "bg-red-50 text-red-500", channel: "네이버 플레이스", channelColor: "bg-emerald-50 text-emerald-700", product: "아우라 방향제", reviewer: "앤드류", count: "1건", dateFrom: "2025-07-02", dateTo: "2025-07-11", progress: 0, avatarColor: "#0D3473" },
+  { id: 1, status: "반려", statusColor: "bg-red-50 text-red-500", channel: "네이버 플레이스", channelColor: "bg-emerald-50 text-emerald-700", product: "블루에그 방향제", reviewer: "앤드류", count: "1건", dateFrom: "2025-07-02", dateTo: "2025-07-11", progress: 0, avatarColor: "#0D3473" },
   { id: 2, status: "진행중", statusColor: "bg-blue-50 text-blue-600", channel: "네이버 쇼핑", channelColor: "bg-blue-50 text-blue-700", product: "버터플라이 자켓", reviewer: "김소현", count: "3건", dateFrom: "2025-07-10", dateTo: "2025-07-20", progress: 45, avatarColor: "#00B493" },
-  { id: 3, status: "완료", statusColor: "bg-gray-100 text-gray-500", channel: "쿠팡", channelColor: "bg-orange-50 text-orange-700", product: "아우라 패딩", reviewer: "이준혁", count: "2건", dateFrom: "2025-06-20", dateTo: "2025-06-30", progress: 100, avatarColor: "#8B5CF6" },
+  { id: 3, status: "완료", statusColor: "bg-gray-100 text-gray-500", channel: "쿠팡", channelColor: "bg-orange-50 text-orange-700", product: "블루에그 패딩", reviewer: "이준혁", count: "2건", dateFrom: "2025-06-20", dateTo: "2025-06-30", progress: 100, avatarColor: "#8B5CF6" },
 ];
 
 /* ── Rank Chart ── */
@@ -56,7 +56,7 @@ const RANK_DATA = [
   { date: "11-02", rank: 19 }, { date: "11-03", rank: 18 },
   { date: "11-04", rank: 16 }, { date: "11-05", rank: 8 },
 ];
-const RANK_STORES = ["아우라 패딩 | 아우라 패딩", "버터플라이 | 여성 자켓"];
+const RANK_STORES = ["블루에그 패딩 | 블루에그 패딩", "버터플라이 | 여성 자켓"];
 
 function RankLineChart() {
   const W = 560, H = 200, pL = 24, pR = 24, pT = 36, pB = 40;
@@ -104,10 +104,16 @@ export default function MarketingDashboardPage() {
   const interview = INTERVIEWS[interviewIdx];
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full flex flex-col gap-6">
 
-      {/* ── 공지사항(좌) + 신규 기능 포인트 배너(우) ── */}
-      <section className="grid grid-cols-2 gap-5 items-stretch">
+      {/* 모바일 전용 인사말 (최상단) */}
+      <div className="lg:hidden order-1 px-0.5">
+        <p className="text-[22px] font-extrabold text-[#111D37] leading-tight">반갑습니다, 사용자님 👋</p>
+        <p className="text-[14px] text-[#5B6472] mt-1">오늘도 블루에그와 함께 성장해요.</p>
+      </div>
+
+      {/* ── 공지사항(좌) + 고객 인터뷰(우) · 모바일에선 하단 배치 ── */}
+      <section className="order-3 lg:order-1 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
         {/* 공지사항 */}
         <div className={`${CARD} overflow-hidden flex flex-col`} style={SHADOW}>
@@ -201,7 +207,7 @@ export default function MarketingDashboardPage() {
 
       {/* ── 4. 현재 운영중인 캠페인 ── */}
       {/* ── 4. 현재 운영중인 캠페인(좌) + 내 캠페인 순위 추적하기(우) ── */}
-      <section className="grid grid-cols-2 gap-5 items-stretch">
+      <section className="order-2 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
         {/* 현재 운영중인 캠페인 */}
         <div className={`${CARD} overflow-hidden flex flex-col`} style={SHADOW}>

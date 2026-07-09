@@ -175,22 +175,13 @@ export default function ImagePage() {
       </div>
 
       {/* ── 메인 콘텐츠 ────────────────────── */}
-      <div className="flex-1 min-w-0 space-y-0">
-
-        {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub mb-6 px-1">
-          <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-          <span>›</span>
-          <span className="text-brand-muted">콘텐츠</span>
-          <span>›</span>
-          <span className="text-brand-text font-medium">고퀄리티 이미지 제작</span>
-        </nav>
+      <div className="flex-1 min-w-0 space-y-4">
 
         {/* ── HERO ──────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#080c18 0%,#0f1628 60%,#0a0e1e 100%)" }}>
-          <div className="px-8 pt-10 pb-4">
+          <div className="px-5 pt-8 pb-4 md:px-8 md:pt-10">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.2em] mb-3" style={{ color: "#EC4899" }}>Professional Photography</p>
-            <h1 className="text-[34px] font-extrabold text-white leading-tight mb-3">
+            <h1 className="text-[26px] md:text-[34px] font-extrabold text-white leading-tight mb-3">
               30초만 투자해서<br />
               <span style={{ background: "linear-gradient(90deg,#EC4899,#8B5CF6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 매장을 리뉴얼해보세요
@@ -213,8 +204,8 @@ export default function ImagePage() {
         </section>
 
         {/* ── 숫자 강조 ──────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border py-6 px-8">
-          <div className="grid grid-cols-4 gap-4 divide-x divide-brand-border">
+        <section className="rounded-2xl bg-white border border-brand-border py-5 px-5 md:py-6 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x md:divide-brand-border">
             {[
               { num: "2~3일", label: "평균 납품 기간" },
               { num: "500+", label: "누적 제작 건수" },
@@ -233,7 +224,7 @@ export default function ImagePage() {
         </section>
 
         {/* ── 특장점 그리드 ──────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+        <section className="rounded-2xl bg-white border border-brand-border px-5 py-8 md:px-8 md:py-10">
           <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Why us</p>
           <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">왜 다를까요</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -250,10 +241,10 @@ export default function ImagePage() {
 
         {/* ── 패키지 ─────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#080c18 0%,#0f1628 100%)" }}>
-          <div className="px-8 py-10">
+          <div className="px-5 py-8 md:px-8 md:py-10">
             <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Packages</p>
             <h2 className="text-[25px] font-extrabold text-white mb-8">패키지 안내</h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {PACKAGES.map((pkg) => (
                 <div key={pkg.name} className={`rounded-2xl p-5 relative ${pkg.popular ? "ring-2 ring-[#EC4899]" : ""}`}
                   style={{ background: "rgba(255,255,255,0.05)", border: pkg.popular ? undefined : "1px solid rgba(255,255,255,0.08)" }}>
@@ -296,7 +287,7 @@ export default function ImagePage() {
         </section>
 
         {/* ── 프로세스 ────────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+        <section className="rounded-2xl bg-white border border-brand-border px-5 py-8 md:px-8 md:py-10">
           <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>Process</p>
           <h2 className="text-[25px] font-extrabold text-brand-dark mb-8">진행 프로세스</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -320,7 +311,7 @@ export default function ImagePage() {
         </section>
 
         {/* ── FAQ ────────────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+        <section className="rounded-2xl bg-white border border-brand-border px-5 py-8 md:px-8 md:py-10">
           <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>FAQ</p>
           <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
           <div className="space-y-2">
@@ -347,7 +338,7 @@ export default function ImagePage() {
         </section>
 
         {/* ── 하단 CTA 배너 ──────────────────── */}
-        <section className="rounded-2xl px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6"
+        <section className="rounded-2xl px-5 py-7 md:px-8 md:py-8 flex flex-col md:flex-row items-center justify-between gap-6"
           style={{ background: "linear-gradient(135deg,#0f0a1e,#1e1040)" }}>
           <div>
             <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#EC4899" }}>문의하기</p>

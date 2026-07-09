@@ -3,6 +3,10 @@ import Link from "next/link";
 import Image from "next/image";
 import SidebarNav from "@/components/marketing/SidebarNav";
 import ContentArea from "@/components/marketing/ContentArea";
+import MobileBottomNav from "@/components/marketing/MobileBottomNav";
+import MobileMenu from "@/components/marketing/MobileMenu";
+import { CartProvider } from "@/components/marketing/CartContext";
+import { HeaderBalance, HeaderCartButton } from "@/components/marketing/HeaderCart";
 
 const MOCK = {
   name: "사용자",
@@ -13,7 +17,8 @@ const MOCK = {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex bg-[#EDEFF2]">
+    <CartProvider>
+    <div className="h-screen flex bg-[#EDEFF2]">
 
       {/* ── Left Sidebar (full height) ── */}
       <aside
@@ -45,10 +50,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Header */}
-        <header className="sticky top-0 z-50 h-[72px] bg-white border-b border-[#E2E6ED] flex items-center gap-4 px-5 md:px-6 shrink-0">
+        <header className="sticky top-0 z-50 h-[72px] bg-white border-b border-[#E2E6ED] flex items-center gap-2.5 md:gap-4 px-4 md:px-6 shrink-0">
+          {/* 모바일 전용 햄버거 메뉴 (좌측 슬라이드 드로어) */}
+          <MobileMenu />
+
           {/* 모바일 전용 로고 */}
           <Link href="/marketing" className="md:hidden shrink-0">
-            <Image src="/blue-egg-logo.png" alt="BLUE EGG biz" width={242} height={113} priority className="h-8 w-auto" />
+            <Image src="/blue-egg-logo.png" alt="BLUE EGG biz" width={242} height={113} priority className="h-11 w-auto" />
           </Link>
 
           {/* 검색창 */}
@@ -59,20 +67,16 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <span className="text-[15px] text-[#B0B8C1]">검색어를 입력하세요</span>
           </div>
 
-          <div className="flex-1 hidden md:block" />
+          {/* 우측 그룹을 오른쪽 끝으로 밀어주는 스페이서 (모바일 포함) */}
+          <div className="flex-1" />
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F5F6F8] border border-[#E2E6ED]">
-              <svg className="w-3.5 h-3.5 text-[#0D3473]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-[12px] text-[#5B6472] font-medium">포인트</span>
-              <span className="text-[15px] font-extrabold text-[#0D3473]">{MOCK.creditBalance.toLocaleString()} P</span>
-            </div>
+            <HeaderBalance />
+            <HeaderCartButton />
             <Link href="/marketing/my/charge" className="px-3.5 py-1.5 text-[13px] font-bold bg-[#0D3473] text-white rounded-xl hover:bg-[#0D2148] transition-colors">
               충전하기
             </Link>
-            <div className="flex items-center gap-2 pl-3 border-l border-[#E2E6ED] ml-1">
+            <div className="hidden md:flex items-center gap-2 pl-3 border-l border-[#E2E6ED] ml-1">
               <div
                 className="h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-white text-[13px] font-bold"
                 style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}
@@ -84,7 +88,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
-            <button className="h-8 w-8 rounded-xl bg-[#F5F6F8] border border-[#E2E6ED] flex items-center justify-center hover:bg-[#F2F4F6] transition-colors">
+            <button className="hidden md:flex h-8 w-8 rounded-xl bg-[#F5F6F8] border border-[#E2E6ED] items-center justify-center hover:bg-[#F2F4F6] transition-colors">
               <svg className="w-4 h-4 text-[#5B6472]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
               </svg>
@@ -95,6 +99,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         {/* Content (대시보드=우측 레일 / 그 외=하단 배너) */}
         <ContentArea>{children}</ContentArea>
       </div>
+
+      {/* 모바일 전용 하단 탭바 */}
+      <MobileBottomNav />
     </div>
+    </CartProvider>
   );
 }

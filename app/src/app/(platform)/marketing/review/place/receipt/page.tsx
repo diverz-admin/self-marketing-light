@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const TYPES = [
-  { name: "블로그배포", href: "/marketing/review/place/blog-reporter", desc: "전문 블로거가 방문 리뷰 콘텐츠를 배포합니다.", grad: "linear-gradient(135deg,#0D3473,#6366F1)", iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" },
-  { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
+  { name: "블로그배포", href: "/marketing/review/place/blog-reporter", desc: "전문 블로거가 방문 리뷰 콘텐츠를 배포합니다.", grad: "linear-gradient(135deg,#0D3473,#6366F1)", accent: "#0D3473", ring: "rgba(13,52,115,0.14)", tint: "#EEF1FE", iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" },
+  { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", accent: "#059669", ring: "rgba(5,150,105,0.16)", tint: "#E7F7F0", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
 ];
 
 const UNIT_PRICE = 1500;
@@ -65,15 +66,11 @@ export default function ReceiptReviewPage() {
 
   return (
     <div className="w-full space-y-4">
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/review/place" className="hover:text-brand-text">네이버 플레이스</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">영수증리뷰</span>
-      </nav>
-
+      <PageHeader
+        title="네이버 플레이스 리뷰 신청"
+        subtitle="리뷰 유형을 선택하고 캠페인을 신청하세요."
+        iconPath={["M15 10.5a3 3 0 11-6 0 3 3 0 016 0z", "M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"]}
+      />
       {/* 유형 선택 */}
       <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
         <div className="flex items-center gap-3">
@@ -87,14 +84,15 @@ export default function ReceiptReviewPage() {
             <p className="text-[13px] text-white/60">리뷰 유형을 선택하세요</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {TYPES.map((t) => {
             const active = pathname === t.href;
             return (
               <Link key={t.href} href={t.href}
                 className={`flex items-center gap-3 rounded-2xl p-4 text-left border-2 transition-all ${
-                  active ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
+                  active ? "" : "border-brand-border bg-white hover:border-brand-primary/40"
                 }`}
+                style={active ? { borderColor: t.accent, background: t.tint, boxShadow: `0 0 0 3px ${t.ring}` } : undefined}
               >
                 <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: t.grad }}>
                   <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -118,21 +116,55 @@ export default function ReceiptReviewPage() {
         <div className="space-y-5">
 
           {/* 영수증리뷰 안내 */}
-          <div className="flex gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-            <svg className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
-            </svg>
-            <div>
-              <p className="text-[15px] font-extrabold text-emerald-800 mb-1">영수증리뷰란?</p>
-              <p className="text-[14px] text-emerald-700 leading-relaxed">
-                실제 결제 영수증을 보유한 방문 고객이 네이버 플레이스에 리뷰를 남기는 캠페인입니다.
-                검증된 구매자의 진성 리뷰로 별점과 신뢰도를 빠르게 높일 수 있습니다.
-              </p>
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-emerald-50/40 p-5 shadow-[0_1px_2px_rgba(5,150,105,0.05)]">
+            {/* 데코 그라데이션 블롭 */}
+            <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden />
+
+            <div className="relative flex gap-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
+                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-[15px] font-extrabold text-emerald-900">영수증리뷰란?</p>
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/12 px-2 py-0.5 text-[11px] font-bold text-emerald-700">실구매 인증</span>
+                </div>
+                <p className="mt-1 text-[14px] leading-relaxed text-emerald-800/80">
+                  실제 결제 영수증을 보유한 방문 고객이 네이버 플레이스에 리뷰를 남기는 캠페인입니다.
+                  검증된 구매자의 진성 리뷰로 별점과 신뢰도를 빠르게 높일 수 있습니다.
+                </p>
+
+                {/* 핵심 포인트 */}
+                <div className="mt-3.5 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-200/60 bg-white/70 px-3 py-2.5 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-emerald-900">
+                    <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    핵심 포인트
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    실결제 영수증 인증
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    진성 방문 고객 리뷰
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-amber-700">
+                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.446a1 1 0 00-1.176 0l-3.366 2.446c-.784.57-1.838-.196-1.539-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
+                    </svg>
+                    별점·신뢰도 상승
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* 스케줄 설정 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -215,7 +247,7 @@ export default function ReceiptReviewPage() {
           </div>
 
           {/* 필수 정보 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -288,7 +320,7 @@ export default function ReceiptReviewPage() {
           </div>
 
           {/* 강조 내용 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -399,20 +431,33 @@ export default function ReceiptReviewPage() {
             </div>
 
             {/* 캠페인 등록 / 결제 버튼 */}
-            <button
-              onClick={handleSubmit}
-              disabled={isPending || !agreements.req1 || !agreements.req2}
-              className="w-full py-3.5 rounded-xl text-[17px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isPending ? "등록 중..." : (
-                <>
-                  캠페인 등록 / 결제
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                </>
-              )}
-            </button>
+            {/* 결제 / 장바구니 */}
+            <div className="grid grid-cols-[1.5fr_1fr] gap-2.5">
+              <button
+                onClick={handleSubmit}
+                disabled={isPending || !agreements.req1 || !agreements.req2}
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                {isPending ? "등록 중..." : (
+                  <>
+                    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.3 1.046a1 1 0 01.65 1.212L10.44 8H15a1 1 0 01.788 1.615l-7 9A1 1 0 017 18v-6H3a1 1 0 01-.788-1.615l7-9a1 1 0 011.088-.34z" clipRule="evenodd" />
+                    </svg>
+                    즉시 포인트 차감하기
+                  </>
+                )}
+              </button>
+
+              <Link
+                href="/marketing/cart"
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                장바구니
+              </Link>
+            </div>
           </div>
         </div>
 

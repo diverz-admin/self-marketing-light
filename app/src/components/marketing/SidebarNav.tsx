@@ -10,6 +10,7 @@ const USER = { name: "사용자", grade: "Bronze", point: 0, activeAdCount: 0 };
 function UserCard({ pathname }: { pathname: string }) {
   const campaignsActive = pathname === "/marketing/my/campaigns" || pathname.startsWith("/marketing/my/campaigns/");
   const reportActive = pathname === "/marketing/report" || pathname.startsWith("/marketing/report/");
+  const chatActive = pathname === "/marketing/community/chatroom" || pathname.startsWith("/marketing/community/chatroom/");
   return (
     <div className="mx-1 mt-1.5 mb-4 rounded-2xl overflow-hidden"
       style={{ background: "linear-gradient(155deg,#1B3160 0%,#111D37 100%)", boxShadow: "0 8px 22px rgba(13,52,115,0.20)" }}>
@@ -40,9 +41,9 @@ function UserCard({ pathname }: { pathname: string }) {
 
         <div className="h-px bg-white/10 my-3" />
 
-        {/* 진행 중인 광고 */}
+        {/* 만료 예정 광고 */}
         <div className="flex items-center justify-between">
-          <span className="text-[14px] text-white/55">진행 중인 광고</span>
+          <span className="text-[14px] text-white/55">만료 예정 광고</span>
           <span className="text-[16px] font-extrabold text-white">
             {USER.activeAdCount} <span className="text-[12px] font-bold text-white/50">개</span>
           </span>
@@ -68,6 +69,19 @@ function UserCard({ pathname }: { pathname: string }) {
           <Link href="/marketing/report"
             className={`flex items-center justify-between gap-1 px-2 py-1.5 rounded-lg text-[13px] font-semibold transition-colors ${reportActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/[0.06]"}`}>
             My SNS 대시보드
+            <svg className="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <Link href="/marketing/community/chatroom"
+            className={`flex items-center justify-between gap-1 px-2 py-1.5 rounded-lg text-[13px] font-semibold transition-colors ${chatActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/[0.06]"}`}>
+            <span className="flex items-center gap-1.5">
+              오픈채팅
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-70" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#22C55E]" />
+              </span>
+            </span>
             <svg className="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
@@ -111,18 +125,17 @@ function NavIconEl({ icon, active }: { icon: NavIcon; active?: boolean }) {
   }
   if (icon.kind === "letter") {
     return (
-      <span className="h-[30px] w-[30px] rounded-[9px] flex items-center justify-center shrink-0 text-white font-black select-none"
-        style={{ background: icon.bg, fontSize: 15, lineHeight: 1, boxShadow: `0 2px 6px ${icon.bg}55` }}>
+      <span className="h-[22px] w-[22px] flex items-center justify-center shrink-0 font-black select-none"
+        style={{ color: icon.bg, fontSize: 16, lineHeight: 1 }}>
         {icon.ch}
       </span>
     );
   }
   if (icon.kind === "sqsvg") {
     return (
-      <span className="h-[30px] w-[30px] rounded-[9px] flex items-center justify-center shrink-0"
-        style={{ background: icon.bg, boxShadow: `0 2px 6px ${icon.bg}55` }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-          stroke="white" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+      <span className="h-[22px] w-[22px] flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke={icon.bg} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
           <path d={icon.d} />
         </svg>
       </span>
@@ -131,12 +144,12 @@ function NavIconEl({ icon, active }: { icon: NavIcon; active?: boolean }) {
   if (icon.kind === "brand") {
     const b = BRAND_LOGOS[icon.brand];
     const isStroke = b.mode === "stroke";
+    const glyphColor = icon.brand === "google" ? "#4285F4" : b.bg;
     return (
-      <span className="h-[30px] w-[30px] rounded-[9px] flex items-center justify-center shrink-0"
-        style={{ background: b.bg, boxShadow: `0 2px 6px ${b.bg}55`, border: icon.brand === "google" ? "1px solid #E2E6ED" : undefined }}>
-        <svg width={b.size} height={b.size} viewBox={b.viewBox} aria-hidden
-          fill={isStroke ? "none" : icon.brand === "google" ? "#4285F4" : "white"}
-          stroke={isStroke ? "white" : "none"} strokeWidth={isStroke ? 2 : undefined}
+      <span className="h-[22px] w-[22px] flex items-center justify-center shrink-0">
+        <svg width={b.size + 2} height={b.size + 2} viewBox={b.viewBox} aria-hidden
+          fill={isStroke ? "none" : glyphColor}
+          stroke={isStroke ? glyphColor : "none"} strokeWidth={isStroke ? 2 : undefined}
           strokeLinecap="round" strokeLinejoin="round">
           <path d={b.path} />
         </svg>
@@ -145,8 +158,8 @@ function NavIconEl({ icon, active }: { icon: NavIcon; active?: boolean }) {
   }
   // META infinity
   return (
-    <span className="h-[30px] w-[30px] flex items-center justify-center shrink-0">
-      <svg width="24" height="14" viewBox="0 0 24 14" fill="none">
+    <span className="h-[22px] w-[22px] flex items-center justify-center shrink-0">
+      <svg width="22" height="13" viewBox="0 0 24 14" fill="none">
         <path
           d="M1.5 7C1.5 4.2 3.2 2 5.5 2C7.8 2 9.2 3.7 10.5 6.2C11.8 8.7 13.2 10.5 15.5 10.5C17.8 10.5 19.5 8.3 19.5 5.5M19.5 5.5C19.5 2.7 17.8 0.5 15.5 0.5C13.2 0.5 11.8 2.3 10.5 4.8M22.5 5.5C22.5 8.3 20.8 10.5 18.5 10.5"
           stroke="#1877F2" strokeWidth="2.2" strokeLinecap="round" />
@@ -184,15 +197,11 @@ const NAV_GROUPS: NavGroup[] = [
         icon: { kind: "svg", d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" },
       },
       {
-        label: "공지사항",
-        href: "/marketing/notices",
-        icon: { kind: "svg", d: "M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" },
-      },
-      {
         label: "커뮤니티",
         href: "/marketing/community",
         icon: { kind: "svg", d: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" },
         children: [
+          { label: "공지사항", href: "/marketing/notices" },
           { label: "게시판", href: "/marketing/community/board" },
           { label: "오픈채팅", href: "/marketing/community/chatroom" },
         ],

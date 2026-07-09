@@ -68,6 +68,7 @@ type AccordionDetailProps = {
   showReviewStatus?: boolean;
   showApplicants?: boolean;
   showPostUrls?: boolean;
+  onEdit?: (campaign: Campaign) => void;
 };
 
 function AccordionDetail({
@@ -77,6 +78,7 @@ function AccordionDetail({
   showReviewStatus = true,
   showApplicants = true,
   showPostUrls = false,
+  onEdit,
 }: AccordionDetailProps) {
   const pct = campaign.totalCount === 0 ? 0 : Math.round((campaign.doneCount / campaign.totalCount) * 100);
   const infoItems = [
@@ -86,11 +88,11 @@ function AccordionDetail({
   ];
 
   return (
-    <div className="bg-brand-lighter border-t border-brand-border px-5 py-5 space-y-5">
+    <div className="bg-brand-lighter border-t border-brand-border px-5 py-5 space-y-5 sticky left-0 w-[calc(100vw-3rem)] max-w-[calc(100vw-3rem)] md:static md:w-auto md:max-w-none">
       {/* 진행 현황 */}
       <div>
         <p className="text-[12px] font-bold text-brand-muted uppercase tracking-wide mb-3">진행 현황</p>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
           {[
             { label: "모집 인원", value: `${campaign.totalCount}명`,                         color: "text-brand-dark"    },
             { label: "완료",      value: `${campaign.doneCount}명`,                          color: "text-green-600"     },
@@ -218,6 +220,21 @@ function AccordionDetail({
           </div>
         )}
       </div>}
+
+      {/* 캠페인 수정 요청 */}
+      {onEdit && (
+        <div className="flex justify-end pt-1">
+          <button
+            onClick={() => onEdit(campaign)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[14px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
+            </svg>
+            수정하기
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -255,6 +272,30 @@ export default function ReviewManageTable({
   const [filter, setFilter] = useState("진행중");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // 수정 요청 모달
+  const [editTarget, setEditTarget] = useState<Campaign | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editDone, setEditDone] = useState(false);
+
+  const openEdit = (campaign: Campaign) => {
+    setEditTarget(campaign);
+    setEditText("");
+    setEditDone(false);
+  };
+  const closeEdit = () => {
+    setEditTarget(null);
+    setEditSubmitting(false);
+    setEditDone(false);
+  };
+  const submitEdit = async () => {
+    if (!editText.trim()) return;
+    setEditSubmitting(true);
+    await new Promise((r) => setTimeout(r, 800));
+    setEditSubmitting(false);
+    setEditDone(true);
+  };
 
   const filtered = campaigns.filter((c) => {
     const statusMatch = filter === "전체" || c.status === STATUS_KEY[filter];
@@ -299,25 +340,25 @@ export default function ReviewManageTable({
       </div>
 
       {/* 상단 요약 배너 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
         {/* 전체 캠페인 (네이비) */}
-        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+        <div className="rounded-2xl p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between text-white"
           style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-          <span className="text-[13px] font-bold text-white/60">전체 캠페인</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums">{campaigns.length}<span className="text-[15px] font-medium text-white/55 ml-1">건</span></p>
+          <span className="text-[12px] md:text-[13px] font-bold text-white/60">전체 캠페인</span>
+          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums">{campaigns.length}<span className="text-[13px] md:text-[15px] font-medium text-white/55 ml-1">건</span></p>
         </div>
 
         {/* 진행중 (블루) */}
-        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+        <div className="rounded-2xl p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between text-white"
           style={{ background: "linear-gradient(135deg,#2E6BE0 0%,#1D4ED8 100%)" }}>
-          <span className="text-[13px] font-bold text-white/65">진행중</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[15px] font-medium text-white/60 ml-1">건</span></p>
+          <span className="text-[12px] md:text-[13px] font-bold text-white/65">진행중</span>
+          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[13px] md:text-[15px] font-medium text-white/60 ml-1">건</span></p>
         </div>
 
         {/* 대기중 (화이트) */}
-        <div className="rounded-2xl border border-brand-border bg-white p-5 min-h-[112px] flex flex-col justify-between">
-          <span className="text-[13px] font-bold text-brand-muted">대기중</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{pending}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span></p>
+        <div className="rounded-2xl border border-brand-border bg-white p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between">
+          <span className="text-[12px] md:text-[13px] font-bold text-brand-muted">대기중</span>
+          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{pending}<span className="text-[13px] md:text-[15px] font-medium text-brand-muted ml-1">건</span></p>
         </div>
       </div>
 
@@ -356,7 +397,7 @@ export default function ReviewManageTable({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-max text-left">
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
                 <th className="w-10" />
@@ -444,6 +485,7 @@ export default function ReviewManageTable({
                             showReviewStatus={showReviewStatus}
                             showApplicants={showApplicants}
                             showPostUrls={showPostUrls}
+                            onEdit={openEdit}
                           />
                         </td>
                       </tr>
@@ -459,6 +501,120 @@ export default function ReviewManageTable({
           <p className="text-[13px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
         </div>
       </div>
+
+      {/* 수정 요청 모달 */}
+      {editTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={closeEdit}
+        >
+          <div
+            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {editDone ? (
+              /* 완료 상태 */
+              <div className="p-10 text-center">
+                <div className="h-14 w-14 rounded-2xl bg-green-50 mx-auto flex items-center justify-center mb-4">
+                  <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-[19px] font-extrabold text-brand-dark mb-1.5">수정 요청 완료</h3>
+                <p className="text-[14px] text-brand-sub mb-7">담당자 확인 후 순차적으로 반영됩니다.</p>
+                <button
+                  onClick={closeEdit}
+                  className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
+                >
+                  확인
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* 헤더 */}
+                <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-brand-border">
+                  <div>
+                    <h3 className="text-[18px] font-extrabold text-brand-dark">캠페인 수정 요청</h3>
+                    <p className="text-[13px] text-brand-sub mt-0.5">{editTarget.campaignName}</p>
+                  </div>
+                  <button onClick={closeEdit} className="text-brand-muted hover:text-brand-dark transition-colors -mt-0.5">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* 본문 */}
+                <div className="px-6 py-5 space-y-4">
+                  <div className="flex flex-wrap gap-x-6 gap-y-1.5 rounded-xl bg-brand-lighter px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-brand-muted">키워드</span>
+                      <span className="text-[13px] font-semibold text-brand-dark">{editTarget.keyword}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-brand-muted">모집 인원</span>
+                      <span className="text-[13px] font-semibold text-brand-dark">{editTarget.totalCount}명</span>
+                    </div>
+                    {editTarget.channel && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[12px] text-brand-muted">채널</span>
+                        <span className="text-[13px] font-semibold text-brand-dark">{editTarget.channel}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-[14px] font-semibold text-brand-dark mb-1.5">
+                      수정 요청 내용 <span className="text-red-500">*</span>
+                    </label>
+                    {/* 안내 */}
+                    <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 mb-2">
+                      <svg className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-[12.5px] leading-relaxed text-amber-800">
+                        <b>키워드는 변경할 수 없습니다.</b> 업체 관련 내용(이벤트, 영업시간, 메뉴 안내 등)만 수정 가능합니다.
+                      </p>
+                    </div>
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      maxLength={1000}
+                      rows={6}
+                      placeholder={"예시)\n- 신규 이벤트 안내 추가 (방문 고객 음료 1잔 무료 등)\n- 영업시간/브레이크타임 변경\n- 대표 메뉴·가격 정보 수정"}
+                      className="w-full px-3.5 py-3 border border-brand-border rounded-xl text-[14px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none leading-relaxed"
+                    />
+                    <p className="text-right text-[12px] text-brand-muted mt-1">{editText.length} / 1000</p>
+                  </div>
+                </div>
+
+                {/* 푸터 */}
+                <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-brand-border bg-brand-lighter/40">
+                  <button
+                    onClick={closeEdit}
+                    className="px-4 py-2.5 rounded-xl text-[14px] font-bold bg-white text-brand-text border border-brand-border hover:bg-brand-lighter transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={submitEdit}
+                    disabled={!editText.trim() || editSubmitting}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[14px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {editSubmitting && (
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    )}
+                    {editSubmitting ? "요청 중..." : "수정 요청"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

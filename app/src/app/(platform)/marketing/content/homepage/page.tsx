@@ -336,7 +336,7 @@ export default function HomepagePage() {
     <div className="w-full flex gap-6 items-start">
 
       {/* ── 메인 콘텐츠 ────────────────────── */}
-      <div className="flex-1 min-w-0 space-y-0">
+      <div className="flex-1 min-w-0 space-y-4">
 
         {/* ── 오른쪽 고정 CTA 패널 ────── */}
         <div
@@ -381,21 +381,12 @@ export default function HomepagePage() {
           </div>
         </div>
 
-        {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub mb-6 px-1">
-          <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-          <span>›</span>
-          <span className="text-brand-muted">콘텐츠</span>
-          <span>›</span>
-          <span className="text-brand-text font-medium">홈페이지</span>
-        </nav>
-
         {/* ── HERO ──────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#050D1F 0%,#0C2150 60%,#0E3A7A 100%)" }}>
-          <div className="px-8 py-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="px-5 py-8 md:px-8 md:py-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 min-w-0">
               <p className="text-[12px] font-extrabold text-sky-300 uppercase tracking-[0.2em] mb-3">Homepage</p>
-              <h1 className="text-[34px] font-extrabold text-white leading-tight mb-4">
+              <h1 className="text-[26px] md:text-[34px] font-extrabold text-white leading-tight mb-4">
                 홈페이지 하나로<br />
                 신뢰를 만드세요
               </h1>
@@ -417,14 +408,14 @@ export default function HomepagePage() {
 
         {/* ── 숫자 강조 ──────────────────────── */}
         <section className="rounded-2xl bg-white border border-brand-border py-6 px-8">
-          <div className="grid grid-cols-3 gap-6 divide-x divide-brand-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-x divide-brand-border">
             {[
               { num: "500+", label: "누적 홈페이지 제작" },
               { num: "97%", label: "재의뢰 & 추천율" },
               { num: "10일", label: "최단 납품 기간" },
             ].map((s) => (
               <div key={s.label} className="text-center px-2">
-                <p className="text-[31px] font-extrabold text-sky-500 leading-tight">{s.num}</p>
+                <p className="text-[23px] md:text-[31px] font-extrabold text-sky-500 leading-tight">{s.num}</p>
                 <p className="text-[13px] text-brand-sub mt-0.5">{s.label}</p>
               </div>
             ))}
@@ -438,7 +429,7 @@ export default function HomepagePage() {
             className="rounded-2xl overflow-hidden"
             style={{ background: f.bg }}
           >
-            <div className={`px-8 py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
+            <div className={`px-5 py-8 md:px-8 md:py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
                   FEATURE {f.no}
@@ -467,7 +458,7 @@ export default function HomepagePage() {
 
         {/* ── 프로세스 ────────────────────────── */}
         <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
-          <div className="px-8 py-10">
+          <div className="px-5 py-8 md:px-8 md:py-10">
             <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#7EA6F5" }}>Process</p>
             <h2 className="text-[25px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -493,7 +484,7 @@ export default function HomepagePage() {
         </section>
 
         {/* ── 가격 플랜 ───────────────────────── */}
-        <section className="rounded-2xl bg-brand-lighter border border-brand-border px-8 py-10">
+        <section className="rounded-2xl bg-brand-lighter border border-brand-border px-5 py-8 md:px-8 md:py-10">
           <p className="text-[12px] font-extrabold text-sky-500 uppercase tracking-widest mb-2">Pricing</p>
           <h2 className="text-[25px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
           <p className="text-[15px] text-brand-sub mb-8">사이트 규모와 목적에 맞는 플랜을 선택하세요.</p>
@@ -520,7 +511,7 @@ export default function HomepagePage() {
                   <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
                   <p className="text-white text-[20px] font-extrabold">{tier.name}</p>
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-white text-[31px] font-extrabold">{tier.price}</span>
+                    <span className="text-white text-[23px] md:text-[31px] font-extrabold">{tier.price}</span>
                     <span className="text-white/70 text-[15px] font-semibold">{tier.unit}</span>
                   </div>
                   <p className="text-white/40 text-[11px] mt-0.5">VAT 별도</p>
@@ -586,7 +577,7 @@ export default function HomepagePage() {
         </section>
 
         {/* ── FAQ ────────────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border px-8 py-10">
+        <section className="rounded-2xl bg-white border border-brand-border px-5 py-8 md:px-8 md:py-10">
           <p className="text-[12px] font-extrabold text-sky-500 uppercase tracking-widest mb-2">FAQ</p>
           <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
           <div className="space-y-2">
@@ -616,7 +607,7 @@ export default function HomepagePage() {
 
         {/* ── 하단 CTA 배너 ──────────────────── */}
         <section
-          className="rounded-2xl px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6"
+          className="rounded-2xl px-5 py-7 md:px-8 md:py-8 flex flex-col md:flex-row items-center justify-between gap-6"
           style={{ background: "linear-gradient(135deg,#0EA5E9,#0284C7)" }}
         >
           <div>

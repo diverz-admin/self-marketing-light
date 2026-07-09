@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import PageHeader from "@/components/marketing/PageHeader";
 
-const TABS = [
-  { label: "블로그배포", href: "/marketing/review/place/blog-reporter" },
-  { label: "영수증리뷰", href: "/marketing/review/place/receipt" },
+const TYPES = [
+  { name: "블로그배포", href: "/marketing/review/place/blog-reporter", desc: "전문 블로거가 방문 리뷰 콘텐츠를 배포합니다.", grad: "linear-gradient(135deg,#0D3473,#6366F1)", accent: "#0D3473", ring: "rgba(13,52,115,0.14)", tint: "#EEF1FE", iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" },
+  { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", accent: "#059669", ring: "rgba(5,150,105,0.16)", tint: "#E7F7F0", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
 ];
 
 type TypeOption = {
@@ -97,26 +98,47 @@ export default function BlogExperiencePage() {
 
   return (
     <div className="w-full space-y-4">
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/review/place" className="hover:text-brand-text">네이버 플레이스</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">블로그리뷰(체험단)</span>
-      </nav>
-
-      {/* 탭 */}
-      <div className="bg-white rounded-2xl border border-brand-border px-2 py-2 flex items-center gap-1 overflow-x-auto">
-        {TABS.map((tab) => (
-          <Link key={tab.href} href={tab.href}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-[15px] font-bold transition-all ${
-              pathname === tab.href ? "bg-brand-primary text-white shadow-sm" : "text-brand-sub hover:bg-brand-lighter hover:text-brand-dark"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
+      <PageHeader
+        title="네이버 플레이스 리뷰 신청"
+        subtitle="리뷰 유형을 선택하고 캠페인을 신청하세요."
+        iconPath={["M15 10.5a3 3 0 11-6 0 3 3 0 016 0z", "M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"]}
+      />
+      {/* 유형 선택 */}
+      <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+        <div className="flex items-center gap-3">
+          <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.15)" }}>
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+            </svg>
+          </span>
+          <div>
+            <h2 className="text-[17px] font-bold text-white">유형 선택</h2>
+            <p className="text-[13px] text-white/60">리뷰 유형을 선택하세요</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {TYPES.map((t) => {
+            const active = pathname === t.href;
+            return (
+              <Link key={t.href} href={t.href}
+                className={`flex items-center gap-3 rounded-2xl p-4 text-left border-2 transition-all ${
+                  active ? "" : "border-brand-border bg-white hover:border-brand-primary/40"
+                }`}
+                style={active ? { borderColor: t.accent, background: t.tint, boxShadow: `0 0 0 3px ${t.ring}` } : undefined}
+              >
+                <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: t.grad }}>
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={t.iconPath} />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-[16px] font-extrabold text-brand-dark">{t.name}</p>
+                  <p className="text-[13px] text-brand-sub leading-snug">{t.desc}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {/* 2-column layout */}
@@ -191,7 +213,7 @@ export default function BlogExperiencePage() {
           </div>
 
           {/* 스케줄 설정 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -258,7 +280,7 @@ export default function BlogExperiencePage() {
           </div>
 
           {/* 필수 정보 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -409,20 +431,33 @@ export default function BlogExperiencePage() {
               ))}
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={isPending || !agreements.req1 || !agreements.req2}
-              className="w-full py-3.5 rounded-xl text-[17px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isPending ? "등록 중..." : (
-                <>
-                  캠페인 등록 / 결제
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                </>
-              )}
-            </button>
+            {/* 결제 / 장바구니 */}
+            <div className="grid grid-cols-[1.5fr_1fr] gap-2.5">
+              <button
+                onClick={handleSubmit}
+                disabled={isPending || !agreements.req1 || !agreements.req2}
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                {isPending ? "등록 중..." : (
+                  <>
+                    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.3 1.046a1 1 0 01.65 1.212L10.44 8H15a1 1 0 01.788 1.615l-7 9A1 1 0 017 18v-6H3a1 1 0 01-.788-1.615l7-9a1 1 0 011.088-.34z" clipRule="evenodd" />
+                    </svg>
+                    즉시 포인트 차감하기
+                  </>
+                )}
+              </button>
+
+              <Link
+                href="/marketing/cart"
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                장바구니
+              </Link>
+            </div>
           </div>
         </div>
 

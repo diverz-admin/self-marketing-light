@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 type Tab = "transfer" | "card";
 
@@ -16,10 +17,26 @@ const MOCK_HISTORY = [
 const TOTAL_CHARGED = MOCK_HISTORY.reduce((s, h) => s + h.points, 0);
 const CURRENT_BALANCE = 87300;
 
+function formatBiz(v: string) {
+  const d = v.replace(/[^0-9]/g, "").slice(0, 10);
+  if (d.length < 4) return d;
+  if (d.length < 6) return `${d.slice(0, 3)}-${d.slice(3)}`;
+  return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`;
+}
+
+const emptyTax = {
+  bizNumber: "", companyName: "", ownerName: "", zipCode: "",
+  address: "", bizCondition: "", bizCategory: "", email: "",
+};
+
 export default function ChargePage() {
   const [tab, setTab] = useState<Tab>("transfer");
   const [name, setName] = useState("");
   const [points, setPoints] = useState("");
+
+  // 세금계산서 발행 요청
+  const [taxInvoice, setTaxInvoice] = useState(false);
+  const [tax, setTax] = useState(emptyTax);
 
   const pointNum = parseInt(points.replace(/,/g, ""), 10) || 0;
   const totalAmount = Math.floor(pointNum * 1.1);
@@ -30,18 +47,31 @@ export default function ChargePage() {
     setPoints(raw === "" ? "" : num.toLocaleString());
   }
 
+  function loadMemberInfo() {
+    // 데모: 실제로는 회원 프로필에서 조회
+    setTax({
+      bizNumber: "174-88-03266",
+      companyName: "(주)다이버즈",
+      ownerName: "전재민",
+      zipCode: "10390",
+      address: "경기도 고양시 일산동구 백마로 195, 5007호",
+      bizCondition: "서비스업",
+      bizCategory: "광고대행업",
+      email: "eggcorp2024@gmail.com",
+    });
+  }
+
+  const taxValid =
+    !taxInvoice ||
+    (tax.bizNumber.trim() && tax.companyName.trim() && tax.ownerName.trim() && tax.address.trim() && tax.email.trim());
+
   return (
-    <div className="w-full flex gap-6 items-start py-8">
+    <div className="w-full py-8 space-y-6">
+      <PageHeader title="포인트 충전" subtitle="포인트를 충전하고 캠페인에 사용하세요." iconPath={"M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3"} />
+      <div className="flex gap-6 items-start">
 
       {/* 메인 콘텐츠 */}
       <div className="flex-1 min-w-0 space-y-4">
-
-        {/* 브레드크럼 */}
-        <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-          <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-          <span>›</span>
-          <span className="text-brand-text font-medium">포인트 충전</span>
-        </nav>
 
         {/* 탭 */}
         <div className="flex gap-2">
@@ -150,9 +180,83 @@ export default function ChargePage() {
                 </button>
               </div>
 
+              {/* 세금계산서 발행 요청 */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+                  <input
+                    type="checkbox"
+                    checked={taxInvoice}
+                    onChange={(e) => setTaxInvoice(e.target.checked)}
+                    className="h-5 w-5 rounded accent-brand-primary shrink-0"
+                  />
+                  <span className="text-[16px] font-bold text-brand-dark">세금계산서 발행 요청</span>
+                </label>
+
+                {taxInvoice && (
+                  <div className="rounded-2xl border border-brand-border overflow-hidden">
+                    {/* 헤더 */}
+                    <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-brand-border" style={{ background: "#EFF4FD" }}>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span className="text-[15px] font-extrabold text-brand-dark">공급받는자 정보</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={loadMemberInfo}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-bold text-brand-primary bg-white border border-brand-primary/40 hover:bg-brand-primary/5 transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
+                        회원 정보 불러오기
+                      </button>
+                    </div>
+
+                    {/* 폼 */}
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">사업자등록번호 <span className="text-red-500">*</span></label>
+                        <input value={tax.bizNumber} onChange={(e) => setTax((p) => ({ ...p, bizNumber: formatBiz(e.target.value) }))} inputMode="numeric" placeholder="000-00-00000" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">상호 <span className="text-red-500">*</span></label>
+                        <input value={tax.companyName} onChange={(e) => setTax((p) => ({ ...p, companyName: e.target.value }))} placeholder="(주)블루에그" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">성명 <span className="text-red-500">*</span></label>
+                        <input value={tax.ownerName} onChange={(e) => setTax((p) => ({ ...p, ownerName: e.target.value }))} placeholder="대표자 성명" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">우편번호</label>
+                        <input value={tax.zipCode} onChange={(e) => setTax((p) => ({ ...p, zipCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 5) }))} inputMode="numeric" placeholder="00000" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">주소 <span className="text-red-500">*</span></label>
+                        <input value={tax.address} onChange={(e) => setTax((p) => ({ ...p, address: e.target.value }))} placeholder="사업장 주소" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">업태</label>
+                        <input value={tax.bizCondition} onChange={(e) => setTax((p) => ({ ...p, bizCondition: e.target.value }))} placeholder="예) 서비스업" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">업종</label>
+                        <input value={tax.bizCategory} onChange={(e) => setTax((p) => ({ ...p, bizCategory: e.target.value }))} placeholder="예) 광고대행업" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[13.5px] font-semibold text-brand-dark mb-1.5">이메일 <span className="text-red-500">*</span></label>
+                        <input value={tax.email} onChange={(e) => setTax((p) => ({ ...p, email: e.target.value }))} type="email" placeholder="세금계산서 수신 이메일" className="w-full px-4 py-3 rounded-xl border border-brand-border bg-brand-lighter text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:bg-white transition-all" />
+                        <p className="mt-1.5 text-[12px] text-brand-muted">입력하신 이메일로 세금계산서가 발송됩니다.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* 충전 요청 버튼 */}
               <button
-                disabled={!name.trim() || pointNum < 10000}
+                disabled={!name.trim() || pointNum < 10000 || !taxValid}
                 className="w-full py-4 rounded-xl text-[17px] font-extrabold text-white transition-opacity disabled:opacity-40"
                 style={{ background: "#111D37" }}
               >
@@ -160,7 +264,7 @@ export default function ChargePage() {
               </button>
 
               {/* 주의사항 */}
-              <div className="rounded-2xl p-5 space-y-4" style={{ background: "#EFF4FD", border: "1px solid #D7E3FA" }}>
+              <div className="rounded-2xl p-5 space-y-4" style={{ background: "#F5F6F8", border: "1px solid #E2E6ED" }}>
 
                 <div className="space-y-2">
                   <span className="inline-block text-[12px] font-extrabold px-2.5 py-1 rounded-full" style={{ background: "#DCE7FB", color: "#2E6BE0" }}>
@@ -171,12 +275,12 @@ export default function ChargePage() {
                       - 최소 충전 포인트 : <span className="font-extrabold">10,000</span>
                     </li>
                     <li className="text-[15px] text-brand-sub">
-                      - 세금계산서 발행 정보는 상담 채널로 전달주세요.
+                      - 세금계산서가 필요하면 위 <span className="font-semibold text-brand-dark">세금계산서 발행 요청</span>에 체크 후 정보를 입력해 주세요.
                     </li>
                   </ul>
                 </div>
 
-                <div className="h-px" style={{ background: "#D7E3FA" }} />
+                <div className="h-px" style={{ background: "#E2E6ED" }} />
 
                 <div className="space-y-2">
                   <span className="inline-block text-[12px] font-extrabold px-2.5 py-1 rounded-full" style={{ background: "#FEE2E2", color: "#DC2626" }}>
@@ -267,6 +371,7 @@ export default function ChargePage() {
         </div>
       </div>
 
+      </div>
     </div>
   );
 }

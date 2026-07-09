@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 import { useEffect, useRef, useState } from "react";
 
 type Msg = { id: number; user: string; avatarColor: string; text: string; time: string; me?: boolean };
@@ -59,6 +60,7 @@ export default function OpenChatPage() {
   const [activeId, setActiveId] = useState<string>("place");
   const [byTopic, setByTopic] = useState<Record<string, Msg[]>>(INITIAL);
   const [draft, setDraft] = useState("");
+  const [listOpen, setListOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const seq = useRef(1000);
 
@@ -94,23 +96,11 @@ export default function OpenChatPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 space-y-6">
-
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/community" className="hover:text-brand-text">커뮤니티</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">오픈채팅</span>
-      </nav>
+    <div className="w-full py-8 space-y-6">
 
       {/* 헤더 */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[24px] font-extrabold text-brand-dark tracking-tight">오픈채팅</h1>
-          <p className="text-[15px] text-brand-sub mt-1">주제별 채팅방에서 마케터들과 실시간으로 소통하세요.</p>
-        </div>
+        <PageHeader title="오픈채팅" subtitle="주제별 채팅방에서 마케터들과 실시간으로 소통하세요." iconPath={"M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"} />
         <div className="shrink-0 mt-2 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-green-50 border border-green-100">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -122,11 +112,71 @@ export default function OpenChatPage() {
         </div>
       </div>
 
-      {/* 채팅 레이아웃 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 h-[calc(100vh-300px)] min-h-[560px]">
+      {/* 주제별 채팅방 — 모바일 드롭다운 */}
+      <div className="lg:hidden relative mb-4">
+        <button
+          onClick={() => setListOpen((o) => !o)}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-brand-border bg-white"
+        >
+          <span className="h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 text-[20px]" style={{ background: `${active.color}1A` }}>
+            {active.emoji}
+          </span>
+          <span className="flex-1 min-w-0 text-left">
+            <span className="block text-[15px] font-bold text-brand-dark truncate">{active.name}</span>
+            <span className="flex items-center gap-1.5 text-[12px] font-semibold text-green-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              {active.online}명 접속 중
+            </span>
+          </span>
+          <svg className={`w-5 h-5 text-brand-muted transition-transform shrink-0 ${listOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-        {/* 주제 목록 */}
-        <div className="rounded-2xl border border-brand-border bg-white overflow-hidden flex flex-col">
+        {listOpen && (
+          <>
+            <div className="fixed inset-0 z-20" onClick={() => setListOpen(false)} />
+            <div className="absolute z-30 mt-2 w-full rounded-2xl border border-brand-border bg-white shadow-[0_16px_40px_-12px_rgba(17,29,55,0.25)] overflow-hidden max-h-[60vh] overflow-y-auto">
+              <div className="px-4 py-3 border-b border-brand-border">
+                <p className="text-[15px] font-extrabold text-brand-dark">주제별 채팅방</p>
+                <p className="text-[12px] text-brand-sub mt-0.5">{TOPICS.length}개의 실시간 채팅방</p>
+              </div>
+              {TOPICS.map((t) => {
+                const list = byTopic[t.id] ?? [];
+                const last = list[list.length - 1];
+                const on = activeId === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => { setActiveId(t.id); setListOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${on ? "bg-[#EAEFF9]" : "hover:bg-brand-lighter"}`}
+                  >
+                    <span className="h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 text-[20px]" style={{ background: `${t.color}1A` }}>
+                      {t.emoji}
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className={`block text-[15px] font-bold truncate ${on ? "text-brand-primary" : "text-brand-dark"}`}>{t.name}</span>
+                      <span className="block text-[12px] text-brand-muted truncate">
+                        {last ? `${last.me ? "나" : last.user}: ${last.text}` : t.desc}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1 text-[12px] font-semibold text-green-600 shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                      {t.online}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 채팅 레이아웃 */}
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 lg:h-[calc(100vh-300px)] lg:min-h-[560px]">
+
+        {/* 주제 목록 (데스크톱) */}
+        <div className="hidden lg:flex rounded-2xl border border-brand-border bg-white overflow-hidden flex-col">
           <div className="px-5 py-4 border-b border-brand-border shrink-0">
             <p className="text-[17px] font-extrabold text-brand-dark">주제별 채팅방</p>
             <p className="text-[13px] text-brand-sub mt-0.5">{TOPICS.length}개의 실시간 채팅방</p>
@@ -171,7 +221,7 @@ export default function OpenChatPage() {
         </div>
 
         {/* 채팅 창 */}
-        <div className="rounded-2xl border border-brand-border bg-white overflow-hidden flex flex-col">
+        <div className="rounded-2xl border border-brand-border bg-white overflow-hidden flex flex-col h-[70vh] lg:h-auto">
           {/* 채팅 헤더 */}
           <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-border shrink-0">
             <span className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 text-[22px]" style={{ background: `${active.color}1A` }}>

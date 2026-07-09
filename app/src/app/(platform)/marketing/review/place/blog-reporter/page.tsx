@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const TYPES = [
-  { name: "블로그배포", href: "/marketing/review/place/blog-reporter", desc: "전문 블로거가 방문 리뷰 콘텐츠를 배포합니다.", grad: "linear-gradient(135deg,#0D3473,#6366F1)", iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" },
-  { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
+  { name: "블로그배포", href: "/marketing/review/place/blog-reporter", desc: "전문 블로거가 방문 리뷰 콘텐츠를 배포합니다.", grad: "linear-gradient(135deg,#0D3473,#6366F1)", accent: "#0D3473", ring: "rgba(13,52,115,0.14)", tint: "#EEF1FE", iconPath: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" },
+  { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", accent: "#059669", ring: "rgba(5,150,105,0.16)", tint: "#E7F7F0", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
 ];
 
 export default function BlogReporterPage() {
@@ -14,9 +15,7 @@ export default function BlogReporterPage() {
 
   const [postingType, setPostingType] = useState("후기성");
   const [campaignName, setCampaignName] = useState("대박갈비 일산동구청점");
-  const [placePid, setPlacePid] = useState("");
   const [placeLink, setPlaceLink] = useState("");
-  const [businessName, setBusinessName] = useState("대박갈비 일산동구청점");
   const [mainKeyword, setMainKeyword] = useState("");
   const [hashtagInput, setHashtagInput] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
@@ -31,6 +30,12 @@ export default function BlogReporterPage() {
   const [isPending, setIsPending] = useState(false);
 
   const balance = 11500;
+
+  // 스케줄·필수 정보가 모두 채워져야 결제 가능
+  const incomplete =
+    !startDate || issueDays < 1 || dailyVolume < 1 ||
+    !campaignName.trim() || !placeLink.trim() || !mainKeyword.trim() ||
+    hashtags.length === 0 || !businessInfo.trim();
 
   const handleHashtagKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter" || !hashtagInput.trim()) return;
@@ -74,17 +79,11 @@ export default function BlogReporterPage() {
 
   return (
     <div className="w-full space-y-4">
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/review/place" className="hover:text-brand-text">네이버 플레이스</Link>
-        <span>›</span>
-        <Link href="/marketing/review/place" className="hover:text-brand-text">캠페인 생성</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">블로그배포</span>
-      </nav>
-
+      <PageHeader
+        title="네이버 플레이스 리뷰 신청"
+        subtitle="리뷰 유형을 선택하고 캠페인을 신청하세요."
+        iconPath={["M15 10.5a3 3 0 11-6 0 3 3 0 016 0z", "M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"]}
+      />
       {/* 유형 선택 */}
       <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
         <div className="flex items-center gap-3">
@@ -98,14 +97,15 @@ export default function BlogReporterPage() {
             <p className="text-[13px] text-white/60">리뷰 유형을 선택하세요</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {TYPES.map((t) => {
             const active = pathname === t.href;
             return (
               <Link key={t.href} href={t.href}
                 className={`flex items-center gap-3 rounded-2xl p-4 text-left border-2 transition-all ${
-                  active ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.12)] bg-white" : "border-brand-border bg-white hover:border-brand-primary/40"
+                  active ? "" : "border-brand-border bg-white hover:border-brand-primary/40"
                 }`}
+                style={active ? { borderColor: t.accent, background: t.tint, boxShadow: `0 0 0 3px ${t.ring}` } : undefined}
               >
                 <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: t.grad }}>
                   <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -128,22 +128,55 @@ export default function BlogReporterPage() {
         {/* ── 왼쪽 ── */}
         <div className="space-y-5">
 
+          {/* 블로그배포 안내 + 스케줄 설정 (하나의 박스) */}
+          <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+
           {/* 블로그배포 안내 */}
-          <div className="flex gap-3 p-4 rounded-2xl bg-brand-primary-50 border border-brand-primary/15">
-            <svg className="w-5 h-5 text-brand-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
-            </svg>
-            <div>
-              <p className="text-[15px] font-extrabold text-brand-dark mb-1">블로그배포란?</p>
-              <p className="text-[14px] text-brand-sub leading-relaxed">
-                전문 블로거 네트워크를 통해 플레이스 방문 리뷰 콘텐츠를 배포하는 캠페인입니다.
-                SEO 최적화된 블로그 포스팅으로 검색 노출과 신뢰도를 동시에 높일 수 있습니다.
-              </p>
+          <div className="relative overflow-hidden border-b border-brand-border bg-gradient-to-br from-brand-primary-50 via-white to-brand-primary-50/40 px-8 py-5">
+            {/* 데코 그라데이션 블롭 */}
+            <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-brand-primary/10 blur-3xl" aria-hidden />
+
+            <div className="relative flex gap-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
+                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-[15px] font-extrabold text-brand-dark">블로그배포란?</p>
+                  <span className="inline-flex items-center rounded-full bg-brand-primary/10 px-2 py-0.5 text-[11px] font-bold text-brand-primary">플레이스 리뷰</span>
+                </div>
+                <p className="mt-1 text-[14px] leading-relaxed text-brand-sub">
+                  전문 블로거 네트워크를 통해 플레이스 방문 리뷰 콘텐츠를 배포하는 캠페인입니다.
+                  SEO 최적화된 블로그 포스팅으로 검색 노출과 신뢰도를 동시에 높일 수 있습니다.
+                </p>
+
+                {/* 배포 등급 안내 */}
+                <div className="mt-3.5 flex flex-wrap items-center gap-2 rounded-xl border border-brand-primary/10 bg-white/70 px-3 py-2.5 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-brand-dark">
+                    <svg className="h-3.5 w-3.5 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                    </svg>
+                    배포 등급
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-brand-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />
+                    준최2~4 일괄 배포
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-amber-700">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    최적블은 개별 문의 필요
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* 스케줄 설정 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -156,7 +189,7 @@ export default function BlogReporterPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* 발행 시작일 */}
               <div>
                 <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
@@ -207,7 +240,7 @@ export default function BlogReporterPage() {
           </div>
 
           {/* 필수 정보 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5 border-t border-brand-border">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -220,23 +253,17 @@ export default function BlogReporterPage() {
               </div>
             </div>
 
-            {/* 플레이스 PID */}
+            {/* 캠페인명 */}
             <div>
               <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                플레이스 PID <span className="text-red-500">*</span>
+                캠페인명 <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  value={placePid}
-                  onChange={(e) => setPlacePid(e.target.value)}
-                  placeholder="업체명을 검색하세요"
-                  className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
-                />
-                <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </div>
-              <p className="text-[13px] text-brand-muted mt-1">업체명 검색 또는 PID 숫자를 직접 입력하세요</p>
+              <input
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+                placeholder="대박갈비 일산동구청점"
+                className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+              />
             </div>
 
             {/* 플레이스 링크 */}
@@ -265,24 +292,18 @@ export default function BlogReporterPage() {
               </div>
             </div>
 
-            {/* 텍스트 입력 필드들 */}
-            {[
-              { label: "캠페인명", value: campaignName, onChange: setCampaignName, placeholder: "대박갈비 일산동구청점" },
-              { label: "업체명",   value: businessName, onChange: setBusinessName, placeholder: "대박갈비 일산동구청점" },
-              { label: "메인 키워드", value: mainKeyword, onChange: setMainKeyword, placeholder: "1개만 반영됩니다." },
-            ].map((field) => (
-              <div key={field.label}>
-                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  {field.label} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  placeholder={field.placeholder}
-                  className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
-                />
-              </div>
-            ))}
+            {/* 메인 키워드 */}
+            <div>
+              <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                메인 키워드 <span className="text-red-500">*</span>
+              </label>
+              <input
+                value={mainKeyword}
+                onChange={(e) => setMainKeyword(e.target.value)}
+                placeholder="1개만 반영됩니다."
+                className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+              />
+            </div>
 
             {/* 해시태그 */}
             <div>
@@ -327,7 +348,7 @@ export default function BlogReporterPage() {
           </div>
 
           {/* 이미지 등록 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5 border-t border-brand-border">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -397,6 +418,7 @@ export default function BlogReporterPage() {
               </>
             )}
           </div>
+          </div>
 
         </div>
 
@@ -445,21 +467,37 @@ export default function BlogReporterPage() {
               ))}
             </div>
 
-            {/* 캠페인 등록 / 결제 버튼 */}
-            <button
-              onClick={handleSubmit}
-              disabled={isPending || !agreements.req1 || !agreements.req2}
-              className="w-full py-3.5 rounded-xl text-[17px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isPending ? "등록 중..." : (
-                <>
-                  캠페인 등록 / 결제
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                </>
-              )}
-            </button>
+            {/* 결제 / 장바구니 */}
+            {incomplete && (
+              <p className="text-[12px] font-semibold text-red-500 mb-2">스케줄·필수 정보를 모두 입력해주세요</p>
+            )}
+            <div className="grid grid-cols-[1.5fr_1fr] gap-2.5">
+              <button
+                onClick={handleSubmit}
+                disabled={isPending || !agreements.req1 || !agreements.req2 || incomplete}
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                {isPending ? "등록 중..." : (
+                  <>
+                    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.3 1.046a1 1 0 01.65 1.212L10.44 8H15a1 1 0 01.788 1.615l-7 9A1 1 0 017 18v-6H3a1 1 0 01-.788-1.615l7-9a1 1 0 011.088-.34z" clipRule="evenodd" />
+                    </svg>
+                    즉시 포인트 차감하기
+                  </>
+                )}
+              </button>
+
+              <Link
+                href="/marketing/cart"
+                aria-disabled={incomplete}
+                className={`w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap ${incomplete ? "opacity-40 pointer-events-none" : ""}`}
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                장바구니
+              </Link>
+            </div>
           </div>
         </div>
 

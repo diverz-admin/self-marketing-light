@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const REVIEW_TYPES = [
   {
@@ -21,17 +22,11 @@ export default function ShoppingReviewDashboard() {
     <div className="w-full space-y-6">
 
       {/* 헤더 */}
-      <div>
-        <div className="flex items-center gap-2 text-[13px] text-brand-muted mb-3">
-          <span>리뷰·체험단</span>
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="text-brand-text font-medium">네이버 쇼핑 리뷰</span>
-        </div>
-        <h1 className="text-[25px] font-extrabold text-brand-dark tracking-tight">네이버 쇼핑 리뷰</h1>
-        <p className="text-[16px] text-brand-sub mt-1">리뷰 유형을 선택하여 캠페인을 시작하세요.</p>
-      </div>
+      <PageHeader
+        title="네이버 쇼핑 리뷰"
+        subtitle="리뷰 유형을 선택하여 캠페인을 시작하세요."
+        iconPath={"M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"}
+      />
 
       {/* 카드 그리드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

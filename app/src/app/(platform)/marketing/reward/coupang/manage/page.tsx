@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
   running: { label: "진행중",   bg: "bg-green-50", text: "text-green-600" },
@@ -287,14 +288,11 @@ export default function CoupangManagePage() {
 
   return (
     <div className="w-full space-y-5">
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/reward/coupang" className="hover:text-brand-text">쿠팡</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">캠페인 관리</span>
-      </nav>
-
+      <PageHeader
+        title="쿠팡 리워드 캠페인 관리"
+        subtitle="진행 중인 리워드 캠페인을 확인하고 관리하세요."
+        iconPath={"M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"}
+      />
       {/* 요약 카드 */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -353,7 +351,7 @@ export default function CoupangManagePage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-max text-left">
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
                 {["상품명", "상품 링크", "키워드", "현재 순위", "일 작업량", "기간", "주문금액", "상태", "관리"].map((h) => (

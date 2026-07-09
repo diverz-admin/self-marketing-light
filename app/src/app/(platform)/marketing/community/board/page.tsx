@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 type Platform = "네이버" | "인스타그램" | "유튜브";
 
@@ -141,6 +142,8 @@ export default function BoardPage() {
   const [activeBoard, setActiveBoard] = useState<"전체" | Platform>("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<number>(MOCK_POSTS[0].id);
+  // 모바일 아코디언: 클릭한 글 내용이 목록 안에서 바로 펼쳐짐 (null = 전부 접힘)
+  const [mobileOpenId, setMobileOpenId] = useState<number | null>(null);
 
   // ?post=<id> 쿼리로 특정 글 열기 (예: SNS 대시보드 → 메타광고 연동 안내)
   useEffect(() => {
@@ -150,6 +153,7 @@ export default function BoardPage() {
     const post = MOCK_POSTS.find((p) => p.id === id);
     if (post) {
       setSelectedId(id);
+      setMobileOpenId(id);
       setActiveBoard(post.platform);
     }
   }, []);
@@ -172,21 +176,9 @@ export default function BoardPage() {
   return (
     <div className="w-full space-y-6">
 
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/community" className="hover:text-brand-text">커뮤니티</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">게시판</span>
-      </nav>
-
       {/* 헤더 */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[24px] font-extrabold text-brand-dark tracking-tight">게시판</h1>
-          <p className="text-[15px] text-brand-sub mt-1">마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요.</p>
-        </div>
+        <PageHeader title="게시판" subtitle="마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요." iconPath={"M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"} />
         <button className="shrink-0 px-5 py-2.5 rounded-xl text-[15px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors">
           글쓰기
         </button>
@@ -256,19 +248,25 @@ export default function BoardPage() {
               const colors = CATEGORY_COLORS[post.category] ?? { bg: "bg-gray-50", text: "text-gray-600" };
               const pColor = PLATFORM_COLORS[post.platform];
               const active = post.id === selectedId;
+              const open = post.id === mobileOpenId;
               return (
+                <div key={post.id} className={i > 0 ? "border-t border-brand-border" : ""}>
                 <button
-                  key={post.id}
                   type="button"
-                  onClick={() => setSelectedId(post.id)}
+                  onClick={() => {
+                    setSelectedId(post.id);
+                    setMobileOpenId((prev) => (prev === post.id ? null : post.id));
+                  }}
                   aria-current={active}
+                  aria-expanded={open}
                   className={[
                     "w-full text-left px-4 py-4 flex items-start gap-3 transition-colors relative",
-                    i > 0 ? "border-t border-brand-border" : "",
-                    active ? "bg-brand-primary-50" : "hover:bg-brand-lighter",
+                    active ? "lg:bg-brand-primary-50" : "hover:bg-brand-lighter",
+                    open ? "bg-brand-primary-50" : "",
                   ].join(" ")}
                 >
-                  {active && <span className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {active && <span className="hidden lg:block absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {open && <span className="lg:hidden absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
 
                   {/* 채널 뱃지 */}
                   <span
@@ -292,7 +290,8 @@ export default function BoardPage() {
                       <span
                         className={[
                           "text-[16px] font-semibold truncate transition-colors",
-                          active ? "text-brand-primary" : "text-brand-dark",
+                          open ? "text-brand-primary" : "text-brand-dark",
+                          active ? "lg:text-brand-primary" : "lg:text-brand-dark",
                         ].join(" ")}
                       >
                         {post.title}
@@ -310,13 +309,25 @@ export default function BoardPage() {
                     </div>
                   </div>
                 </button>
+
+                {/* 모바일 아코디언 본문 — 클릭한 글 내용이 목록 안에서 바로 펼쳐짐 */}
+                <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-[1600px]" : "max-h-0"}`}>
+                  <div className="px-4 pb-5 pt-3 space-y-3 border-t border-brand-border">
+                    {post.content.map((para, idx) => (
+                      <p key={idx} className="text-[15px] leading-[1.7] text-brand-text">
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                </div>
               );
             })
           )}
         </div>
 
-        {/* 상세 */}
-        <div className="bg-white rounded-2xl border border-brand-border min-h-[360px] lg:sticky lg:top-6">
+        {/* 상세 (데스크톱 전용 — 모바일은 목록 내 아코디언으로 표시) */}
+        <div className="hidden lg:block bg-white rounded-2xl border border-brand-border min-h-[360px] lg:sticky lg:top-6">
           {selected ? (
             <article className="p-6 md:p-8">
               <div className="flex items-center gap-2">

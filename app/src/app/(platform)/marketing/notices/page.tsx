@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Icon3D from "@/components/marketing/Icon3D";
+import PageHeader from "@/components/marketing/PageHeader";
 
 type Notice = {
   id: number;
@@ -93,6 +93,8 @@ const NOTICES: Notice[] = [
 export default function NoticesPage() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<number>(NOTICES[0].id);
+  // 모바일 아코디언: 클릭한 공지 내용이 목록 안에서 바로 펼쳐짐 (null = 전부 접힘)
+  const [mobileOpenId, setMobileOpenId] = useState<number | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -108,13 +110,7 @@ export default function NoticesPage() {
     <div className="w-full space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Icon3D name="bell" className="w-14 h-14 shrink-0" />
-          <div>
-            <h1 className="text-[27px] font-extrabold text-brand-dark tracking-tight">공지사항</h1>
-            <p className="text-[16px] text-brand-sub mt-0.5">중요한 안내와 업데이트를 확인하세요.</p>
-          </div>
-        </div>
+        <PageHeader title="공지사항" subtitle="중요한 안내와 업데이트를 확인하세요." iconPath={"M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"} />
 
         <div className="bg-white border border-brand-border rounded-2xl px-5 py-3.5 text-right shrink-0">
           <p className="text-[13px] text-brand-sub mb-0.5">전체 게시글</p>
@@ -158,28 +154,37 @@ export default function NoticesPage() {
           ) : (
             filtered.map((notice, i) => {
               const active = notice.id === selectedId;
+              const open = notice.id === mobileOpenId;
               return (
+                <div key={notice.id} className={i > 0 ? "border-t border-brand-border" : ""}>
                 <button
-                  key={notice.id}
                   type="button"
-                  onClick={() => setSelectedId(notice.id)}
+                  onClick={() => {
+                    setSelectedId(notice.id);
+                    setMobileOpenId((prev) => (prev === notice.id ? null : notice.id));
+                  }}
                   aria-current={active}
+                  aria-expanded={open}
                   className={[
                     "w-full flex items-center gap-3 px-4 py-4 text-left transition-colors group relative",
-                    i > 0 ? "border-t border-brand-border" : "",
-                    active ? "bg-brand-primary-50" : "hover:bg-brand-lighter",
+                    active ? "lg:bg-brand-primary-50" : "hover:bg-brand-lighter",
+                    open ? "bg-brand-primary-50" : "",
                   ].join(" ")}
                 >
-                  {/* Active accent bar */}
-                  {active && <span className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {/* Active accent bar (데스크톱: 선택, 모바일: 펼침) */}
+                  {active && <span className="hidden lg:block absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {open && <span className="lg:hidden absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
 
                   {/* Badge */}
                   <span
                     className={[
                       "shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full border",
-                      active
+                      open
                         ? "bg-brand-primary text-white border-brand-primary"
                         : "bg-brand-primary-50 text-brand-primary border-brand-primary/20",
+                      active
+                        ? "lg:bg-brand-primary lg:text-white lg:border-brand-primary"
+                        : "lg:bg-brand-primary-50 lg:text-brand-primary lg:border-brand-primary/20",
                     ].join(" ")}
                   >
                     공지
@@ -190,7 +195,8 @@ export default function NoticesPage() {
                     <p
                       className={[
                         "text-[16px] font-semibold truncate transition-colors",
-                        active ? "text-brand-primary" : "text-brand-dark group-hover:text-brand-primary",
+                        open ? "text-brand-primary" : "text-brand-dark group-hover:text-brand-primary",
+                        active ? "lg:text-brand-primary" : "lg:text-brand-dark",
                       ].join(" ")}
                     >
                       {notice.title}
@@ -203,24 +209,37 @@ export default function NoticesPage() {
                     </div>
                   </div>
 
-                  {/* Chevron */}
+                  {/* Chevron (모바일: 펼치면 아래로 회전 / 데스크톱: 항상 오른쪽) */}
                   <svg
                     className={[
-                      "w-4 h-4 shrink-0 transition-colors",
-                      active ? "text-brand-primary" : "text-brand-border group-hover:text-brand-primary",
+                      "w-4 h-4 shrink-0 transition-all lg:rotate-0",
+                      open ? "text-brand-primary rotate-90" : "text-brand-border group-hover:text-brand-primary",
+                      active ? "lg:text-brand-primary" : "lg:text-brand-border",
                     ].join(" ")}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
+
+                {/* 모바일 아코디언 본문 — 클릭한 공지 내용이 목록 안에서 바로 펼쳐짐 */}
+                <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-[1400px]" : "max-h-0"}`}>
+                  <div className="px-4 pb-5 pt-3 space-y-3 border-t border-brand-border">
+                    {notice.content.map((para, idx) => (
+                      <p key={idx} className="text-[15px] leading-[1.7] text-brand-text">
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                </div>
               );
             })
           )}
         </div>
 
-        {/* Detail */}
-        <div className="bg-white rounded-2xl border border-brand-border min-h-[320px] lg:sticky lg:top-6">
+        {/* Detail (데스크톱 전용 — 모바일은 목록 내 아코디언으로 표시) */}
+        <div className="hidden lg:block bg-white rounded-2xl border border-brand-border min-h-[320px] lg:sticky lg:top-6">
           {selected ? (
             <article className="p-6 md:p-8">
               <span className="inline-block text-[12px] font-bold px-2.5 py-1 rounded-full bg-brand-primary-50 text-brand-primary border border-brand-primary/20">

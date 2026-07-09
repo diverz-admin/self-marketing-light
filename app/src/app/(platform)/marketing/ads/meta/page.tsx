@@ -388,15 +388,6 @@ export default function MetaAdsPage() {
         {/* ── LEFT: 랜딩페이지 ── */}
         <div className="flex-1 min-w-0 space-y-4">
 
-          {/* 브레드크럼 */}
-          <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1">
-            <span>퍼포먼스 마케팅</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span>META</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span className="text-brand-text font-medium">META 퍼포먼스 대행</span>
-          </div>
-
           {/* ══ HERO ══ */}
           <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(135deg,#1877F2 0%,#0052CC 100%)" }}>
             <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle,rgba(255,255,255,0.1),transparent 70%)", transform: "translate(25%,-35%)" }} />

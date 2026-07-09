@@ -3,6 +3,7 @@ import Logo from "@/components/Logo";
 import { PLATFORM_ENTRY } from "@/utils/platform";
 
 const NAV = [
+  { label: "작동 방식", href: "/#how" },
   { label: "서비스", href: "/#services" },
   { label: "특징", href: "/#features" },
   { label: "요금", href: "/pricing" },
@@ -15,13 +16,13 @@ export default function SiteLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-brand-border bg-white/95 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* Header — floating pill */}
+      <header className="sticky top-0 z-50 w-full px-4 pt-3">
+        <div className="max-w-6xl mx-auto rounded-full border border-brand-border/70 bg-white/85 backdrop-blur-md shadow-[0_8px_30px_-12px_rgba(17,29,55,.18)] pl-6 pr-3 h-14 flex items-center justify-between">
           <Link href="/" aria-label="홈으로">
             <Logo
-              markClassName="h-8 w-auto"
-              textClassName="h-5 w-auto"
+              markClassName="h-7 w-auto"
+              textClassName="h-4.5 w-auto"
               textColor="text-brand-dark"
             />
           </Link>
@@ -44,7 +45,7 @@ export default function SiteLayout({
           </nav>
           <a
             href={PLATFORM_ENTRY}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-electric text-white hover:bg-electric-hover transition-colors"
+            className="px-5 py-2.5 rounded-full text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_6px_18px_-6px_rgba(29,62,255,.6)]"
           >
             무료로 시작하기
           </a>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 /* ─────────────────────────────────────────
    네이버 플레이스 상위 5순위 목업 (폰)
@@ -223,35 +224,37 @@ export default function PlaceGuaranteedPage() {
 
   return (
     <>
-      {/* 브레드크럼 (전체 폭) */}
-      <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1 mb-4">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-        <span>리워드 마케팅</span>
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-        <span className="text-brand-text font-medium">상위노출 보장형</span>
-      </div>
+      {/* 페이지 헤더 */}
+      <PageHeader
+        className="mb-4"
+        title="보장형 캠페인 신청"
+        subtitle="네이버 플레이스 상위노출 · 목표 5순위 미달성 시 100% 환불"
+        iconPath={"M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"}
+      />
 
-      <div className="w-full flex gap-5 items-stretch">
+      <div className="w-full flex flex-col lg:flex-row gap-5 lg:items-stretch pb-24 lg:pb-0">
 
         {/* ────────────────────────────────
             LEFT: 상세 랜딩페이지
         ──────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-4">
 
+          {/* ══ 상세페이지 블럭 — 전 섹션을 하나의 블럭으로 묶음 ══ */}
+          <div className="rounded-2xl overflow-hidden border border-brand-border shadow-[0_8px_28px_rgba(17,29,55,0.10)]">
+
           {/* ══ HERO ══ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+          <div style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* 텍스트 */}
               <div className="px-10 py-14 flex flex-col justify-center">
                 <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>NAVER PLACE / 상위노출 보장형</span>
                 <h1 className="text-[38px] font-extrabold text-white leading-[1.28] mb-4">
-                  리워드 유입으로 안전하게,<br />
-                  <span style={{ color: "#7EA6F5" }}>키워드 5순위 진입 보장.</span>
+                  키워드 5순위 진입, 성공하면 결제.<br />
+                  <span style={{ color: "#7EA6F5" }}>못 올리면 비용은 0원입니다.</span>
                 </h1>
                 <p className="text-[15px] text-white/65 leading-relaxed mb-8">
-                  네이버 플레이스 검색 결과 상위 5순위 진입을 리워드 유입 방식으로<br />
-                  안전하게 달성하며, 미달성 시 결제 금액을 100% 환불해 드립니다.
+                  네이버 플레이스 검색 상위 5순위 진입을 리워드 유입 방식으로 안전하게 달성합니다.<br />
+                  100% 후불 정산 — 목표 순위 미달성 시 단 한 푼도 청구하지 않습니다.
                 </p>
                 {/* 메타 정보 */}
                 <div className="inline-flex flex-wrap items-center gap-y-4 rounded-2xl px-6 py-5" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
@@ -276,33 +279,58 @@ export default function PlaceGuaranteedPage() {
           </div>
 
           {/* ══ 5순위가 중요한 이유 (white) ══ */}
-          <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
+          <div className="bg-white border-t border-brand-border px-10 py-12">
             <div className="text-center mb-8">
               <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>왜 5순위인가</span>
               <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">상위 5개에 <span style={{ color: "#2E6BE0" }}>클릭의 68%</span>가 몰립니다</h2>
               <p className="text-[16px] text-brand-sub">네이버 플레이스에서 6위 이하는 사실상 노출 효과가 없습니다.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end mb-10">
-              {[
+            {(() => {
+              const bars = [
                 { rank: "1위", pct: 100, color: "#0D3473", visitors: "1,200" },
                 { rank: "2위", pct: 78,  color: "#2E6BE0", visitors: "940" },
                 { rank: "3위", pct: 55,  color: "#5B84D6", visitors: "660" },
                 { rank: "4위", pct: 32,  color: "#88A9E8", visitors: "380" },
                 { rank: "5위", pct: 20,  color: "#BBCEF2", visitors: "240" },
-              ].map((bar) => (
-                <div key={bar.rank} className="flex flex-col items-center gap-1.5">
-                  <span className="text-[12px] font-bold text-brand-dark">{bar.visitors}명</span>
-                  <div className="w-full rounded-t-xl" style={{ height: `${bar.pct * 1.2}px`, background: bar.color }} />
-                  <span className="text-[13px] font-extrabold text-brand-dark">{bar.rank}</span>
-                  <span className="text-[11px] text-brand-muted">{bar.pct}%</span>
+              ];
+              return (
+                <div className="mb-10">
+                  {/* 데스크톱: 세로 막대 */}
+                  <div className="hidden md:grid grid-cols-5 gap-2 items-end">
+                    {bars.map((bar) => (
+                      <div key={bar.rank} className="flex flex-col items-center gap-1.5">
+                        <span className="text-[12px] font-bold text-brand-dark">{bar.visitors}명</span>
+                        <div className="w-full rounded-t-xl" style={{ height: `${bar.pct * 1.6}px`, background: bar.color }} />
+                        <span className="text-[13px] font-extrabold text-brand-dark">{bar.rank}</span>
+                        <span className="text-[11px] text-brand-muted">{bar.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* 모바일: 가로 막대 */}
+                  <div className="md:hidden space-y-2.5">
+                    {bars.map((bar) => (
+                      <div key={bar.rank} className="flex items-center gap-3">
+                        <span className="w-8 shrink-0 text-[13px] font-extrabold text-brand-dark">{bar.rank}</span>
+                        <div className="flex-1 h-8 rounded-lg bg-brand-lighter overflow-hidden">
+                          <div
+                            className="h-full rounded-lg flex items-center justify-end px-2 min-w-[44px]"
+                            style={{ width: `${bar.pct}%`, background: bar.color }}
+                          >
+                            <span className="text-[11px] font-bold text-white whitespace-nowrap">{bar.visitors}명</span>
+                          </div>
+                        </div>
+                        <span className="w-9 shrink-0 text-right text-[12px] font-bold text-brand-muted">{bar.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
             <p className="text-center text-[13px] text-brand-muted">* 월간 일평균 방문자 비율 기준 (업종 평균)</p>
           </div>
 
           {/* ══ 3가지 혜택 (gray) ══ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
+          <div className="border-t border-brand-border" style={{ background: "#F2F4F6" }}>
             <div className="px-10 py-12">
               <div className="text-center mb-8">
                 <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>서비스 특징</span>
@@ -326,24 +354,44 @@ export default function PlaceGuaranteedPage() {
           </div>
 
           {/* ══ 진행 프로세스 (dark) ══ */}
-          <div id="process" className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+          <div id="process" className="border-t border-brand-border" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="px-10 py-12">
               <div className="text-center mb-8">
                 <p className="text-[12px] font-extrabold text-white/60 uppercase tracking-widest mb-3">진행 프로세스</p>
                 <h2 className="text-[31px] font-extrabold text-white mb-2">5단계로 5순위를 만듭니다</h2>
                 <p className="text-[16px] text-white/60">분석부터 보장 완료까지 모든 과정을 책임집니다.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {/* 데스크톱: 5열 스텝 */}
+              <div className="hidden sm:grid sm:grid-cols-5 gap-4">
                 {PROCESS.map((p, i) => (
                   <div key={p.step} className="flex flex-col items-center text-center relative">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center mb-3 text-[#0D3473] font-extrabold text-[16px]" style={{ background: "white" }}>
                       {p.step}
                     </div>
                     {i < PROCESS.length - 1 && (
-                      <div className="hidden sm:block absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
+                      <div className="absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
                     )}
                     <p className="text-[15px] font-extrabold text-white mb-1.5">{p.title}</p>
                     <p className="text-[12px] text-white/60 leading-relaxed">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
+              {/* 모바일: 세로 타임라인 (컴팩트) */}
+              <div className="sm:hidden space-y-4">
+                {PROCESS.map((p, i) => (
+                  <div key={p.step} className="flex items-start gap-3.5">
+                    <div className="relative flex flex-col items-center shrink-0">
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center text-[#0D3473] font-extrabold text-[15px] z-10" style={{ background: "white" }}>
+                        {p.step}
+                      </div>
+                      {i < PROCESS.length - 1 && (
+                        <div className="absolute top-10 w-px h-[calc(100%-1rem)] bg-white/25" />
+                      )}
+                    </div>
+                    <div className="min-w-0 pt-1.5">
+                      <p className="text-[15px] font-extrabold text-white mb-1">{p.title}</p>
+                      <p className="text-[13px] text-white/60 leading-relaxed">{p.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -351,7 +399,7 @@ export default function PlaceGuaranteedPage() {
           </div>
 
           {/* ══ FAQ (white) ══ */}
-          <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
+          <div className="bg-white border-t border-brand-border px-10 py-12">
             <div className="max-w-2xl mx-auto">
               <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
               <h2 className="text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
@@ -377,16 +425,18 @@ export default function PlaceGuaranteedPage() {
               </div>
             </div>
           </div>
+          {/* END 상세페이지 블럭 */}
+          </div>
 
-          <div className="h-24" />
+          <div className="hidden lg:block h-24" />
         </div>
         {/* END LEFT */}
 
         {/* ────────────────────────────────
             RIGHT: Sticky 문의하기 패널
         ──────────────────────────────── */}
-        <div className="hidden lg:block w-64 xl:w-72 shrink-0">
-          <div id="contact-panel" className="sticky top-6 space-y-3 max-h-[calc(100vh-104px)] overflow-y-auto pr-0.5 scrollbar-none">
+        <div className="w-full lg:w-72 xl:w-80 shrink-0">
+          <div id="contact-panel" className="space-y-3 lg:sticky lg:top-4 lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto pr-0.5 scrollbar-none">
 
             {/* 메인 문의 카드 */}
             <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
@@ -403,11 +453,11 @@ export default function PlaceGuaranteedPage() {
                 </p>
                 <div className="space-y-2">
                   <button
-                    onClick={() => alert("문의하기 연결 예정")}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[15px] font-extrabold text-[#0D3473] bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
+                    onClick={() => alert("신청하기 연결 예정")}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[16px] font-extrabold text-[#0D3473] bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
                   >
-                    문의하기
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    신청하기
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                   </button>
                   <button
                     onClick={() => alert("무료 진단 연결 예정")}
@@ -459,6 +509,18 @@ export default function PlaceGuaranteedPage() {
         </div>
         {/* END RIGHT */}
 
+      </div>
+
+      {/* 모바일 하단 고정 신청 바 */}
+      <div className="lg:hidden fixed inset-x-0 bottom-[60px] md:bottom-0 z-40 bg-white border-t border-brand-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(17,29,55,0.10)]">
+        <button
+          onClick={() => alert("신청하기 연결 예정")}
+          className="w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white flex items-center justify-center gap-2 active:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+        >
+          신청하기
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+        </button>
       </div>
     </>
   );

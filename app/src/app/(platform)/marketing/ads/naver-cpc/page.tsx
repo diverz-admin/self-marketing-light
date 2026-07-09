@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 /* ─────────────────────────────────────────
    미니 목업 컴포넌트 4종
@@ -438,49 +438,27 @@ const SERVICE_SCOPE = [
 export default function NaverSaPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // 오른쪽 CTA 패널을 콘텐츠 컬럼 우측에 맞춰 fixed로 배치 (스크롤해도 고정)
-  const railRef = useRef<HTMLDivElement>(null);
-  const [railLeft, setRailLeft] = useState<number>();
-  useEffect(() => {
-    const update = () => {
-      if (railRef.current) setRailLeft(railRef.current.getBoundingClientRect().left);
-    };
-    update();
-    window.addEventListener("resize", update);
-    const ro = new ResizeObserver(update);
-    if (railRef.current) ro.observe(railRef.current);
-    return () => {
-      window.removeEventListener("resize", update);
-      ro.disconnect();
-    };
-  }, []);
-
   return (
     <>
-      <div className="w-full flex gap-5 items-start">
+      <div className="w-full pb-24 lg:pb-0">
 
-        {/* ────────────────────────────────
-            LEFT: 랜딩페이지 섹션들
-        ──────────────────────────────── */}
-        <div className="flex-1 min-w-0 space-y-4">
+        {/* 좌: 상세페이지 블럭 · 우: 문의 레일 (상단 정렬) */}
+        <div className="flex gap-5 items-stretch">
 
-          {/* 브레드크럼 */}
-          <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1">
-            <span>퍼포먼스 마케팅</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span>네이버</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span className="text-brand-text font-medium">네이버 SA광고 최적화</span>
-          </div>
+          {/* LEFT: 단일 블럭(상세페이지) 콘텐츠 */}
+          <div className="flex-1 min-w-0 space-y-4">
 
           {/* ══════════════════════════════
-              HERO
+              상세페이지 블럭 — 전 섹션을 하나의 블럭으로 묶음
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+          <div className="rounded-2xl overflow-hidden border border-brand-border shadow-[0_8px_28px_rgba(17,29,55,0.10)]">
+
+          {/* HERO */}
+          <div style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="px-10 py-12 flex flex-col justify-center">
+              <div className="px-5 py-8 md:px-10 md:py-12 flex flex-col justify-center">
                 <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>NAVER SA / 검색광고 최적화</span>
-                <h1 className="text-[38px] font-extrabold text-white leading-[1.28] mb-4">
+                <h1 className="text-[26px] md:text-[38px] font-extrabold text-white leading-[1.28] mb-4">
                   품질지수는 최적화,<br />
                   <span style={{ color: "#7EA6F5" }}>광고비 절감과 전환 상승.</span>
                 </h1>
@@ -502,7 +480,7 @@ export default function NaverSaPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-end justify-center px-10 pt-10 pb-0">
+              <div className="flex items-end justify-center px-4 pt-6 pb-0 md:px-10 md:pt-10">
                 <NaverSearchMockup />
               </div>
             </div>
@@ -511,11 +489,11 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               FEATURE 1: 파워링크
           ══════════════════════════════ */}
-          <div id="products" className="rounded-2xl overflow-hidden bg-white">
+          <div id="products" className="bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="flex flex-col justify-center px-12 py-14">
                 <span className="inline-flex items-center gap-2 text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-5 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>개선 1. 검색 노출</span>
-                <h2 className="text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[23px] md:text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
                   하위에 묻히던 광고,<br />
                   <span style={{ color: "#2E6BE0" }}>검색 결과 최상단.</span>
                 </h2>
@@ -538,7 +516,7 @@ export default function NaverSaPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-center px-8 py-14 bg-brand-lighter">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14">
                 <div className="flex flex-col items-center gap-6">
                   <PowerlinkMockup />
                   <div className="bg-white rounded-xl border border-brand-border px-5 py-3 text-center shadow-sm">
@@ -553,9 +531,9 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               FEATURE 2: 쇼핑검색광고
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
+          <div style={{ background: "#F2F4F6" }}>
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex items-center justify-center px-8 py-14">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14">
                 <div className="flex flex-col items-center gap-6">
                   <ShoppingMockup />
                   <div className="bg-white rounded-xl border border-brand-border px-5 py-3 text-center shadow-sm">
@@ -566,7 +544,7 @@ export default function NaverSaPage() {
               </div>
               <div className="flex flex-col justify-center px-12 py-14">
                 <span className="inline-flex items-center gap-2 text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-5 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>개선 2. 쇼핑 전환</span>
-                <h2 className="text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[23px] md:text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
                   텍스트뿐이던 노출,<br />
                   <span style={{ color: "#2E6BE0" }}>상품 이미지·가격.</span>
                 </h2>
@@ -595,11 +573,11 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               FEATURE 3: 브랜드검색
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-brand-border">
+          <div className="bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="flex flex-col justify-center px-12 py-14">
                 <span className="inline-flex items-center gap-2 text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-5 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>개선 3. 브랜드 독점</span>
-                <h2 className="text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[23px] md:text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
                   경쟁사와 뒤섞이던 노출,<br />
                   <span style={{ color: "#2E6BE0" }}>브랜드 검색 결과 독점.</span>
                 </h2>
@@ -622,7 +600,7 @@ export default function NaverSaPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-center px-8 py-14 bg-brand-lighter">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14">
                 <div className="flex flex-col items-center gap-6">
                   <BrandMockup />
                   <div className="bg-white rounded-xl border border-brand-border px-5 py-3 text-center shadow-sm">
@@ -637,9 +615,9 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               FEATURE 4: 파워컨텐츠
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden bg-white">
+          <div className="bg-brand-lighter border-t border-brand-border">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex items-center justify-center px-8 py-14 bg-brand-lighter">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14">
                 <div className="flex flex-col items-center gap-6">
                   <ContentMockup />
                   <div className="bg-white rounded-xl border border-brand-border px-5 py-3 text-center shadow-sm">
@@ -650,7 +628,7 @@ export default function NaverSaPage() {
               </div>
               <div className="flex flex-col justify-center px-12 py-14">
                 <span className="inline-flex items-center gap-2 text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-5 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>개선 4. 콘텐츠형 노출</span>
-                <h2 className="text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[23px] md:text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
                   거부감을 주던 광고,<br />
                   <span style={{ color: "#2E6BE0" }}>신뢰를 얻는 정보성 콘텐츠.</span>
                 </h2>
@@ -679,12 +657,12 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               품질지수 향상 섹션 (NEW)
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-brand-border">
-            <div className="px-10 py-12">
+          <div className="bg-white border-t border-brand-border">
+            <div className="px-5 py-8 md:px-10 md:py-12">
               {/* 헤더 */}
               <div className="text-center mb-10">
                 <span className="inline-flex items-center gap-2 text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>개선 5. 품질지수 최적화</span>
-                <h2 className="text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[23px] md:text-[32px] font-extrabold text-brand-dark leading-tight mb-4">
                   같은 예산 그대로,<br />
                   <span style={{ color: "#2E6BE0" }}>더 높은 품질지수와 노출.</span>
                 </h2>
@@ -793,11 +771,11 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               대행 서비스 범위
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
-            <div className="px-10 py-12">
+          <div style={{ background: "#F2F4F6" }}>
+            <div className="px-5 py-8 md:px-10 md:py-12">
               <div className="text-center mb-8">
                 <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-3">서비스 범위</p>
-                <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">대행 서비스 전체 범위</h2>
+                <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark mb-2">대행 서비스 전체 범위</h2>
                 <p className="text-[16px] text-brand-sub">계정 세팅부터 품질지수 개선·성과 리포트까지 모든 과정을 책임집니다.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -830,24 +808,44 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               진행 프로세스
           ══════════════════════════════ */}
-          <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-            <div className="px-10 py-12">
+          <div style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+            <div className="px-5 py-8 md:px-10 md:py-12">
               <div className="text-center mb-8">
                 <p className="text-[12px] font-extrabold text-white/60 uppercase tracking-widest mb-3">진행 프로세스</p>
-                <h2 className="text-[31px] font-extrabold text-white mb-2">광고 대행 5단계</h2>
+                <h2 className="text-[23px] md:text-[31px] font-extrabold text-white mb-2">광고 대행 5단계</h2>
                 <p className="text-[16px] text-white/60">진단부터 품질지수 관리·성과 개선까지 체계적으로 진행합니다.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {/* 데스크톱: 5열 스텝 */}
+              <div className="hidden sm:grid sm:grid-cols-5 gap-4">
                 {PROCESS.map((p, i) => (
                   <div key={p.step} className="flex flex-col items-center text-center relative">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center mb-3 text-[#0D3473] font-extrabold text-[16px]" style={{ background: "white" }}>
                       {p.step}
                     </div>
                     {i < PROCESS.length - 1 && (
-                      <div className="hidden sm:block absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
+                      <div className="absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
                     )}
                     <p className="text-[15px] font-extrabold text-white mb-1.5">{p.title}</p>
                     <p className="text-[12px] text-white/60 leading-relaxed">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
+              {/* 모바일: 세로 타임라인 (컴팩트) */}
+              <div className="sm:hidden space-y-4">
+                {PROCESS.map((p, i) => (
+                  <div key={p.step} className="flex items-start gap-3.5">
+                    <div className="relative flex flex-col items-center shrink-0">
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center text-[#0D3473] font-extrabold text-[15px] z-10" style={{ background: "white" }}>
+                        {p.step}
+                      </div>
+                      {i < PROCESS.length - 1 && (
+                        <div className="absolute top-10 w-px h-[calc(100%-1rem)] bg-white/25" />
+                      )}
+                    </div>
+                    <div className="min-w-0 pt-1.5">
+                      <p className="text-[15px] font-extrabold text-white mb-1">{p.title}</p>
+                      <p className="text-[13px] text-white/60 leading-relaxed">{p.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -857,10 +855,10 @@ export default function NaverSaPage() {
           {/* ══════════════════════════════
               FAQ
           ══════════════════════════════ */}
-          <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
+          <div className="bg-white border-t border-brand-border px-5 py-8 md:px-10 md:py-12">
             <div className="max-w-2xl mx-auto">
               <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
-              <h2 className="text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
+              <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
               <div className="space-y-2">
                 {FAQS.map((faq, i) => (
                   <div key={i} className="border border-brand-border rounded-xl overflow-hidden">
@@ -883,22 +881,17 @@ export default function NaverSaPage() {
               </div>
             </div>
           </div>
+          {/* END 상세페이지 블럭 */}
+          </div>
 
           <div className="h-24" />
 
-        </div>
-        {/* END LEFT ──────────────────── */}
+          </div>
+          {/* END LEFT */}
 
-        {/* ────────────────────────────────
-            RIGHT: Fixed CTA 패널 (콘텐츠 우측 정렬 · 스크롤 고정)
-        ──────────────────────────────── */}
-        <div ref={railRef} className="hidden lg:block w-64 xl:w-72 shrink-0" />
-
-        <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72"
-          style={{ left: railLeft, top: 92, maxHeight: "calc(100vh - 112px)", overflowY: "auto", visibility: railLeft == null ? "hidden" : "visible" }}
-        >
-          <div className="space-y-2.5 pb-3">
+          {/* ── RIGHT: 문의 레일 (sticky · 좌측 블럭과 상단 정렬) ── */}
+          <div className="hidden lg:block w-72 xl:w-80 shrink-0">
+            <div className="sticky top-4 space-y-2.5 pb-3">
 
             {/* 메인 CTA 카드 */}
             <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
@@ -959,10 +952,22 @@ export default function NaverSaPage() {
               ))}
             </div>
 
+            </div>
           </div>
-        </div>
-        {/* END RIGHT ─────────────────── */}
 
+        </div>
+      </div>
+
+      {/* 모바일 하단 고정 CTA */}
+      <div className="lg:hidden fixed inset-x-0 bottom-[60px] md:bottom-0 z-40 bg-white border-t border-brand-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(17,29,55,0.10)]">
+        <button
+          onClick={() => alert("무료 상담 연결 예정")}
+          className="w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white flex items-center justify-center gap-2 active:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+        >
+          무료 계정 진단 신청
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+        </button>
       </div>
     </>
   );

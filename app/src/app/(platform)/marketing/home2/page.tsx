@@ -10,7 +10,7 @@ const YL = "#EAEFF9";       // 라이트 배경
 
 /* ── Rank Line Chart (yellow) ── */
 const RANK_CHART_TABS = ["통합스토어", "가격비교"] as const;
-const RANK_STORES = ["아우라 패딩 | 아우라 패딩", "버터플라이 | 여성 자켓"];
+const RANK_STORES = ["블루에그 패딩 | 블루에그 패딩", "버터플라이 | 여성 자켓"];
 const RANK_DATA = [
   { date: "10-29", rank: 74 }, { date: "10-29", rank: 35 },
   { date: "10-30", rank: 53 }, { date: "10-30", rank: 36 },
@@ -55,9 +55,9 @@ function RankLineChart() {
 
 /* ── Campaign Data ── */
 const CAMPAIGNS = [
-  { id: 1, status: "반려", statusColor: "bg-red-50 text-red-500", channel: "네이버 플레이스", channelColor: "bg-emerald-50 text-emerald-700", product: "아우라 방향제", reviewer: "앤드류", count: "1건", dateFrom: "2025-07-02", dateTo: "2025-07-11", avatarColor: Y },
+  { id: 1, status: "반려", statusColor: "bg-red-50 text-red-500", channel: "네이버 플레이스", channelColor: "bg-emerald-50 text-emerald-700", product: "블루에그 방향제", reviewer: "앤드류", count: "1건", dateFrom: "2025-07-02", dateTo: "2025-07-11", avatarColor: Y },
   { id: 2, status: "진행중", statusColor: "bg-amber-50 text-amber-600", channel: "네이버 쇼핑", channelColor: "bg-blue-50 text-blue-700", product: "버터플라이 자켓", reviewer: "김소현", count: "3건", dateFrom: "2025-07-10", dateTo: "2025-07-20", avatarColor: "#00B493" },
-  { id: 3, status: "완료", statusColor: "bg-gray-100 text-gray-500", channel: "쿠팡", channelColor: "bg-orange-50 text-orange-700", product: "아우라 패딩", reviewer: "이준혁", count: "2건", dateFrom: "2025-06-20", dateTo: "2025-06-30", avatarColor: "#8B5CF6" },
+  { id: 3, status: "완료", statusColor: "bg-gray-100 text-gray-500", channel: "쿠팡", channelColor: "bg-orange-50 text-orange-700", product: "블루에그 패딩", reviewer: "이준혁", count: "2건", dateFrom: "2025-06-20", dateTo: "2025-06-30", avatarColor: "#8B5CF6" },
 ];
 
 const CARD = "bg-white rounded-2xl border border-[#E2E6ED]";

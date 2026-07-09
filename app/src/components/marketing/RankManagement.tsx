@@ -66,10 +66,12 @@ function diffClass(diff: string): string {
 
 // 순위 분포 버킷 (현재 순위 기준)
 const RANK_BUCKETS: { label: string; color: string; test: (r: number | null) => boolean }[] = [
-  { label: "1~5위",     color: "text-blue-600",   test: (r) => r !== null && r >= 1 && r <= 5 },
-  { label: "6~10위",    color: "text-red-500",    test: (r) => r !== null && r >= 6 && r <= 10 },
-  { label: "11~20위",   color: "text-orange-500", test: (r) => r !== null && r >= 11 && r <= 20 },
-  { label: "21~50위",   color: "text-green-600",  test: (r) => r !== null && r >= 21 && r <= 50 },
+  { label: "1~3위",     color: "text-blue-600",   test: (r) => r !== null && r >= 1 && r <= 3 },
+  { label: "1~5위",     color: "text-red-500",    test: (r) => r !== null && r >= 1 && r <= 5 },
+  { label: "1~10위",    color: "text-brand-dark", test: (r) => r !== null && r >= 1 && r <= 10 },
+  { label: "1~20위",    color: "text-orange-500", test: (r) => r !== null && r >= 1 && r <= 20 },
+  { label: "6~20위",    color: "text-green-600",  test: (r) => r !== null && r >= 6 && r <= 20 },
+  { label: "21~50위",   color: "text-blue-600",   test: (r) => r !== null && r >= 21 && r <= 50 },
   { label: "51~100위",  color: "text-brand-dark", test: (r) => r !== null && r >= 51 && r <= 100 },
   { label: "101~200위", color: "text-brand-dark", test: (r) => r !== null && r >= 101 && r <= 200 },
   { label: "201~300위", color: "text-brand-dark", test: (r) => r !== null && r >= 201 && r <= 300 },
@@ -156,16 +158,16 @@ const MOCK_DATA: Record<Platform, RankItem[]> = {
         { keyword: "경량 패딩",  currentRank: 15, prevRank: 19, bestRank: 11, history: [45, 40, 33, 28, 22, 19, 15], monthlyVolume: 12500, registeredAt: "2026-06-20", productUrl: "https://smartstore.naver.com/butterfly/products/9001234568" },
       ],
     },
-    // ── 업체(스토어): 아우라 — 상품 2개 ──
+    // ── 업체(스토어): 블루에그 — 상품 2개 ──
     {
-      id: 3, store: "아우라", productName: "무스탕 코트", targetUrl: "https://smartstore.naver.com/aura/products/8887776665", checkedAt: "15분 전", status: "active",
+      id: 3, store: "블루에그", productName: "무스탕 코트", targetUrl: "https://smartstore.naver.com/aura/products/8887776665", checkedAt: "15분 전", status: "active",
       keywords: [
         { keyword: "무스탕 자켓", currentRank: 22, prevRank: 20, bestRank: 14, history: [40, 38, 30, 28, 22, 20, 22], monthlyVolume: 9600, registeredAt: "2026-06-19", productUrl: "https://smartstore.naver.com/aura/products/8887776665" },
         { keyword: "여성 무스탕", currentRank: 18, prevRank: 19, bestRank: 13, history: [35, 30, 26, 22, 20, 19, 18], monthlyVolume: 7100, registeredAt: "2026-06-19", productUrl: "https://smartstore.naver.com/aura/products/8887776667" },
       ],
     },
     {
-      id: 4, store: "아우라", productName: "램스울 핸드메이드 코트", targetUrl: "https://smartstore.naver.com/aura/products/8887776666", checkedAt: "15분 전", status: "active",
+      id: 4, store: "블루에그", productName: "램스울 핸드메이드 코트", targetUrl: "https://smartstore.naver.com/aura/products/8887776666", checkedAt: "15분 전", status: "active",
       keywords: [
         { keyword: "핸드메이드 코트", currentRank: 27, prevRank: 24, bestRank: 20, history: [48, 44, 40, 35, 30, 24, 27], monthlyVolume: 6400, registeredAt: "2026-06-18", productUrl: "https://smartstore.naver.com/aura/products/8887776666" },
       ],
@@ -303,7 +305,7 @@ function extractIdFromUrl(platform: Platform, input: string): string | null {
    실제로는 네이버 API 조회. 여기서는 알려진 ID는 실제명, 그 외 유효 ID는 샘플에서 연동. */
 const KNOWN_STORES: Record<string, string> = {
   "9001234567": "버터플라이 스토어",
-  "8887776665": "아우라 공식스토어",
+  "8887776665": "블루에그 공식스토어",
   "18709548": "홍길동 칼국수",
 };
 const SAMPLE_SHOPPING_STORES = ["라움 리빙", "데일리무드", "코코네일샵", "그린테이블", "노르딕홈", "무드컴퍼니", "어반셀렉트"];
@@ -314,6 +316,14 @@ function lookupStoreName(platform: Platform, id: string): string | null {
   const list = platform === "naver_place" ? SAMPLE_PLACE_STORES : SAMPLE_SHOPPING_STORES;
   const hash = [...id].reduce((a, c) => a + c.charCodeAt(0), 0);
   return list[hash % list.length];
+}
+
+/* 순위 추이 라벨용 기준일(오늘) — mock 표시용 고정 날짜 */
+const RANK_REF_DATE = new Date(2026, 6, 8); // 2026-07-08
+function fmtDaysAgo(ago: number): string {
+  const d = new Date(RANK_REF_DATE);
+  d.setDate(RANK_REF_DATE.getDate() - ago);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
 /* 기간(7/30/전체)별 순위 시리즈 생성 — base는 최근 7일(오래된→최근) */
@@ -334,12 +344,12 @@ function buildRankSeries(base: (number | null)[], days: number): { rank: number 
   const total = arr.length;
   return arr.map((rank, i) => {
     const ago = total - 1 - i;
-    return { rank, label: ago === 0 ? "오늘" : `${ago}일전` };
+    return { rank, label: fmtDaysAgo(ago) };
   });
 }
 
 /* 순위 추이 — 기간 탭(7일/30일/전체) + 날짜·순위 칩 + 풀와이드 그래프 */
-function PeriodRankChart({ base, color, uid }: { base: (number | null)[]; color: string; uid: string }) {
+export function PeriodRankChart({ base, color, uid }: { base: (number | null)[]; color: string; uid: string }) {
   const [days, setDays] = useState(7);
   const series = buildRankSeries(base, days);
   const n = series.length;
@@ -375,9 +385,9 @@ function PeriodRankChart({ base, color, uid }: { base: (number | null)[]; color:
         </div>
       </div>
       <div className="overflow-x-auto mb-2 scrollbar-none">
-        <div className="flex items-stretch gap-1 w-max">
+        <div className="flex items-stretch w-max">
           {chips.map((d, i) => (
-            <div key={i} className={`flex flex-col items-center justify-center px-2 py-1 rounded-md min-w-[42px] shrink-0 ${i === 0 ? "bg-blue-50 border border-blue-100" : "bg-brand-lighter"}`}>
+            <div key={i} className={`flex flex-col items-center justify-center px-2.5 py-1 min-w-[44px] shrink-0 ${i > 0 ? "border-l border-brand-border" : ""}`}>
               <span className="text-[10px] text-brand-muted leading-none mb-0.5">{d.label}</span>
               <span className={`text-[12px] font-bold leading-none ${i === 0 ? "text-brand-primary" : "text-brand-dark"}`}>{d.rank === null ? "-" : `${d.rank}위`}</span>
             </div>
@@ -427,6 +437,7 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
   const [targetId, setTargetId] = useState("");
   const [registering, setRegistering] = useState(false);
   const [registerDone, setRegisterDone] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // 상품/플레이스 ID → 쇼핑몰(매장)명 자동 연동
   const [storeName, setStoreName] = useState<string | null>(null);
@@ -477,115 +488,121 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
   /* ── History Chart ── */
   return (
-    <div className="w-full space-y-5">
+    <div className="min-h-full bg-white p-6 md:p-10">
 
-      {/* ── 헤더 ── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-[25px] font-extrabold text-brand-dark leading-tight">통합 순위관리</h1>
-          <p className="text-[16px] text-brand-sub mt-1">네이버 플레이스, 네이버 쇼핑 키워드 순위를 한 곳에서 추적하세요.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleCheck}
-            disabled={checking}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-brand-border bg-white text-[15px] font-semibold text-brand-text hover:bg-brand-lighter transition-colors disabled:opacity-60"
-          >
-            <svg className={`w-4 h-4 text-brand-primary ${checking ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            {checking ? "순위 체크 중..." : "전체 순위 새로고침"}
-          </button>
-        </div>
-      </div>
-
-      {/* ── 플랫폼 탭 ── */}
-      <div className="flex gap-2 flex-wrap">
-        {(Object.keys(PLATFORM_META) as Platform[]).map((p) => {
-          const m = PLATFORM_META[p];
-          const isActive = p === activePlatform;
-          return (
-            <button
-              key={p}
-              onClick={() => { setActivePlatform(p); setExpandedId(null); router.push(PLATFORM_ROUTE[p]); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[15px] font-bold transition-all border ${
-                isActive
-                  ? "text-white border-transparent shadow-sm"
-                  : "bg-white text-brand-sub border-brand-border hover:border-brand-primary/40 hover:text-brand-text"
-              }`}
-              style={isActive ? { background: "linear-gradient(135deg,#1B3160,#2E6BE0)", borderColor: "transparent" } : {}}
-            >
-              <span className="text-[17px]">{m.emoji}</span>
-              {m.label}
-              <span className={`text-[12px] font-bold px-1.5 py-0.5 rounded-md ${isActive ? "bg-white/20 text-white" : "bg-brand-lighter text-brand-muted"}`}>
-                {MOCK_DATA[p].length}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── 순위 검색 폼 ── */}
-      {registerDone ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl flex items-center justify-center" style={{ background: meta.grad }}>
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+      {/* ── 헤더 (박스 밖): 타이틀 + 액션 ── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap px-1 md:px-2 pb-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <span className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md" style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}>
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-[22px] font-extrabold text-brand-dark leading-tight">통합 순위관리</h1>
+              <p className="text-[14px] text-brand-sub mt-0.5">네이버 플레이스·쇼핑 키워드 순위를 한 페이지에서 추적하세요.</p>
+            </div>
           </div>
-          <p className="text-[18px] font-bold text-brand-dark">순위 추적 슬롯이 등록되었습니다!</p>
-          <p className="text-[15px] text-brand-sub">잠시 후 아래 목록에 반영됩니다.</p>
-          <button
-            onClick={() => { setRegisterDone(false); setKeywords(["", "", ""]); setTargetId(""); }}
-            className="mt-1 px-5 py-2 rounded-xl text-[15px] font-semibold border border-brand-border text-brand-text hover:bg-brand-lighter transition-colors"
-          >
-            새 슬롯 추가
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCheck}
+              disabled={checking}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-brand-border bg-white text-[14px] font-semibold text-brand-text hover:bg-brand-lighter transition-colors disabled:opacity-60"
+            >
+              <svg className={`w-4 h-4 text-brand-primary ${checking ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {checking ? "체크 중..." : "새로고침"}
+            </button>
+            <button
+              onClick={() => { setShowAddForm(v => !v); setRegisterDone(false); }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(135deg,#1B3160,#2E6BE0)" }}
+            >
+              <svg className={`w-4 h-4 transition-transform ${showAddForm ? "rotate-45" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              순위 추적 추가
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-          <div className="p-6 space-y-6">
 
-            {/* 섹션 헤더 */}
-            <div className="flex items-center gap-2.5">
-              <span className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#EEF3FC" }}>
-                <svg className="w-4 h-4 text-[#2E6BE0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><circle cx="11" cy="11" r="7"/><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35"/></svg>
-              </span>
-              <div>
-                <h3 className="text-[17px] font-extrabold text-brand-dark leading-tight">순위 조회 정보</h3>
-                <p className="text-[13px] text-brand-muted">추적할 {meta.label} ID와 키워드를 입력하세요.</p>
-              </div>
-            </div>
+      {/* ── 박스: 탭 + 순위분포 + 목록 ── */}
+      <div className="flex flex-col rounded-2xl border border-brand-border overflow-hidden bg-white shadow-[0_8px_28px_rgba(17,29,55,0.10)]">
 
-            {/* 안내 배너 */}
-            <div className="rounded-xl bg-[#EFF4FD] border border-[#D7E3FA] p-4 flex gap-3">
-              <span className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#2E6BE0,#1D4ED8)" }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+        {/* ── 플랫폼 탭 + 요약 ── */}
+        <div className="flex items-center justify-between gap-3 flex-wrap px-5 md:px-6 py-3 border-b border-brand-border bg-brand-lighter/40">
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-brand-lighter border border-brand-border">
+            {(Object.keys(PLATFORM_META) as Platform[]).map((p) => {
+              const m = PLATFORM_META[p];
+              const isActive = p === activePlatform;
+              return (
+                <button
+                  key={p}
+                  onClick={() => { setActivePlatform(p); setExpandedId(null); router.push(PLATFORM_ROUTE[p]); }}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[14px] font-bold transition-all ${
+                    isActive ? "bg-white text-brand-dark shadow-sm" : "text-brand-sub hover:text-brand-text"
+                  }`}
+                >
+                  <span className="text-[16px]">{m.emoji}</span>
+                  {m.label}
+                  <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md ${isActive ? "bg-brand-primary/10 text-brand-primary" : "bg-white text-brand-muted"}`}>
+                    {MOCK_DATA[p].length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[13px] text-brand-sub">
+            {isShopping
+              ? `${storeCount}개 업체 · ${items.length}개 상품 · ${allKeywords.length}개 키워드`
+              : `${storeCount}개 업체 · ${allKeywords.length}개 키워드`}
+          </p>
+        </div>
+
+      {/* ── 순위 추적 추가 (접이식 패널) ── */}
+      {showAddForm && (
+        <div className="border-b border-brand-border bg-brand-lighter/40">
+          {registerDone ? (
+            <div className="px-5 md:px-6 py-8 flex flex-col items-center gap-3">
+              <div className="h-12 w-12 rounded-2xl flex items-center justify-center" style={{ background: meta.grad }}>
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-              </span>
-              <div className="min-w-0 space-y-2">
-                <p className="text-[15px] text-brand-dark font-medium leading-snug">
-                  {meta.label} 순위 <span className="font-extrabold text-[#2E6BE0]">300위</span>까지 조회 가능합니다.
-                </p>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[12px] text-brand-muted mr-0.5">예시</span>
-                  {[
-                    { k: "키워드", v: meta.exampleUrl.includes("place") ? "홍대 술집" : "인기 상품" },
-                    { k: "키워드1", v: meta.exampleUrl.includes("place") ? "왕십리 미용실" : "베스트 아이템" },
-                    { k: `${activePlatform === "naver_place" ? "플레이스" : "상품"} ID`, v: meta.exampleId },
-                  ].map((ex) => (
-                    <span key={ex.k} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-[#D7E3FA] text-[12px]">
-                      <span className="text-brand-muted">{ex.k}</span>
-                      <span className="font-semibold text-brand-dark">{ex.v}</span>
-                    </span>
-                  ))}
-                </div>
+              </div>
+              <p className="text-[18px] font-bold text-brand-dark">순위 추적 슬롯이 등록되었습니다!</p>
+              <p className="text-[15px] text-brand-sub">잠시 후 아래 목록에 반영됩니다.</p>
+              <div className="flex items-center gap-2 mt-1">
+                <button
+                  onClick={() => { setRegisterDone(false); setKeywords(["", "", ""]); setTargetId(""); }}
+                  className="px-5 py-2 rounded-xl text-[15px] font-semibold border border-brand-border bg-white text-brand-text hover:bg-brand-lighter transition-colors"
+                >
+                  새 슬롯 추가
+                </button>
+                <button
+                  onClick={() => { setShowAddForm(false); setRegisterDone(false); }}
+                  className="px-5 py-2 rounded-xl text-[15px] font-semibold text-brand-sub hover:bg-white transition-colors"
+                >
+                  닫기
+                </button>
               </div>
             </div>
+          ) : (
+            <div className="px-5 md:px-6 py-5 space-y-4">
 
-            {/* ID + 키워드 그리드 */}
-            <div className="grid grid-cols-2 gap-x-5 gap-y-5">
+              {/* 안내 라인 */}
+              <div className="flex items-center gap-x-3 gap-y-1.5 flex-wrap text-[13px]">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-brand-dark">
+                  <svg className="w-4 h-4 text-[#2E6BE0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><circle cx="11" cy="11" r="7"/><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35"/></svg>
+                  {meta.label} 순위 <span className="text-[#2E6BE0] font-extrabold">300위</span>까지 조회 가능
+                </span>
+                <span className="text-brand-border">|</span>
+                <span className="text-brand-muted">예시 ID</span>
+                <span className="font-semibold text-brand-dark px-2 py-0.5 rounded-md bg-white border border-brand-border">{meta.exampleId}</span>
+              </div>
+
+              {/* ID + 키워드 그리드 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
               {/* ID / URL — 첫 번째 */}
               <div>
                 <label className="block text-[15px] font-bold text-brand-dark mb-2">
@@ -675,10 +692,8 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
               )}
 
             </div>
-          </div>
 
-          {/* 순위 검색 버튼 */}
-          <div className="px-6 pb-6">
+            {/* 순위 검색 버튼 */}
             <button
               disabled={registering || !keywords[0].trim() || !targetId.trim()}
               onClick={async () => {
@@ -687,7 +702,7 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
                 setRegistering(false);
                 setRegisterDone(true);
               }}
-              className="w-full py-4 rounded-xl text-[17px] font-bold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="w-full py-3.5 rounded-xl text-[16px] font-bold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-40"
               style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}
             >
               {registering ? (
@@ -699,39 +714,42 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
                 </>
               ) : "순위 검색"}
             </button>
-          </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── 순위 분포 ── */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {RANK_BUCKETS.map((b) => {
-          const count = allKeywords.filter((k) => b.test(k.currentRank)).length;
-          return (
-            <div key={b.label} className="shrink-0 min-w-[82px] flex-1 rounded-xl border border-brand-border bg-white px-3 py-2.5 text-center">
-              <p className="text-[12px] text-brand-muted mb-1 whitespace-nowrap">{b.label}</p>
-              <p className={`text-[18px] font-extrabold leading-none ${count > 0 ? b.color : "text-brand-muted"}`}>{count}개</p>
-            </div>
-          );
-        })}
+      {/* ── 순위 분포 (블럭 그리드) ── */}
+      <div className="border-b border-brand-border bg-white p-3 md:px-6 md:py-4">
+        <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+          {RANK_BUCKETS.map((b) => {
+            const count = allKeywords.filter((k) => b.test(k.currentRank)).length;
+            return (
+              <div
+                key={b.label}
+                className="rounded-xl border border-brand-border bg-white px-1 py-2.5 text-center shadow-[0_1px_2px_rgba(17,29,55,0.04)]"
+              >
+                <p className="text-[10px] md:text-[11px] text-brand-muted mb-1 whitespace-nowrap">{b.label}</p>
+                <p className={`text-[16px] md:text-[18px] font-extrabold leading-none ${count > 0 ? b.color : "text-brand-muted"}`}>
+                  {count}<span className="text-[11px] font-semibold text-brand-muted ml-0.5">개</span>
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ── 상품별 순위 목록 (아코디언) ── */}
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-brand-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[20px]">{meta.emoji}</span>
-            <p className="text-[16px] font-bold text-brand-dark">{meta.label} 순위 목록</p>
-          </div>
-          <span className="text-[13px] text-brand-sub">
-            {isShopping
-              ? `${storeCount}개 업체 · ${items.length}개 상품 · ${allKeywords.length}개 키워드`
-              : `${storeCount}개 업체 · ${allKeywords.length}개 키워드`} · 클릭하면 키워드별 상세가 열립니다
-          </span>
+      {/* ── 순위 목록 타이틀 밴드 ── */}
+      <div className="flex items-center justify-between gap-3 px-5 md:px-6 py-3 border-b border-brand-border">
+        <div className="flex items-center gap-2">
+          <span className="text-[18px]">{meta.emoji}</span>
+          <p className="text-[15px] font-bold text-brand-dark">{meta.label} 순위 목록</p>
         </div>
+        <span className="text-[12px] text-brand-muted hidden sm:block">행을 클릭하면 키워드별 상세가 열립니다</span>
+      </div>
 
         {/* 컬럼 헤더 */}
-        <div className="flex items-center gap-3 px-5 py-2.5 bg-brand-lighter/60 border-b border-brand-border text-[12px] font-bold text-brand-muted">
+        <div className="flex items-center gap-3 px-5 md:px-6 py-2.5 bg-brand-lighter/60 border-b border-brand-border text-[12px] font-bold text-brand-muted">
           <span className="w-4 shrink-0" />
           <span className="w-40 sm:w-44 shrink-0">{isShopping ? "상품명" : "업체명"}</span>
           <span className="hidden sm:block w-28 shrink-0">메인 키워드</span>
@@ -744,7 +762,7 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
           {groups.map((group) => (
             <div key={group.store ?? "__all"} className="border-b border-brand-border last:border-b-0">
               {isShopping && group.store && (
-                <div className="flex items-center gap-2.5 px-5 py-2.5 bg-brand-lighter/70 border-b border-brand-border">
+                <div className="flex items-center gap-2.5 px-5 md:px-6 py-2.5 bg-brand-lighter/70 border-b border-brand-border">
                   <span className="h-6 w-6 rounded-md flex items-center justify-center shrink-0" style={{ background: meta.grad }}>
                     <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72" />
@@ -764,7 +782,7 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
                 {/* 요약 행 — 업체 대표 키워드 기준 */}
                 <button
                   onClick={() => setExpandedId(isOpen ? null : item.id)}
-                  className={`w-full text-left px-5 py-3.5 transition-colors hover:bg-brand-lighter flex items-center gap-3 ${isOpen ? "bg-blue-50/40" : ""}`}
+                  className={`w-full text-left px-5 md:px-6 py-3.5 transition-colors hover:bg-brand-lighter flex items-center gap-3 ${isOpen ? "bg-blue-50/40" : ""}`}
                 >
                   {/* 펼침 화살표 */}
                   <svg
@@ -776,24 +794,13 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
                   {/* 1. 업체명 (썸네일 + 대표 순위 뱃지 + 이름) */}
                   <div className="w-40 sm:w-44 shrink-0 flex items-center gap-2.5 min-w-0">
-                    <div className="relative shrink-0">
-                      <div className="h-9 w-9 rounded-lg overflow-hidden bg-brand-lighter border border-brand-border flex items-center justify-center">
-                        {item.thumbnail ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={item.thumbnail} alt={item.productName} className="h-full w-full object-cover" />
-                        ) : (
-                          <svg className="w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <span
-                        className="absolute -bottom-1 -right-1 h-4 min-w-[16px] px-1 rounded-md flex items-center justify-center text-white font-extrabold text-[10px] border border-white"
-                        style={{ background: main.currentRank !== null && main.currentRank <= 10 ? meta.grad : "linear-gradient(135deg,#9CA3AF,#6B7280)" }}
-                      >
-                        {main.currentRank ?? "-"}
-                      </span>
-                    </div>
+                    {/* 요약 행: 썸네일 없이 순위 뱃지만 */}
+                    <span
+                      className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 text-white font-extrabold text-[12px]"
+                      style={{ background: main.currentRank !== null && main.currentRank <= 10 ? meta.grad : "linear-gradient(135deg,#9CA3AF,#6B7280)" }}
+                    >
+                      {main.currentRank ?? "-"}
+                    </span>
                     <p className="text-[15px] font-bold text-brand-dark truncate">{item.productName}</p>
                   </div>
 
@@ -807,14 +814,14 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
                   {/* 3. 순위 테이블 (가장 최근 날짜가 왼쪽) — 대표 키워드 */}
                   <div className="flex-1 min-w-0 overflow-x-auto">
-                    <div className="flex items-stretch gap-1 w-max">
+                    <div className="flex items-stretch w-max">
                       {main.history
                         .map((rank, i) => ({ date: HISTORY_DATES[i] ?? "", rank }))
                         .reverse()
                         .map((d, i) => (
                           <div
                             key={i}
-                            className={`flex flex-col items-center justify-center px-2 py-1 rounded-md min-w-[44px] ${i === 0 ? "bg-blue-50 border border-blue-100" : "bg-brand-lighter"}`}
+                            className={`flex flex-col items-center justify-center px-2.5 py-1 min-w-[46px] ${i > 0 ? "border-l border-brand-border" : ""}`}
                           >
                             <span className="text-[10px] text-brand-muted leading-none mb-0.5">{d.date}</span>
                             <span className={`text-[13px] font-bold leading-none ${i === 0 ? "text-brand-primary" : "text-brand-dark"}`}>
@@ -836,23 +843,43 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
                 {/* 아코디언 상세 — 업체 정보 + 키워드별 카드 */}
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-4 bg-brand-lighter/30 border-t border-brand-border space-y-4">
-                    {/* 플레이스 URL/ID (쇼핑은 상품마다 URL이 달라 아래 각 카드에서 표시) */}
-                    {!isShopping && (
-                      <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-brand-border">
-                        <svg className="w-3.5 h-3.5 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        {item.targetUrl.startsWith("http") ? (
-                          <a href={item.targetUrl} target="_blank" rel="noopener noreferrer" className="text-[13px] text-brand-primary truncate hover:underline">
-                            {item.targetUrl}
-                          </a>
+                  <div className="px-5 md:px-6 pb-5 pt-4 bg-brand-lighter/30 border-t border-brand-border space-y-4">
+                    {/* 상세 상단: 큰 썸네일(왼쪽) + 업체명·ID(오른쪽) */}
+                    <div className="flex items-start gap-4">
+                      {/* 큰 썸네일 */}
+                      <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-white border border-brand-border flex items-center justify-center shrink-0">
+                        {item.thumbnail ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.thumbnail} alt={item.productName} className="h-full w-full object-cover" />
                         ) : (
-                          <span className="text-[13px] text-brand-sub font-mono truncate">ID: {item.targetUrl}</span>
+                          <svg className="w-8 h-8 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.4}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                          </svg>
                         )}
-                        <span className="ml-auto shrink-0 text-[12px] font-semibold text-brand-muted">키워드 {item.keywords.length}개</span>
                       </div>
-                    )}
+                      {/* 업체명 + ID */}
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        {isShopping && item.store && (
+                          <p className="text-[12px] font-semibold text-brand-muted truncate mb-0.5">{item.store}</p>
+                        )}
+                        <p className="text-[17px] font-bold text-brand-dark truncate">{item.productName}</p>
+                        {!isShopping && (
+                          <div className="mt-2 flex items-center gap-1.5">
+                            <svg className="w-3.5 h-3.5 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            {item.targetUrl.startsWith("http") ? (
+                              <a href={item.targetUrl} target="_blank" rel="noopener noreferrer" className="text-[13px] text-brand-primary truncate hover:underline">
+                                {item.targetUrl}
+                              </a>
+                            ) : (
+                              <span className="text-[13px] text-brand-sub font-mono truncate">ID: {item.targetUrl}</span>
+                            )}
+                          </div>
+                        )}
+                        <p className="mt-1 text-[12px] font-semibold text-brand-muted">키워드 {item.keywords.length}개</p>
+                      </div>
+                    </div>
 
                     {/* 키워드별 상세 카드 */}
                     {item.keywords.map((k, ki) => {
@@ -890,41 +917,48 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
                           {/* 지표 — 부가 지표 있으면 좌/우 분할, 없으면(쇼핑) 한 줄 5열 */}
                           <div className={k.metrics && k.metrics.length > 0 ? "grid grid-cols-1 lg:grid-cols-2 gap-3 items-start" : ""}>
-                            {/* 기본: 월검색량·등록일·최초·오늘·변동 */}
-                            <div className={`grid gap-2 ${k.metrics && k.metrics.length > 0 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"}`}>
-                              {[
+                            {/* 기본 지표 — 박스 대신 선 구분 표 (헤더행 + 값행) */}
+                            {(() => {
+                              const basic = [
                                 { label: "월 검색량", value: k.monthlyVolume.toLocaleString() },
                                 { label: "등록일", value: k.registeredAt },
                                 { label: "최초 순위", value: firstRank !== null ? `${firstRank}위` : "-" },
                                 { label: "오늘 순위", value: k.currentRank !== null ? `${k.currentRank}위` : "-" },
                                 { label: "순위 변동", value: kDiff === null ? "-" : kDiff > 0 ? `▲ ${kDiff}` : kDiff < 0 ? `▼ ${Math.abs(kDiff)}` : "-" },
-                              ].map(({ label, value }, i) => (
-                                <div key={i} className="bg-brand-lighter rounded-lg px-3 py-1.5 text-center">
-                                  <p className="text-[11px] text-brand-sub mb-0.5">{label}</p>
-                                  <p className="text-[14px] font-extrabold text-brand-dark leading-none">{value}</p>
+                              ];
+                              return (
+                                <div className="grid rounded-lg border border-brand-border overflow-hidden" style={{ gridTemplateColumns: `repeat(${basic.length}, minmax(0, 1fr))` }}>
+                                  {basic.map((m, i) => (
+                                    <div key={`h-${i}`} className={`px-1 md:px-2 py-1.5 text-center text-[10px] md:text-[12px] font-bold text-brand-muted bg-brand-lighter border-b border-brand-border ${i > 0 ? "border-l border-brand-border" : ""}`}>
+                                      {m.label}
+                                    </div>
+                                  ))}
+                                  {basic.map((m, i) => (
+                                    <div key={`v-${i}`} className={`px-1 md:px-2 py-2 text-center ${i > 0 ? "border-l border-brand-border" : ""}`}>
+                                      <p className="text-[12px] md:text-[14px] font-bold text-brand-dark leading-none break-all">{m.value}</p>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
+                              );
+                            })()}
 
                             {/* 오른쪽: 부가 지표 (방문자리뷰/블로그리뷰/N1~N3) */}
                             {k.metrics && k.metrics.length > 0 && (
-                              <div className="overflow-x-auto">
-                                <div
-                                  className="grid rounded-lg border border-brand-border overflow-hidden min-w-max"
-                                  style={{ gridTemplateColumns: `repeat(${k.metrics.length}, minmax(64px, 1fr))` }}
-                                >
-                                  {k.metrics.map((mt, i) => (
-                                    <div key={`h-${i}`} className={`px-2 py-1.5 text-center text-[12px] font-bold text-brand-muted bg-brand-lighter border-b border-brand-border ${i > 0 ? "border-l border-brand-border" : ""}`}>
-                                      {mt.label}
-                                    </div>
-                                  ))}
-                                  {k.metrics.map((mt, i) => (
-                                    <div key={`v-${i}`} className={`px-2 py-2 text-center ${i > 0 ? "border-l border-brand-border" : ""}`}>
-                                      <p className="text-[14px] font-bold text-brand-dark leading-none">{mt.value}</p>
-                                      <p className={`text-[12px] font-semibold leading-none mt-1 ${diffClass(mt.diff)}`}>{mt.diff}</p>
-                                    </div>
-                                  ))}
-                                </div>
+                              <div
+                                className="grid rounded-lg border border-brand-border overflow-hidden"
+                                style={{ gridTemplateColumns: `repeat(${k.metrics.length}, minmax(0, 1fr))` }}
+                              >
+                                {k.metrics.map((mt, i) => (
+                                  <div key={`h-${i}`} className={`px-1 md:px-2 py-1.5 text-center text-[10px] md:text-[12px] font-bold text-brand-muted bg-brand-lighter border-b border-brand-border ${i > 0 ? "border-l border-brand-border" : ""}`}>
+                                    {mt.label}
+                                  </div>
+                                ))}
+                                {k.metrics.map((mt, i) => (
+                                  <div key={`v-${i}`} className={`px-1 md:px-2 py-2 text-center ${i > 0 ? "border-l border-brand-border" : ""}`}>
+                                    <p className="text-[11px] md:text-[14px] font-bold text-brand-dark leading-none break-all">{mt.value}</p>
+                                    <p className={`text-[9px] md:text-[12px] font-semibold leading-tight mt-1 ${diffClass(mt.diff)} break-all`}>{mt.diff}</p>
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </div>

@@ -456,26 +456,17 @@ export default function NaverCafePage() {
 
   return (
     <>
-      <div className="w-full flex gap-5 items-start">
+      <div className="w-full flex gap-5 items-start pb-24 lg:pb-0">
 
         {/* ── LEFT: 랜딩페이지 ── */}
         <div className="flex-1 min-w-0 space-y-4">
 
-          {/* 브레드크럼 */}
-          <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1">
-            <span>바이럴</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span>커뮤니티</span>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <span className="text-brand-text font-medium">네이버 카페 침투</span>
-          </div>
-
           {/* ══ HERO ══ */}
           <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="px-10 py-14 flex flex-col justify-center">
+              <div className="px-5 py-9 md:px-10 md:py-14 flex flex-col justify-center">
                 <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>바이럴 / 커뮤니티 / 네이버 카페 침투</span>
-                <h1 className="text-[38px] font-extrabold text-white leading-[1.28] mb-4">
+                <h1 className="text-[26px] md:text-[38px] font-extrabold text-white leading-[1.28] mb-4">
                   광고 같지 않은 진짜 입소문,<br />
                   <span style={{ color: "#7EA6F5" }}>네이버 카페에서.</span>
                 </h1>
@@ -506,12 +497,12 @@ export default function NaverCafePage() {
           {/* ══ FEATURE 1: 핫딜 정보형 (white) ══ */}
           <div id="types" className="rounded-2xl overflow-hidden bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex flex-col justify-center px-12 py-14">
+              <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
                 <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-widest mb-4" style={{ color: "#2E6BE0" }}>
                   <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-extrabold shrink-0" style={{ background: "#2E6BE0" }}>1</span>
                   핫딜 정보형
                 </span>
-                <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+                <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                   가격 정보로<br />
                   <span style={{ color: "#2E6BE0" }}>구매 욕구를 자극하세요</span>
                 </h2>
@@ -527,7 +518,7 @@ export default function NaverCafePage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-center px-8 py-14 bg-brand-lighter">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14 bg-brand-lighter">
                 <HotDealCard />
               </div>
             </div>
@@ -536,15 +527,15 @@ export default function NaverCafePage() {
           {/* ══ FEATURE 2: 리뷰형 (gray) ══ */}
           <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex items-center justify-center px-8 py-14">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14">
                 <ReviewCard />
               </div>
-              <div className="flex flex-col justify-center px-12 py-14">
+              <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
                 <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-widest mb-4 text-[#2E6BE0]">
                   <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 bg-[#2E6BE0]">2</span>
                   리뷰형
                 </span>
-                <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+                <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                   실사용자 후기처럼<br />
                   <span className="text-[#2E6BE0]">신뢰를 쌓으세요</span>
                 </h2>
@@ -566,12 +557,12 @@ export default function NaverCafePage() {
           {/* ══ FEATURE 3: 자유·질답형 (dark) ══ */}
           <div className="rounded-2xl overflow-hidden bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex flex-col justify-center px-12 py-14">
+              <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
                 <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-widest mb-4 text-[#2E6BE0]">
                   <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-extrabold shrink-0" style={{ background: "#2E6BE0" }}>3</span>
                   자유·질답형
                 </span>
-                <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+                <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                   자연스러운 대화 속<br />
                   <span className="text-[#2E6BE0]">브랜드를 심으세요</span>
                 </h2>
@@ -587,7 +578,7 @@ export default function NaverCafePage() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-center px-8 py-14 relative z-10">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14 relative z-10">
                 <QACard />
               </div>
             </div>
@@ -596,15 +587,15 @@ export default function NaverCafePage() {
           {/* ══ FEATURE 4: 콘텐츠 기획형 (white) ══ */}
           <div className="rounded-2xl overflow-hidden bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex items-center justify-center px-8 py-14" style={{ background: "#EFF4FD" }}>
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14" style={{ background: "#EFF4FD" }}>
                 <ContentCard />
               </div>
-              <div className="flex flex-col justify-center px-12 py-14">
+              <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
                 <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-widest mb-4 text-[#2E6BE0]">
                   <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 bg-[#2E6BE0]">4</span>
                   콘텐츠 기획형
                 </span>
-                <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+                <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                   정보로 신뢰를 쌓고<br />
                   <span className="text-[#2E6BE0]">브랜드를 각인시키세요</span>
                 </h2>
@@ -626,12 +617,12 @@ export default function NaverCafePage() {
           {/* ══ FEATURE 5: 노출형 (amber/dark) ══ */}
           <div className="rounded-2xl overflow-hidden bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="flex flex-col justify-center px-12 py-14">
+              <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
                 <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-widest mb-4 text-[#2E6BE0]">
                   <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 bg-[#2E6BE0]">5</span>
                   노출형
                 </span>
-                <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-4">
+                <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-4">
                   브랜드명 검색 시<br />
                   <span className="text-[#2E6BE0]">긍정 게시글이 보이게</span>
                 </h2>
@@ -668,7 +659,7 @@ export default function NaverCafePage() {
                 <p className="text-[12px] text-brand-muted mt-3">* 키워드에 따라 단가가 상이하니 자세한 내용은 담당자에게 문의해주세요.</p>
               </div>
 
-              <div className="flex items-center justify-center px-8 py-14 bg-brand-lighter">
+              <div className="order-last lg:order-none flex items-center justify-center px-5 py-9 md:px-8 md:py-14 bg-brand-lighter">
                 <ExposureMockup />
               </div>
             </div>
@@ -676,10 +667,10 @@ export default function NaverCafePage() {
 
           {/* ══ 차별화 강점 (gray, 4 cards) ══ */}
           <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
-            <div className="px-10 py-12">
+            <div className="px-5 py-8 md:px-10 md:py-12">
               <div className="text-center mb-8">
                 <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-3">왜 저희를 선택하나요?</p>
-                <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">업계 최고의 카페 마케팅</h2>
+                <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark mb-2">업계 최고의 카페 마케팅</h2>
                 <p className="text-[16px] text-brand-sub">직접 기획하고, 직접 관리하고, 직접 실행합니다.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -702,23 +693,43 @@ export default function NaverCafePage() {
 
           {/* ══ 진행 프로세스 (green gradient) ══ */}
           <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-            <div className="px-10 py-12">
+            <div className="px-5 py-8 md:px-10 md:py-12">
               <div className="text-center mb-8">
                 <p className="text-[12px] font-extrabold text-white/60 uppercase tracking-widest mb-3">진행 프로세스</p>
-                <h2 className="text-[31px] font-extrabold text-white mb-2">카페 침투 마케팅 5단계</h2>
+                <h2 className="text-[23px] md:text-[31px] font-extrabold text-white mb-2">카페 침투 마케팅 5단계</h2>
                 <p className="text-[16px] text-white/60">브리핑부터 성과 리포트까지 체계적으로 진행합니다.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {/* 데스크톱: 5열 스텝 */}
+              <div className="hidden sm:grid sm:grid-cols-5 gap-4">
                 {PROCESS.map((p, i) => (
                   <div key={p.step} className="flex flex-col items-center text-center relative">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center mb-3 font-extrabold text-[16px] bg-white text-[#0D3473]">
                       {p.step}
                     </div>
                     {i < PROCESS.length - 1 && (
-                      <div className="hidden sm:block absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
+                      <div className="absolute top-6 left-[calc(50%+24px)] right-0 h-px bg-white/25" />
                     )}
                     <p className="text-[15px] font-extrabold text-white mb-1.5">{p.title}</p>
                     <p className="text-[12px] text-white/60 leading-relaxed">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
+              {/* 모바일: 세로 타임라인 (컴팩트) */}
+              <div className="sm:hidden space-y-4">
+                {PROCESS.map((p, i) => (
+                  <div key={p.step} className="flex items-start gap-3.5">
+                    <div className="relative flex flex-col items-center shrink-0">
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center font-extrabold text-[15px] bg-white text-[#0D3473] z-10">
+                        {p.step}
+                      </div>
+                      {i < PROCESS.length - 1 && (
+                        <div className="absolute top-10 w-px h-[calc(100%-1rem)] bg-white/25" />
+                      )}
+                    </div>
+                    <div className="min-w-0 pt-1.5">
+                      <p className="text-[15px] font-extrabold text-white mb-1">{p.title}</p>
+                      <p className="text-[13px] text-white/60 leading-relaxed">{p.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -726,10 +737,10 @@ export default function NaverCafePage() {
           </div>
 
           {/* ══ FAQ (white) ══ */}
-          <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
+          <div className="bg-white rounded-2xl border border-brand-border px-5 py-8 md:px-10 md:py-12">
             <div className="max-w-2xl mx-auto">
               <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
-              <h2 className="text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
+              <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
               <div className="space-y-2">
                 {FAQS.map((faq, i) => (
                   <div key={i} className="border border-brand-border rounded-xl overflow-hidden">
@@ -831,6 +842,18 @@ export default function NaverCafePage() {
         </div>
         {/* END RIGHT */}
 
+      </div>
+
+      {/* 모바일 하단 고정 CTA */}
+      <div className="lg:hidden fixed inset-x-0 bottom-[60px] md:bottom-0 z-40 bg-white border-t border-brand-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(17,29,55,0.10)]">
+        <button
+          onClick={() => alert("무료 상담 연결 예정")}
+          className="w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white flex items-center justify-center gap-2 active:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+        >
+          무료 상담 신청
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+        </button>
       </div>
     </>
   );

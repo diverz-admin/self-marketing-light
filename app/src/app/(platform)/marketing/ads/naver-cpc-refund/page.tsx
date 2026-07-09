@@ -104,44 +104,26 @@ export default function NaverRefundPage() {
 
   return (
     <>
-      {/* 고정 문의 배너 */}
-      <div
-        className="animate-banner-float fixed bottom-6 right-6 xl:right-8 z-50 flex items-center gap-4 px-5 py-4 rounded-2xl shadow-2xl"
-        style={{ background: "linear-gradient(135deg,#EFF4FD,#DCE7FB)", border: "1px solid #C9D8F5", minWidth: "340px" }}
-      >
-        <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-extrabold text-brand-dark leading-tight mb-0.5">환급 가능 여부 무료로 확인하세요</p>
-          <p className="text-[12px] text-brand-sub leading-snug">계정 연동 없이 광고비만 알려주시면 바로 안내해드립니다.</p>
-        </div>
-        <button
-          onClick={() => alert("문의하기 연결 예정")}
-          className="shrink-0 px-4 py-2.5 rounded-xl text-[15px] font-extrabold text-white hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-          style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}
-        >
-          무료 문의
-        </button>
-      </div>
+      <div className="w-full pb-24 lg:pb-0">
 
-      <div className="w-full space-y-4">
+        {/* 좌: 상세페이지 블럭 · 우: 문의 레일 (상단 정렬) */}
+        <div className="flex gap-5 items-stretch">
 
-        {/* 브레드크럼 */}
-        <div className="flex items-center gap-2 text-[13px] text-brand-muted px-1">
-          <span>퍼포먼스 마케팅</span>
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-          <span>네이버</span>
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
-          <span className="text-brand-text font-medium">네이버 SA 최적화/환급</span>
-        </div>
+          {/* LEFT: 상세페이지 블럭 */}
+          <div className="flex-1 min-w-0 space-y-4">
+
+          {/* ══ 상세페이지 블럭 — 전 섹션을 하나의 블럭으로 묶음 ══ */}
+          <div className="rounded-2xl overflow-hidden border border-brand-border shadow-[0_8px_28px_rgba(17,29,55,0.10)]">
 
         {/* ══════════════════════════════
             HERO
         ══════════════════════════════ */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+        <div style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* 왼쪽: 텍스트 */}
-            <div className="px-10 py-14 flex flex-col justify-center">
+            <div className="px-5 py-9 md:px-10 md:py-14 flex flex-col justify-center">
               <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>NAVER SA / 광고비 환급</span>
-              <h1 className="text-[38px] font-extrabold text-white leading-[1.28] mb-4">
+              <h1 className="text-[26px] md:text-[38px] font-extrabold text-white leading-[1.28] mb-4">
                 집행한 광고비 그대로,<br />
                 <span style={{ color: "#7EA6F5" }}>최대 10% 현금 환급.</span>
               </h1>
@@ -164,7 +146,7 @@ export default function NaverRefundPage() {
               </div>
             </div>
             {/* 오른쪽: 환급 구간 카드 */}
-            <div className="flex items-center justify-center px-8 py-12">
+            <div className="flex items-start justify-center px-8 py-12">
               <div className="w-full rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
                 <p className="text-[12px] text-white/45 font-bold uppercase tracking-widest mb-5">환급 구간별 혜택</p>
                 <div className="space-y-2.5">
@@ -193,11 +175,11 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             FEATURE 1: 환급 신청
         ══════════════════════════════ */}
-        <div className="rounded-2xl overflow-hidden bg-white">
+        <div className="bg-white border-t border-brand-border">
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-12 py-14">
+            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
               <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>환급 신청 대행</span>
-              <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+              <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                 환급 신청은 복잡하지만<br />
                 <span style={{ color: "#2E6BE0" }}>BlueEgg는 쉽습니다</span>
               </h2>
@@ -213,7 +195,7 @@ export default function NaverRefundPage() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
               </button>
             </div>
-            <div className="flex items-center justify-center px-8 py-10 bg-brand-lighter">
+            <div className="order-last lg:order-none flex items-center justify-center px-5 py-8 md:px-8 md:py-10">
               <div className="w-full max-w-sm">
                 <div className="bg-white rounded-2xl border border-brand-border p-5 shadow-sm">
                   <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-4">진행 프로세스</p>
@@ -240,9 +222,9 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             FEATURE 2: 환급 계산기 (dark)
         ══════════════════════════════ */}
-        <div id="calculator" className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
+        <div id="calculator" className="border-t border-brand-border" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-12 py-14">
+            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
               <span className="text-[12px] font-extrabold text-[#7EA6F5] uppercase tracking-widest mb-4">환급 계산</span>
               <h2 className="text-[34px] font-extrabold text-white leading-tight mb-5">
                 환급금이 얼마인지<br />
@@ -279,7 +261,7 @@ export default function NaverRefundPage() {
                 </table>
               </div>
             </div>
-            <div className="flex items-center justify-center px-8 py-12">
+            <div className="order-last lg:order-none flex items-center justify-center px-5 py-8 md:px-8 md:py-12">
               <div className="w-full max-w-sm">
                 <RefundCalculator />
               </div>
@@ -290,7 +272,7 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             FEATURE 3: 계정 최적화 (gray)
         ══════════════════════════════ */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
+        <div className="border-t border-brand-border" style={{ background: "#F2F4F6" }}>
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="flex items-center justify-center p-10">
               <div className="grid grid-cols-2 gap-3 w-full">
@@ -309,9 +291,9 @@ export default function NaverRefundPage() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col justify-center px-12 py-14">
+            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
               <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>계정 최적화</span>
-              <h2 className="text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
+              <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
                 계정 최적화는 어렵지만<br />
                 <span className="text-brand-primary">BlueEgg는 자동입니다</span>
               </h2>
@@ -336,10 +318,10 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             FAQ
         ══════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-brand-border px-10 py-12">
+        <div className="bg-white border-t border-brand-border px-5 py-8 md:px-10 md:py-12">
           <div className="max-w-2xl mx-auto">
             <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
-            <h2 className="text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
+            <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
             <div className="space-y-2">
               {FAQS.map((faq, i) => (
                 <div key={i} className="border border-brand-border rounded-xl overflow-hidden">
@@ -366,10 +348,10 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             광고주 ID 등록 폼
         ══════════════════════════════ */}
-        <div id="form" className="rounded-2xl overflow-hidden" style={{ background: "#F2F4F6" }}>
+        <div id="form" className="border-t border-brand-border" style={{ background: "#F2F4F6" }}>
           <div className="px-10 py-10 text-center border-b border-brand-border" style={{ background: "white" }}>
             <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-3 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>광고주 ID 등록</span>
-            <h2 className="text-[31px] font-extrabold text-brand-dark mb-2">지금 바로 신청하세요</h2>
+            <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark mb-2">지금 바로 신청하세요</h2>
             <p className="text-[16px] text-brand-sub">정보 입력 후 영업일 1~3일 내 담당자가 연락드립니다.</p>
           </div>
           <div className="p-8 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
@@ -566,7 +548,7 @@ export default function NaverRefundPage() {
         {/* ══════════════════════════════
             BOTTOM CTA
         ══════════════════════════════ */}
-        <div className="rounded-2xl overflow-hidden relative py-16 px-10 text-center" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
+        <div className="border-t border-brand-border relative py-16 px-10 text-center" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 50%, rgba(46,107,224,0.12), transparent 70%)" }} />
           <div className="relative z-10">
             <p className="text-[12px] font-extrabold text-[#7EA6F5] uppercase tracking-widest mb-4">지금 바로 시작하세요</p>
@@ -597,9 +579,96 @@ export default function NaverRefundPage() {
             </div>
           </div>
         </div>
+        {/* END 상세페이지 블럭 */}
+        </div>
 
-        <div className="h-24" />
+          <div className="h-24" />
+          </div>
+          {/* END LEFT */}
 
+          {/* ── RIGHT: 문의 레일 (sticky · SA 동일) ── */}
+          <div className="hidden lg:block w-72 xl:w-80 shrink-0 pt-12">
+            <div className="sticky top-6 space-y-2.5 pb-3">
+
+              {/* 메인 CTA 카드 */}
+              <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 110%, rgba(255,255,255,0.12), transparent 60%)" }} />
+                <div className="relative z-10 px-5 py-6 text-center">
+                  <p className="text-[11px] font-extrabold text-white/60 uppercase tracking-widest mb-2">지금 바로 시작하세요</p>
+                  <h2 className="text-[22px] font-extrabold text-white leading-tight mb-3">
+                    광고비, 이제<br />
+                    돌려받으세요
+                  </h2>
+                  <p className="text-[12px] text-white/70 leading-relaxed mb-5">
+                    계정 연동 없이 광고비만 알려주시면<br />
+                    환급 가능 여부를 바로 안내해드립니다.
+                  </p>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => alert("문의하기 연결 예정")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[15px] font-extrabold text-[#0D3473] bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
+                    >
+                      무료 환급 상담
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                    </button>
+                    <button
+                      onClick={() => document.getElementById("form")?.scrollIntoView({ behavior: "smooth" })}
+                      className="w-full px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white/80 cursor-pointer hover:text-white transition-all"
+                      style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
+                    >
+                      10초 빠른 신청
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 환급 혜택 카드 */}
+              <div className="bg-white rounded-2xl border border-brand-border p-4">
+                <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">환급 혜택</p>
+                {[
+                  { label: "광고비 환급률", value: "최대 10%" },
+                  { label: "정산 주기", value: "월 1회" },
+                  { label: "계정 최적화", value: "무제한" },
+                  { label: "정산 방식", value: "현금 환급" },
+                ].map((s) => (
+                  <div key={s.label} className="flex items-center justify-between py-1.5 border-b border-brand-border last:border-0">
+                    <span className="text-[12px] text-brand-sub">{s.label}</span>
+                    <span className="text-[13px] font-extrabold text-brand-dark">{s.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* 포함 항목 카드 */}
+              <div className="bg-brand-lighter rounded-2xl border border-brand-border p-4">
+                <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">서비스 포함 항목</p>
+                <ul className="space-y-1.5">
+                  {["광고비 최대 10% 현금 환급", "전문가 계정 최적화 (무제한)", "월간 성과 리포트 제공", "전담 매니저 1:1 관리", "계정 연동 없이 신청 가능"].map((item) => (
+                    <li key={item} className="flex items-center gap-2 text-[12px] text-brand-sub">
+                      <svg className="w-3 h-3 shrink-0" style={{ color: "#2E6BE0" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* 모바일 하단 고정 CTA */}
+      <div className="lg:hidden fixed inset-x-0 bottom-[60px] md:bottom-0 z-40 bg-white border-t border-brand-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(17,29,55,0.10)]">
+        <button
+          onClick={() => alert("무료 환급 상담 연결 예정")}
+          className="w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white flex items-center justify-center gap-2 active:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+        >
+          무료 환급 상담
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+        </button>
       </div>
     </>
   );

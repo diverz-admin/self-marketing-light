@@ -2,6 +2,8 @@
 
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { PeriodRankChart } from "@/components/marketing/RankManagement";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
   running: { label: "진행중", bg: "bg-green-50", text: "text-green-600" },
@@ -118,8 +120,6 @@ const GUARANTEED_RANK_HISTORY: Record<string, { date: string; rank: number }[]> 
 
 const CHART_COLORS = ["#0D3473", "#0D3473", "#8B5CF6", "#F97316"];
 
-type TooltipState = { pctX: number; pctY: number; date: string; rank: number } | null;
-
 function countedDaysOf(id: string) {
   const h = GUARANTEED_RANK_HISTORY[id];
   if (!h) return 0;
@@ -140,57 +140,22 @@ function GuaranteedRankChart({ campaign, color }: {
   campaign: typeof MOCK_CAMPAIGNS[number];
   color: string;
 }) {
-  const [tooltip, setTooltip] = useState<TooltipState>(null);
-  const [period, setPeriod] = useState<7 | 25 | "all">(7);
-
   const fullHistory = GUARANTEED_RANK_HISTORY[campaign.id];
   if (!fullHistory) return null;
-  const history = period === "all" ? fullHistory : fullHistory.slice(-period);
 
   // 보장 카운트는 전체 이력 누적 기준
   const countedDays = fullHistory.filter((d) => d.rank <= THRESHOLD).length;
   const pausedDays = fullHistory.filter((d) => d.rank > THRESHOLD).length;
   const progressPct = Math.min((countedDays / GUARANTEED_TOTAL_DAYS) * 100, 100);
 
-  const many = history.length > 10; // 25일 → 컴팩트 모드
-  const W = 900;
-  const H = many ? 172 : 260;
-  const PAD = { top: 16, right: 16, bottom: 28, left: 36 };
-  const innerW = W - PAD.left - PAD.right;
-  const innerH = H - PAD.top - PAD.bottom;
-
-  const ranks = history.map((d) => d.rank);
-  const dataMin = Math.min(...ranks);
-  const dataMax = Math.max(...ranks);
-  const yMin = Math.max(1, dataMin - 1);
-  const yMax = dataMax + 2;
-
-  const xScale = (i: number) => PAD.left + (i / (history.length - 1)) * innerW;
-  const yScale = (rank: number) => PAD.top + ((rank - yMin) / (yMax - yMin || 1)) * innerH;
-
-  const yTickCount = 4;
-  const yStep = Math.max(1, Math.ceil((yMax - yMin) / (yTickCount - 1)));
-  const yTicks: number[] = [];
-  for (let t = yMin; t <= yMax; t += yStep) yTicks.push(t);
-
-  // 시간순(과거→최근): 최근 날짜가 오른쪽
-  const chartHistory = history;
-  const pts = chartHistory.map((d, i) => ({ x: xScale(i), y: yScale(d.rank), ...d, counted: d.rank <= THRESHOLD }));
-
-  const labelStep = Math.max(1, Math.ceil(chartHistory.length / 8));
-  const dotStep = chartHistory.length > 16 ? 2 : 1;
-
-  const thresholdY = yScale(THRESHOLD);
-  const firstRank = history[0].rank;
-  const latestRank = history[history.length - 1].rank;
+  const firstRank = fullHistory[0].rank;
+  const latestRank = fullHistory[fullHistory.length - 1].rank;
   const improved = latestRank < firstRank;
 
-  const tableRows = history;
-
   return (
-    <div className="bg-white rounded-2xl border border-brand-border p-4 flex gap-0">
+    <div className="bg-white rounded-2xl border border-brand-border p-4 flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* 왼쪽: 플레이스 정보 + 보장 카운트 + 순위 */}
-      <div className="w-[200px] shrink-0 flex flex-col gap-3 pr-4 border-r border-brand-border">
+      <div className="lg:w-[210px] shrink-0 flex flex-col gap-3">
         <div>
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             <p className="text-[15px] font-extrabold text-brand-dark leading-tight">{campaign.placeName}</p>
@@ -259,104 +224,9 @@ function GuaranteedRankChart({ campaign, color }: {
         </div>
       </div>
 
-      {/* 오른쪽: 날짜 테이블 + 차트 */}
-      <div className="flex-1 min-w-0 pl-4 flex flex-col gap-3">
-        {/* 기간 선택 탭 */}
-        <div className="flex items-center justify-end gap-1">
-          {([["7일", 7], ["25일", 25], ["전체", "all"]] as const).map(([label, val]) => (
-            <button key={label} type="button" onClick={() => setPeriod(val)}
-              className={`px-2.5 py-1 rounded-lg text-[12px] font-bold transition-colors ${period === val ? "bg-brand-primary text-white" : "text-brand-sub hover:bg-brand-lighter"}`}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className={many ? "" : "overflow-x-auto"}>
-          <table className="w-full text-center border-collapse table-fixed">
-            <thead>
-              <tr>
-                {tableRows.map((d, i) => (
-                  <th key={i} className={`whitespace-nowrap font-semibold text-brand-muted border-b border-brand-border bg-brand-lighter first:rounded-tl-lg last:rounded-tr-lg ${many ? "px-0.5 py-1 text-[9px]" : "min-w-[52px] px-2 py-1.5 text-[12px]"}`}>
-                    {d.date}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {tableRows.map((d, i) => {
-                  const counted = d.rank <= THRESHOLD;
-                  return (
-                    <td key={i} className={`whitespace-nowrap font-extrabold border-b border-brand-border ${counted ? "text-brand-primary bg-brand-primary-50" : "text-gray-400 bg-gray-50"} ${many ? "px-0.5 py-1 text-[10px]" : "min-w-[52px] px-2 py-2 text-[13px]"}`}>
-                      {d.rank}위
-                      {!counted && <span className={`block font-bold text-orange-400 leading-none mt-0.5 ${many ? "text-[8px]" : "text-[10px]"}`}>정지</span>}
-                    </td>
-                  );
-                })}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* 차트 */}
-        <div className="relative flex-1">
-          <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible" style={{ height: H }}>
-            {yTicks.map((tick) => (
-              <g key={tick}>
-                <line x1={PAD.left} y1={yScale(tick)} x2={W - PAD.right} y2={yScale(tick)} stroke="#F3F4F6" strokeWidth={1.5} />
-                <text x={PAD.left - 6} y={yScale(tick)} textAnchor="end" dominantBaseline="middle" fill="#CBD5E1" fontSize={10}>{tick}위</text>
-              </g>
-            ))}
-            <line x1={PAD.left} y1={thresholdY} x2={W - PAD.right} y2={thresholdY}
-              stroke="#0D3473" strokeWidth={1.5} strokeDasharray="5,4" />
-            <text x={W - PAD.right + 4} y={thresholdY} dominantBaseline="middle" fill="#0D3473" fontSize={9} fontWeight={700}>{THRESHOLD}위</text>
-            {pts.map((p, i) =>
-              (i % labelStep === 0 || i === pts.length - 1) ? (
-                <text key={i} x={p.x} y={H - PAD.bottom + 14} textAnchor="middle" fill="#CBD5E1" fontSize={9}>{p.date}</text>
-              ) : null
-            )}
-            <line x1={PAD.left} y1={H - PAD.bottom} x2={W - PAD.right} y2={H - PAD.bottom} stroke="#E5E7EB" strokeWidth={1} />
-            {pts.map((p, i) => {
-              if (i === 0) return null;
-              const prev = pts[i - 1];
-              const both = p.counted && prev.counted;
-              return (
-                <line key={i}
-                  x1={prev.x} y1={prev.y} x2={p.x} y2={p.y}
-                  stroke={both ? "#0D3473" : "#D1D5DB"}
-                  strokeWidth={2.5} strokeLinecap="round"
-                  strokeDasharray={both ? undefined : "4,3"}
-                />
-              );
-            })}
-            {pts.map((p, i) => (
-              <g key={i}>
-                {(i % dotStep === 0 || i === pts.length - 1) && (
-                  <circle cx={p.x} cy={p.y} r={4.5}
-                    fill={p.counted ? "#0D3473" : "#9CA3AF"}
-                    stroke="white" strokeWidth={2} />
-                )}
-                <circle
-                  cx={p.x} cy={p.y} r={13} fill="transparent" className="cursor-pointer"
-                  onMouseEnter={() => setTooltip({ pctX: (p.x / W) * 100, pctY: (p.y / H) * 100, date: p.date, rank: p.rank })}
-                  onMouseLeave={() => setTooltip(null)}
-                />
-              </g>
-            ))}
-          </svg>
-
-          {tooltip && (
-            <div className="absolute pointer-events-none z-20 bg-[#1A1E2E] text-white px-3 py-2 rounded-xl text-[13px] shadow-xl whitespace-nowrap"
-              style={{ left: `${tooltip.pctX}%`, top: `${tooltip.pctY}%`, transform: "translate(-50%, -130%)" }}>
-              <p className="text-white/60">{tooltip.date}</p>
-              <p className="font-extrabold text-[16px]" style={{ color: tooltip.rank <= THRESHOLD ? "#0D3473" : "#9CA3AF" }}>
-                {tooltip.rank}위 {tooltip.rank <= THRESHOLD ? "✓ 카운트" : "⏸ 정지"}
-              </p>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0"
-                style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #1A1E2E" }} />
-            </div>
-          )}
-        </div>
+      {/* 오른쪽: 순위 추이 차트 (마이 캠페인과 동일 디자인) */}
+      <div className="flex-1 min-w-0">
+        <PeriodRankChart base={fullHistory.map((h) => h.rank)} color={color} uid={campaign.id} />
       </div>
     </div>
   );
@@ -568,38 +438,33 @@ export default function GuaranteedManagePage() {
 
   return (
     <div className="w-full space-y-5">
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <Link href="/marketing/reward/place" className="hover:text-brand-text">네이버 플레이스</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">[보장형] 캠페인 관리</span>
-      </nav>
-
-      <div className="flex items-center gap-2">
-        <h1 className="text-[25px] font-extrabold text-brand-dark">보장형 캠페인 관리</h1>
-      </div>
+      {/* 페이지 헤더 */}
+      <PageHeader
+        title="보장형 캠페인 관리"
+        subtitle="보장 순위 유지 현황을 확인하고 관리하세요."
+        iconPath={"M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"}
+      />
 
       {/* 상단 요약 배너 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
         {/* 전체 보장 캠페인 (네이비) */}
-        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+        <div className="rounded-2xl px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2 text-white"
           style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
           <span className="text-[13px] font-bold text-white/60">전체 보장 캠페인</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums">{total}<span className="text-[15px] font-medium text-white/55 ml-1">건</span></p>
+          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums">{total}<span className="text-[15px] font-medium text-white/55 ml-1">건</span></p>
         </div>
 
         {/* 진행중 (블루) */}
-        <div className="rounded-2xl p-5 min-h-[112px] flex flex-col justify-between text-white"
+        <div className="rounded-2xl px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2 text-white"
           style={{ background: "linear-gradient(135deg,#2E6BE0 0%,#1D4ED8 100%)" }}>
           <span className="text-[13px] font-bold text-white/65">진행중</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[15px] font-medium text-white/60 ml-1">건</span></p>
+          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[15px] font-medium text-white/60 ml-1">건</span></p>
         </div>
 
         {/* 보장완료 (화이트) */}
-        <div className="rounded-2xl border border-brand-border bg-white p-5 min-h-[112px] flex flex-col justify-between">
+        <div className="rounded-2xl border border-brand-border bg-white px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2">
           <span className="text-[13px] font-bold text-brand-muted">보장완료</span>
-          <p className="text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{doneCount}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span></p>
+          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{doneCount}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span></p>
         </div>
       </div>
 
@@ -658,7 +523,7 @@ export default function GuaranteedManagePage() {
         )}
 
         <div ref={scrollRef} className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-max text-left">
             <thead>
               <tr className="border-b border-brand-border bg-brand-lighter">
                 <th className="w-8" />

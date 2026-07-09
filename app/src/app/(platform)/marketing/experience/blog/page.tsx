@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/marketing/PageHeader";
 
 const INPUT_CLASS = "w-full px-4 py-[13px] border border-brand-border rounded-2xl text-[17px] bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all";
 const TEXTAREA_CLASS = "w-full px-4 py-[13px] border border-brand-border rounded-2xl text-[17px] bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all resize-none";
@@ -45,19 +46,12 @@ export default function BlogCampaignPage() {
 
   return (
     <div className="max-w-3xl space-y-5">
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text transition-colors">대시보드</Link>
-        <span className="text-brand-border">›</span>
-        <span className="text-brand-text font-medium">블로그 기자단</span>
-      </nav>
-
       {/* Product Info */}
       <div className="bg-white rounded-2xl border border-brand-border p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <span className="inline-block text-[12px] font-bold px-2 py-1 rounded-lg bg-orange-50 text-orange-700 border border-orange-100 mb-3">리뷰·체험단</span>
-            <h1 className="text-[25px] font-extrabold text-brand-dark mb-2">블로그 기자단</h1>
-            <p className="text-[16px] text-brand-sub leading-relaxed max-w-lg">검증된 블로거들이 직접 방문하거나 상품을 체험하고 리뷰 콘텐츠를 작성합니다. 가이드라인을 입력하면 원하는 방향의 리뷰를 모집합니다.</p>
+            <PageHeader title="블로그 기자단" subtitle="검증된 블로거들이 직접 방문하거나 상품을 체험하고 리뷰 콘텐츠를 작성합니다. 가이드라인을 입력하면 원하는 방향의 리뷰를 모집합니다." iconPath={"M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"} />
           </div>
           <div className="text-right shrink-0">
             <p className="text-[29px] font-extrabold text-brand-dark leading-none">50,000원</p>
@@ -76,7 +70,7 @@ export default function BlogCampaignPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 업체·상품 정보 */}
-        <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-5">
+        <div className="bg-white rounded-2xl border border-brand-border px-8 py-6 space-y-5">
           <h2 className="text-[19px] font-bold text-brand-dark">업체 · 상품 정보</h2>
           <div>
             <label className={LABEL_CLASS}>업체명 / 상품명 <span className="text-brand-error">*</span></label>
@@ -96,7 +90,7 @@ export default function BlogCampaignPage() {
         </div>
 
         {/* 모집 인원 및 기간 */}
-        <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-6">
+        <div className="bg-white rounded-2xl border border-brand-border px-8 py-6 space-y-6">
           <h2 className="text-[19px] font-bold text-brand-dark">모집 인원 및 기간</h2>
           <div>
             <div className="flex items-center justify-between mb-3">

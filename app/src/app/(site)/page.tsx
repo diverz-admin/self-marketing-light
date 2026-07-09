@@ -1,15 +1,33 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import ContactForm from "./_components/ContactForm";
+import { BlueEggMark } from "@/components/Logo";
 import { PLATFORM_ENTRY } from "@/utils/platform";
 
 /* ── 데이터 ─────────────────────────────────────────── */
 
-const TRUST = [
-  { k: "24시간", v: "자동 실행 시스템" },
-  { k: "단위당", v: "투명 과금 · 노거품" },
-  { k: "실시간", v: "성과 대시보드" },
+/* 히어로 하단 피처 바 */
+const HERO_FEATURES = [
+  {
+    title: "AI 마케팅 자동화",
+    desc: "업무 효율을 높여보세요",
+    iconPath: "M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z",
+  },
+  {
+    title: "데이터 분석 & 인사이트",
+    desc: "데이터로 더 스마트하게",
+    iconPath: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
+  },
+  {
+    title: "콘텐츠 제작 & 배포",
+    desc: "콘텐츠로 더 강력하게",
+    iconPath: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
+  },
+  {
+    title: "통합 성과 관리",
+    desc: "성과를 한눈에 관리하세요",
+    iconPath: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 2.65m5.96 11.72a14.926 14.926 0 01-5.841 2.58m-.119-8.51a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z",
+  },
 ];
 
 const KEYWORDS = [
@@ -50,6 +68,39 @@ const STRENGTHS = [
     title: "결과를 실시간으로 추적",
     desc: "일별 유입량, 진행 상태, 사용 금액을 실시간 대시보드로 확인하며 스스로 판단하고 조정합니다.",
   },
+];
+
+/* 타깃별 활용 — 브랜드사 · 자영업자 · 대행사 */
+const AUDIENCES = [
+  {
+    tag: "브랜드사",
+    title: "브랜드 성장을\n직접 설계합니다",
+    desc: "여러 채널과 캠페인을 하나의 대시보드에서 통합 관리하고, 브랜딩부터 전환까지 데이터로 운영합니다.",
+    items: ["멀티 채널 통합 관리", "브랜드 콘텐츠 제작", "성과 데이터 분석"],
+    iconPath: "M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z",
+  },
+  {
+    tag: "자영업자",
+    title: "사장님이 직접,\n쉽고 저렴하게",
+    desc: "상담도 계약도 없이, 우리 매장에 필요한 마케팅만 상품처럼 골라 바로 실행합니다. 단위당 과금으로 부담이 없습니다.",
+    items: ["플레이스·리뷰 마케팅", "필요한 만큼만 결제", "간편한 셀프 실행"],
+    iconPath: "M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z",
+  },
+  {
+    tag: "대행사",
+    title: "여러 광고주를\n효율적으로 운영",
+    desc: "클라이언트별 캠페인을 한 곳에서 진행하고, 정산·리포트까지 자동화해 운영 리소스를 크게 줄입니다.",
+    items: ["다수 광고주 통합 관리", "정산·세금계산서 자동화", "화이트라벨 리포트"],
+    iconPath: "M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z",
+  },
+];
+
+/* 성과 통계 */
+const STATS = [
+  { k: "500+", v: "함께하는 브랜드·매장" },
+  { k: "12,000+", v: "누적 캠페인 실행" },
+  { k: "6종", v: "올인원 마케팅 카테고리" },
+  { k: "24시간", v: "자동 실행 시스템" },
 ];
 
 const CATEGORIES = [
@@ -94,6 +145,34 @@ const CATEGORIES = [
     desc: "맘카페·오픈채팅·커뮤니티 채널에서 자연스러운 브랜드 노출을 확보합니다.",
     items: ["맘카페", "카페·게시판", "오픈채팅"],
     href: "/marketing/community",
+  },
+];
+
+/* 작동 방식 — 4단계 프로세스 */
+const STEPS = [
+  {
+    no: "01",
+    title: "고르기",
+    desc: "원하는 채널과 서비스를 카탈로그에서 상품처럼 선택합니다. 상담도 견적 미팅도 없습니다.",
+    iconPath: "M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25a2.25 2.25 0 01-2.25-2.25v-2.25z",
+  },
+  {
+    no: "02",
+    title: "결제",
+    desc: "단위당 단가로 필요한 만큼만 결제합니다. 월 리테이너도 최소 계약 기간도 없습니다.",
+    iconPath: "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z",
+  },
+  {
+    no: "03",
+    title: "자동 실행",
+    desc: "결제 즉시 캠페인이 자동으로 시작·운영됩니다. 복잡한 세팅은 플랫폼이 대신합니다.",
+    iconPath: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
+  },
+  {
+    no: "04",
+    title: "성과 확인",
+    desc: "일별 유입량·진행 상태·사용 금액을 실시간 대시보드로 추적하며 직접 판단하고 조정합니다.",
+    iconPath: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
   },
 ];
 
@@ -147,86 +226,250 @@ const INTERVIEWS = [
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="hero-electric text-white relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 py-20 md:py-24 relative grid lg:grid-cols-2 gap-14 lg:gap-6 items-center">
-          {/* left — copy */}
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 text-sm font-bold px-3.5 py-1.5 rounded-full bg-white/10 ring-1 ring-white/15 backdrop-blur mb-7">
-              <span className="h-1.5 w-1.5 rounded-full bg-electric-glow" />
-              온·오프라인 셀프 마케팅 플랫폼
-            </span>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.12] mb-6">
-              광고대행사 없이,
-              <br />
-              <span className="text-gradient-electric">당신의 브랜드를</span>
-              <br />
-              직접 성장시키세요
-            </h1>
-            <p className="text-lg text-white/65 max-w-md leading-relaxed mb-9">
-              마케팅을 쇼핑하듯 직접 골라 실행하고, 진행 현황을 실시간
-              대시보드로 확인하세요. 상담도, 계약도, 거품도 없습니다.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 mb-12">
-              <a
-                href={PLATFORM_ENTRY}
-                className="px-7 py-4 rounded-xl text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)] w-fit"
-              >
-                무료로 시작하기
-              </a>
-              <Link
-                href="/contact"
-                className="px-7 py-4 rounded-xl text-sm font-bold bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20 transition-colors w-fit"
-              >
-                무료 상담받기
-              </Link>
-            </div>
+      {/* Hero — light, 3D 오브젝트 컴포지션 */}
+      <section className="hero-light relative overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-6 pt-14 md:pt-20">
 
-            <dl className="flex flex-wrap gap-x-8 gap-y-4">
-              {TRUST.map((t) => (
-                <div key={t.v} className="flex items-baseline gap-2.5">
-                  <dt className="text-xl font-extrabold text-electric-glow">
-                    {t.k}
-                  </dt>
-                  <dd className="text-sm text-white/60">{t.v}</dd>
-                </div>
-              ))}
-            </dl>
+          {/* ── 중앙 카피 ── */}
+          <div className="relative z-20 mx-auto max-w-4xl text-center">
+            <h1 className="text-[34px] leading-[1.2] sm:text-6xl sm:leading-[1.16] font-extrabold tracking-tight mb-6">
+              <span className="text-electric">마케팅,</span>
+              <br />
+              <span className="text-brand-dark sm:whitespace-nowrap">이제 블루에그비즈 단 하나로!</span>
+            </h1>
+            <p className="text-lg text-brand-sub leading-relaxed mb-9">
+              전략부터 실행, 성과 분석까지
+              <br />
+              마케팅의 모든 것을 하나의 플랫폼에서 완성하세요.
+            </p>
+            <a
+              href={PLATFORM_ENTRY}
+              className="inline-flex px-9 py-4 rounded-full text-base font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_16px_40px_-10px_rgba(29,62,255,.65)]"
+            >
+              무료로 시작하기
+            </a>
           </div>
 
-          {/* right — monitor mockup (angled, floating) */}
-          <div className="relative w-full lg:justify-self-end lg:-mr-[3rem] xl:-mr-[6rem] animate-monitor-float">
-            <div
-              className="pointer-events-none absolute inset-x-6 top-2 -bottom-4 bg-electric/25 blur-3xl rounded-[3rem]"
-              aria-hidden
-            />
-            <div className="relative mx-auto max-w-lg lg:max-w-none lg:w-[62rem] transform-gpu lg:[transform:perspective(2600px)_rotateY(-12deg)_rotateX(4deg)]">
-              {/* monitor body */}
-              <div className="rounded-[1.5rem] bg-gradient-to-b from-[#222941] to-[#11162a] p-2.5 md:p-3 ring-1 ring-white/10 shadow-[0_60px_140px_-30px_rgba(0,0,0,.9)]">
-                {/* screen */}
-                <div className="rounded-xl overflow-hidden ring-1 ring-black/50 bg-black">
-                  <Image
-                    src="/dashboard-preview.png"
-                    alt="BLUE EGG 실시간 대시보드 — 캠페인 순위 추적, 운영 현황, 성과 지표"
-                    width={1899}
-                    height={916}
-                    priority
-                    className="w-full h-auto block"
-                    sizes="(max-width: 1024px) 96vw, 780px"
-                  />
+          {/* ── 3D / 글래스 오브젝트 스테이지 ── */}
+          <div className="relative h-[300px] md:h-[380px] mt-2 md:-mt-6" aria-hidden>
+            {/* 좌측 클러스터 */}
+            <div className="hidden md:block absolute left-0 bottom-0 w-[42%] h-full">
+              {/* 차트 글래스 카드 */}
+              <div className="absolute left-2 top-6 w-44 rounded-2xl bg-white/55 ring-1 ring-white/70 backdrop-blur-md shadow-[0_24px_50px_-24px_rgba(29,62,255,.5)] p-3.5 animate-float-b">
+                <div className="flex gap-1 mb-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-electric/40" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-electric/25" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-electric/15" />
                 </div>
-                {/* bottom bezel */}
-                <div className="h-7 md:h-8 flex items-center justify-center">
-                  <span className="text-[11px] font-extrabold tracking-[0.35em] text-white/30">
-                    BLUE EGG
+                <svg viewBox="0 0 130 60" className="w-full">
+                  <polygon points="6,54 6,44 32,34 56,40 82,20 106,26 124,10 124,54" fill="#1D3EFF" opacity="0.08" />
+                  <polyline points="6,44 32,34 56,40 82,20 106,26 124,10" fill="none" stroke="#1D3EFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M112 10h12v12" fill="none" stroke="#1D3EFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              {/* 파이 글래스 카드 */}
+              <div className="absolute left-4 bottom-4 h-20 w-20 rounded-2xl bg-white/55 ring-1 ring-white/70 backdrop-blur-md shadow-[0_20px_44px_-20px_rgba(29,62,255,.5)] flex items-center justify-center animate-float-a">
+                <svg viewBox="0 0 36 36" className="h-11 w-11 -rotate-90">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#C7D6FF" strokeWidth="7" />
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#1D3EFF" strokeWidth="7" strokeDasharray="55 100" strokeLinecap="round" />
+                </svg>
+              </div>
+              {/* 블루에그 센터피스 + 포디움 */}
+              <div className="absolute right-2 lg:right-6 bottom-0 animate-float-a">
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-1 h-7 w-40 rounded-[50%] bg-gradient-to-b from-white/90 to-sky-100/30 blur-[1px]" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-2.5 h-3 w-32 rounded-[50%] bg-electric/10 blur-md" />
+                <BlueEggMark className="relative h-52 lg:h-60 w-auto drop-shadow-[0_28px_36px_rgba(29,62,255,.35)]" />
+              </div>
+            </div>
+
+            {/* 우측 클러스터 */}
+            <div className="hidden md:block absolute right-0 bottom-0 w-[46%] h-full">
+              {/* 큰 상승 화살표 */}
+              <svg viewBox="0 0 120 150" className="absolute right-6 lg:right-16 top-0 h-40 lg:h-52 w-auto animate-float-b">
+                <defs>
+                  <linearGradient id="heroArrow" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#7DA6FF" />
+                    <stop offset="100%" stopColor="#1D3EFF" />
+                  </linearGradient>
+                </defs>
+                <path d="M14 132 L86 46" fill="none" stroke="url(#heroArrow)" strokeWidth="18" strokeLinecap="round" />
+                <path d="M52 30 h48 v48" fill="none" stroke="url(#heroArrow)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {/* 타겟(과녁) + 포디움 */}
+              <div className="absolute left-2 lg:left-6 bottom-0 animate-float-a">
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-1 h-6 w-36 rounded-[50%] bg-gradient-to-b from-white/90 to-sky-100/30 blur-[1px]" />
+                <svg viewBox="0 0 130 130" className="relative h-36 lg:h-44 w-auto drop-shadow-[0_24px_34px_rgba(29,62,255,.3)]">
+                  <circle cx="65" cy="65" r="60" fill="#DCE7FF" />
+                  <circle cx="65" cy="65" r="46" fill="#ffffff" />
+                  <circle cx="65" cy="65" r="33" fill="#9FBBF7" />
+                  <circle cx="65" cy="65" r="20" fill="#ffffff" />
+                  <circle cx="65" cy="65" r="9" fill="#1D3EFF" />
+                  <path d="M95 35 l22 -14 -6 14 14 -6 -14 22z" fill="#1D3EFF" opacity="0.9" />
+                </svg>
+              </div>
+              {/* 바 차트 글래스 카드 */}
+              <div className="absolute right-0 top-16 h-24 w-20 rounded-2xl bg-white/55 ring-1 ring-white/70 backdrop-blur-md shadow-[0_20px_44px_-20px_rgba(29,62,255,.5)] flex items-end justify-center gap-1.5 p-3 animate-float-a">
+                <span className="w-2.5 h-6 rounded-full bg-electric/40" />
+                <span className="w-2.5 h-10 rounded-full bg-electric/70" />
+                <span className="w-2.5 h-14 rounded-full bg-electric" />
+              </div>
+              {/* 리뷰 글래스 카드 */}
+              <div className="absolute right-4 bottom-6 w-44 rounded-2xl bg-white/55 ring-1 ring-white/70 backdrop-blur-md shadow-[0_24px_50px_-24px_rgba(29,62,255,.5)] p-3.5 animate-float-b">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-6 w-6 rounded-full bg-electric/20 flex items-center justify-center">
+                    <svg className="h-3.5 w-3.5 text-electric" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z" /></svg>
                   </span>
+                  <div className="flex gap-0.5">
+                    {[0, 1, 2, 3, 4].map((n) => (
+                      <svg key={n} className="h-3 w-3 text-electric" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 17.3 5.8 20.9l1.6-6.8L2.2 8.9l6.9-.6z" /></svg>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-1.5 w-full rounded-full bg-electric/15" />
+                  <div className="h-1.5 w-3/4 rounded-full bg-electric/10" />
                 </div>
               </div>
-              {/* stand neck */}
-              <div className="mx-auto h-9 w-20 bg-gradient-to-b from-[#1b2133] to-[#11162a]" />
-              {/* stand base */}
-              <div className="mx-auto h-3 w-56 rounded-full bg-gradient-to-b from-[#232a41] to-[#0c101f] ring-1 ring-white/5" />
             </div>
+          </div>
+
+          {/* ── 하단 피처 바 ── */}
+          <div className="relative z-20 pb-16 md:pb-20 -mt-4">
+            <div className="rounded-3xl bg-white/55 ring-1 ring-white/70 backdrop-blur-md shadow-[0_24px_70px_-30px_rgba(29,62,255,.45)] px-3 md:px-6 py-5">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-5">
+                {HERO_FEATURES.map((f) => (
+                  <div
+                    key={f.title}
+                    className="flex items-center gap-3 px-4 lg:border-l lg:first:border-l-0 border-brand-border/60"
+                  >
+                    <span className="shrink-0 text-electric">
+                      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d={f.iconPath} />
+                      </svg>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[15px] font-extrabold text-brand-dark truncate">{f.title}</p>
+                      <p className="text-[13px] text-brand-sub truncate">{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Audiences — 누가 쓰나요 */}
+      <section id="audiences" className="relative overflow-hidden bg-white">
+        <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 rounded-full bg-electric/[0.07] blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-32 right-[-6rem] h-96 w-96 rounded-full bg-sky-400/[0.07] blur-3xl" aria-hidden />
+        <div className="relative max-w-6xl mx-auto px-6 py-24">
+          <div className="max-w-2xl mb-14">
+            <p className="text-sm font-bold text-electric uppercase tracking-widest mb-3">
+              For Everyone
+            </p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4 leading-tight">
+              브랜드사도, 사장님도, 대행사도
+              <br />
+              한 플랫폼에서
+            </h2>
+            <p className="text-brand-sub">
+              규모도 목적도 다르지만, 마케팅을 직접 굴린다는 목표는 같습니다. 블루에그는 세 주체 모두에게 맞는 방식으로 작동합니다.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {AUDIENCES.map((a) => (
+              <div
+                key={a.tag}
+                className="group relative flex flex-col p-8 rounded-3xl border border-brand-border hover:border-electric/40 hover:shadow-[0_12px_40px_-16px_rgba(29,62,255,.35)] transition-all"
+              >
+                <span className="h-12 w-12 rounded-xl flex items-center justify-center bg-electric/8 text-electric mb-6">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={a.iconPath} />
+                  </svg>
+                </span>
+                <span className="inline-flex w-fit items-center text-[12px] font-bold px-3 py-1 rounded-full bg-electric/8 text-electric mb-4">
+                  {a.tag}
+                </span>
+                <h3 className="text-xl font-bold text-brand-dark mb-3 leading-snug whitespace-pre-line">
+                  {a.title}
+                </h3>
+                <p className="text-sm text-brand-sub leading-relaxed mb-6">{a.desc}</p>
+                <ul className="mt-auto space-y-2.5 border-t border-brand-border pt-5">
+                  {a.items.map((it) => (
+                    <li key={it} className="flex items-center gap-2.5 text-sm text-brand-text">
+                      <svg className="w-4 h-4 text-electric shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {it}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how" className="relative overflow-hidden bg-brand-light border-b border-brand-border">
+        <div className="pointer-events-none absolute top-1/2 -right-32 h-96 w-96 -translate-y-1/2 rounded-full bg-electric/[0.06] blur-3xl" aria-hidden />
+        <div className="relative max-w-6xl mx-auto px-6 py-24">
+          <div className="max-w-2xl mb-14">
+            <p className="text-sm font-bold text-electric uppercase tracking-widest mb-3">
+              How it works
+            </p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4 leading-tight">
+              마케팅을 쇼핑하듯,
+              <br />
+              단 4단계로 끝냅니다
+            </h2>
+            <p className="text-brand-sub">
+              복잡한 상담·계약·세팅 없이, 고르고 결제하면 나머지는 플랫폼이 자동으로 처리합니다.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {STEPS.map((s, i) => (
+              <div key={s.no} className="relative">
+                {/* connector arrow (desktop) */}
+                {i < STEPS.length - 1 && (
+                  <span
+                    className="hidden lg:block absolute top-11 -right-3 z-10 text-brand-border"
+                    aria-hidden
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+                    </svg>
+                  </span>
+                )}
+                <div className="h-full p-7 rounded-3xl bg-white border border-brand-border hover:border-electric/40 hover:shadow-[0_12px_40px_-16px_rgba(29,62,255,.35)] transition-all">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="h-12 w-12 rounded-xl flex items-center justify-center bg-electric/8 text-electric">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d={s.iconPath} />
+                      </svg>
+                    </span>
+                    <span className="text-3xl font-extrabold text-brand-border tabular-nums">{s.no}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-brand-dark mb-2.5">{s.title}</h3>
+                  <p className="text-sm text-brand-sub leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12">
+            <a
+              href={PLATFORM_ENTRY}
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.5)]"
+            >
+              지금 골라보기
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
@@ -249,9 +492,9 @@ export default function HomePage() {
             {STRENGTHS.map((s) => (
               <div
                 key={s.title}
-                className="group p-8 rounded-2xl border border-brand-border hover:border-electric/40 hover:shadow-[0_12px_40px_-16px_rgba(29,62,255,.35)] transition-all"
+                className="group p-8 rounded-3xl border border-brand-border hover:border-electric/40 hover:shadow-[0_12px_40px_-16px_rgba(29,62,255,.35)] transition-all"
               >
-                <span className="inline-block text-[12px] font-bold px-2.5 py-1 rounded-md bg-electric/8 text-electric mb-5">
+                <span className="inline-block text-[12px] font-bold px-3 py-1 rounded-full bg-electric/8 text-electric mb-5">
                   {s.tag}
                 </span>
                 <h3 className="text-xl font-bold text-brand-dark mb-3">
@@ -291,7 +534,7 @@ export default function HomePage() {
               <Link
                 key={c.no}
                 href={c.href}
-                className="group relative p-7 rounded-2xl bg-white/[0.03] ring-1 ring-white/10 hover:ring-electric/60 hover:bg-white/[0.06] transition-all"
+                className="group relative p-7 rounded-3xl bg-white/[0.03] ring-1 ring-white/10 hover:ring-electric/60 hover:bg-white/[0.06] transition-all"
               >
                 <span className="block text-sm font-bold text-white/25 mb-5">
                   {c.no}
@@ -306,7 +549,7 @@ export default function HomePage() {
                   {c.items.map((it) => (
                     <span
                       key={it}
-                      className="text-[12px] font-medium px-2 py-0.5 rounded bg-white/8 text-white/70"
+                      className="text-[12px] font-medium px-2.5 py-1 rounded-full bg-white/8 text-white/70"
                     >
                       {it}
                     </span>
@@ -334,6 +577,22 @@ export default function HomePage() {
                 </span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats band */}
+      <section className="hero-electric text-white">
+        <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
+            {STATS.map((s) => (
+              <div key={s.v} className="text-center lg:text-left">
+                <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-white tabular-nums">
+                  {s.k}
+                </p>
+                <p className="mt-2 text-sm text-white/60">{s.v}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -370,7 +629,7 @@ export default function HomePage() {
                     {b.name}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1.5 self-start text-[12px] font-bold px-2.5 py-1 rounded-md bg-electric/90 text-white">
+                <span className="inline-flex items-center gap-1.5 self-start text-[12px] font-bold px-3 py-1 rounded-full bg-electric/90 text-white">
                   {b.metric}
                 </span>
               </div>
@@ -488,13 +747,13 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href={PLATFORM_ENTRY}
-              className="px-8 py-4 rounded-xl text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)]"
+              className="px-8 py-4 rounded-full text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors shadow-[0_10px_30px_-8px_rgba(29,62,255,.7)]"
             >
               무료 계정 만들기
             </a>
             <Link
               href="/pricing"
-              className="px-8 py-4 rounded-xl text-sm font-bold bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20 transition-colors"
+              className="px-8 py-4 rounded-full text-sm font-bold bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20 transition-colors"
             >
               요금 살펴보기
             </Link>

@@ -1,11 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import PageHeader from "@/components/marketing/PageHeader";
 
-const TABS = [
-  { label: "상품 체험단", href: "/marketing/review/shopping/product-experience" },
+const CHANNELS = [
+  {
+    id: "네이버 쇼핑",
+    name: "네이버 쇼핑",
+    desc: "스마트스토어 상품 리뷰를 수집합니다.",
+    grad: "linear-gradient(135deg,#10B981,#059669)",
+    accent: "#059669",
+    tint: "#E7F7F0",
+    ring: "rgba(5,150,105,0.16)",
+    iconPath: "M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z",
+  },
+  {
+    id: "쿠팡",
+    name: "쿠팡",
+    desc: "쿠팡 상품 리뷰를 수집합니다.",
+    grad: "linear-gradient(135deg,#EF4444,#DC2626)",
+    accent: "#DC2626",
+    tint: "#FDECEC",
+    ring: "rgba(220,38,38,0.16)",
+    iconPath: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z",
+  },
 ];
 
 type TypeOption = {
@@ -47,13 +66,11 @@ function ImageUploadBox({ bordered }: { bordered?: boolean }) {
 }
 
 export default function ShoppingBlogReporterPage() {
-  const pathname = usePathname();
-
+  const [channel, setChannel] = useState("네이버 쇼핑");
   const [selectedType, setSelectedType] = useState("일반배포");
   const [postingType, setPostingType] = useState("후기성");
   const [titleType, setTitleType] = useState("상품명");
   const [campaignName, setCampaignName] = useState("");
-  const [productName, setProductName] = useState("");
   const [mainKeyword, setMainKeyword] = useState("");
   const [hashtagInput, setHashtagInput] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
@@ -111,28 +128,50 @@ export default function ShoppingBlogReporterPage() {
 
   return (
     <div className="w-full space-y-4">
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <span className="text-brand-muted">네이버 쇼핑</span>
-        <span>›</span>
-        <Link href="/marketing/review/shopping" className="hover:text-brand-text">캠페인 생성</Link>
-        <span>›</span>
-        <span className="text-brand-text font-medium">블로그리뷰(기자단)</span>
-      </nav>
-
-      {/* 탭 */}
-      <div className="bg-white rounded-2xl border border-brand-border px-2 py-2 flex items-center gap-1 overflow-x-auto">
-        {TABS.map((tab) => (
-          <Link key={tab.href} href={tab.href}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-[15px] font-bold transition-all ${
-              pathname === tab.href ? "bg-brand-primary text-white shadow-sm" : "text-brand-sub hover:bg-brand-lighter hover:text-brand-dark"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
+      <PageHeader
+        title="네이버 쇼핑 리뷰 신청"
+        subtitle="리뷰 유형을 선택하고 캠페인을 신청하세요."
+        iconPath={"M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"}
+      />
+      {/* 채널 선택 */}
+      <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
+        <div className="flex items-center gap-3">
+          <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.15)" }}>
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+          <div>
+            <h2 className="text-[17px] font-bold text-white">채널 선택</h2>
+            <p className="text-[13px] text-white/60">리뷰를 진행할 채널을 선택하세요</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {CHANNELS.map((ch) => {
+            const active = channel === ch.id;
+            return (
+              <button
+                key={ch.id}
+                onClick={() => setChannel(ch.id)}
+                className={`flex items-center gap-3 rounded-2xl p-4 text-left border-2 transition-all ${
+                  active ? "" : "border-brand-border bg-white hover:border-brand-primary/40"
+                }`}
+                style={active ? { borderColor: ch.accent, background: ch.tint, boxShadow: `0 0 0 3px ${ch.ring}` } : undefined}
+              >
+                <span className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: ch.grad }}>
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={ch.iconPath} />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-[16px] font-extrabold text-brand-dark">{ch.name}</p>
+                  <p className="text-[13px] text-brand-sub leading-snug">{ch.desc}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* 2-column layout */}
@@ -141,8 +180,11 @@ export default function ShoppingBlogReporterPage() {
         {/* ── 왼쪽 ── */}
         <div className="space-y-5">
 
+          {/* 전체 하나의 박스 */}
+          <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+
           {/* 타입 선택 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4">
+          <div className="p-5 space-y-4">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#8B5CF6,#6D28D9)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -207,7 +249,7 @@ export default function ShoppingBlogReporterPage() {
           </div>
 
           {/* 스케줄 설정 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5 border-t border-brand-border">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -274,7 +316,7 @@ export default function ShoppingBlogReporterPage() {
           </div>
 
           {/* 필수 정보 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5 border-t border-brand-border">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -313,7 +355,6 @@ export default function ShoppingBlogReporterPage() {
 
             {[
               { label: "캠페인명",    value: campaignName,  onChange: setCampaignName,  placeholder: "캠페인 이름을 입력하세요" },
-              { label: "상품명",      value: productName,   onChange: setProductName,   placeholder: "리뷰할 상품명을 입력하세요" },
               { label: "구매 키워드", value: mainKeyword,   onChange: setMainKeyword,   placeholder: "1개만 반영됩니다." },
             ].map((field) => (
               <div key={field.label}>
@@ -370,7 +411,7 @@ export default function ShoppingBlogReporterPage() {
           </div>
 
           {/* 이미지 등록 */}
-          <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-5">
+          <div className="px-8 py-5 space-y-5 border-t border-brand-border">
             <div className="flex items-center gap-3">
               <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -427,6 +468,7 @@ export default function ShoppingBlogReporterPage() {
                 ))}
               </ul>
             </div>
+          </div>
           </div>
 
         </div>
@@ -485,20 +527,33 @@ export default function ShoppingBlogReporterPage() {
               ))}
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={isPending || !agreements.req1 || !agreements.req2}
-              className="w-full py-3.5 rounded-xl text-[17px] font-extrabold text-white bg-brand-dark hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isPending ? "등록 중..." : (
-                <>
-                  캠페인 등록 / 결제
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                </>
-              )}
-            </button>
+            {/* 결제 / 장바구니 */}
+            <div className="grid grid-cols-[1.5fr_1fr] gap-2.5">
+              <button
+                onClick={handleSubmit}
+                disabled={isPending || !agreements.req1 || !agreements.req2}
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                {isPending ? "등록 중..." : (
+                  <>
+                    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.3 1.046a1 1 0 01.65 1.212L10.44 8H15a1 1 0 01.788 1.615l-7 9A1 1 0 017 18v-6H3a1 1 0 01-.788-1.615l7-9a1 1 0 011.088-.34z" clipRule="evenodd" />
+                    </svg>
+                    즉시 포인트 차감하기
+                  </>
+                )}
+              </button>
+
+              <Link
+                href="/marketing/cart"
+                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                장바구니
+              </Link>
+            </div>
           </div>
         </div>
 
