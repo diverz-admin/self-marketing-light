@@ -47,7 +47,7 @@ export default function MobileMenu() {
         {/* 로고 + 닫기 */}
         <div className="px-5 pt-5 pb-4 shrink-0 flex items-start justify-between">
           <Link href="/marketing" className="flex flex-col gap-1.5">
-            <Image src="/blue-egg-logo.png" alt="BLUE EGG biz" width={242} height={113} className="h-9 w-auto" />
+            <Image src="/blue-egg-logo-v2.png" alt="BLUE EGG biz" width={242} height={113} className="h-9 w-auto" />
             <p className="text-[11px] text-[#99A0AC] leading-tight pl-0.5">셀프 마케팅 플랫폼</p>
           </Link>
           <button
