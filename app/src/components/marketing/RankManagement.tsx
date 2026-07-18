@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 /* ── Types ── */
-type Platform = "naver_place" | "naver_shopping";
+type Platform = "naver_place" | "naver_shopping" | "coupang";
 
 /* 플랫폼 ↔ 사이드바 라우트 매핑 */
 const PLATFORM_ROUTE: Record<Platform, string> = {
   naver_place: "/marketing/rank/place",
   naver_shopping: "/marketing/rank/shopping",
+  coupang: "/marketing/rank/coupang",
 };
 
 // 업체 하나에 속한 개별 키워드의 순위 정보
@@ -116,6 +117,21 @@ const PLATFORM_META: Record<Platform, {
     urlRegex: /products\/(\d+)/,
     keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
   },
+  coupang: {
+    label: "쿠팡",
+    color: "#0D3473",
+    grad: "linear-gradient(135deg,#0D3473,#0D2148)",
+    emoji: "📦",
+    placeholder: "예) 무선 청소기, 캠핑 의자",
+    urlLabel: "상품 URL 또는 상품 ID",
+    urlPlaceholder: "https://www.coupang.com/vp/products/...  또는  상품 ID",
+    urlFieldLabel: "쿠팡 상품 주소(URL) 혹은 ID",
+    urlInputPlaceholder: "상품 URL 또는 상품 ID를 입력하세요",
+    exampleUrl: "https://www.coupang.com/vp/products/7654321098",
+    exampleId: "7654321098",
+    urlRegex: /products\/(\d+)/,
+    keywordPlaceholder: "상품이 노출되길 원하는 목표 검색어",
+  },
 };
 
 const MOCK_DATA: Record<Platform, RankItem[]> = {
@@ -178,6 +194,44 @@ const MOCK_DATA: Record<Platform, RankItem[]> = {
       keywords: [
         { keyword: "캐시미어 니트", currentRank: null, prevRank: null, bestRank: 35, history: [55, 50, 45, 40, null, null, null], monthlyVolume: 5200, registeredAt: "2026-06-15", productUrl: "https://smartstore.naver.com/soft/products/5556667778" },
         { keyword: "터틀넥",       currentRank: 40,   prevRank: 42,   bestRank: 33, history: [60, 55, 50, 46, 44, 42, 40],     monthlyVolume: 8900, registeredAt: "2026-06-15", productUrl: "https://smartstore.naver.com/soft/products/5556667779" },
+      ],
+    },
+  ],
+  coupang: [
+    // ── 셀러(스토어): 리빙무드 — 상품 2개 ──
+    {
+      id: 1, store: "리빙무드", productName: "극세사 차렵이불 SS", targetUrl: "https://www.coupang.com/vp/products/7654321098", checkedAt: "12분 전", status: "active",
+      keywords: [
+        { keyword: "차렵이불",   currentRank: 5,  prevRank: 9,  bestRank: 3,  history: [28, 21, 16, 12, 9, 7, 5],   monthlyVolume: 21400, registeredAt: "2026-06-22", productUrl: "https://www.coupang.com/vp/products/7654321098" },
+        { keyword: "극세사 이불", currentRank: 9,  prevRank: 11, bestRank: 7,  history: [24, 20, 17, 14, 12, 11, 9], monthlyVolume: 13600, registeredAt: "2026-06-22", productUrl: "https://www.coupang.com/vp/products/7654321100" },
+      ],
+    },
+    {
+      id: 2, store: "리빙무드", productName: "경추 라텍스 베개", targetUrl: "https://www.coupang.com/vp/products/7654321099", checkedAt: "12분 전", status: "active",
+      keywords: [
+        { keyword: "경추 베개",  currentRank: 13, prevRank: 17, bestRank: 10, history: [38, 32, 27, 22, 19, 17, 13], monthlyVolume: 9800, registeredAt: "2026-06-20", productUrl: "https://www.coupang.com/vp/products/7654321099" },
+      ],
+    },
+    // ── 셀러(스토어): 데일리핏 — 상품 2개 ──
+    {
+      id: 3, store: "데일리핏", productName: "남성 무지 반팔티 3팩", targetUrl: "https://www.coupang.com/vp/products/6543210987", checkedAt: "12분 전", status: "active",
+      keywords: [
+        { keyword: "남성 반팔티", currentRank: 7,  prevRank: 6,  bestRank: 4,  history: [16, 12, 9, 7, 8, 6, 7],   monthlyVolume: 28900, registeredAt: "2026-06-19", productUrl: "https://www.coupang.com/vp/products/6543210987" },
+        { keyword: "무지 반팔",   currentRank: 11, prevRank: 13, bestRank: 8,  history: [30, 24, 20, 16, 14, 13, 11], monthlyVolume: 15200, registeredAt: "2026-06-19", productUrl: "https://www.coupang.com/vp/products/6543210988" },
+      ],
+    },
+    {
+      id: 4, store: "데일리핏", productName: "기능성 냉감 언더셔츠", targetUrl: "https://www.coupang.com/vp/products/6543210989", checkedAt: "12분 전", status: "active",
+      keywords: [
+        { keyword: "냉감 언더셔츠", currentRank: 18, prevRank: 15, bestRank: 12, history: [35, 30, 26, 22, 18, 15, 18], monthlyVolume: 7300, registeredAt: "2026-06-18", productUrl: "https://www.coupang.com/vp/products/6543210989" },
+      ],
+    },
+    // ── 셀러(스토어): 그린키친 — 상품 1개 ──
+    {
+      id: 5, store: "그린키친", productName: "인덕션 프라이팬 3종 세트", targetUrl: "9012345678", checkedAt: "집계 중", status: "paused",
+      keywords: [
+        { keyword: "인덕션 프라이팬", currentRank: null, prevRank: null, bestRank: 22, history: [42, 38, 33, 28, null, null, null], monthlyVolume: 11800, registeredAt: "2026-06-15", productUrl: "https://www.coupang.com/vp/products/9012345678" },
+        { keyword: "프라이팬 세트",   currentRank: 26,   prevRank: 29,   bestRank: 20, history: [48, 43, 38, 33, 30, 29, 26],   monthlyVolume: 8100, registeredAt: "2026-06-15", productUrl: "https://www.coupang.com/vp/products/9012345679" },
       ],
     },
   ],
@@ -310,10 +364,11 @@ const KNOWN_STORES: Record<string, string> = {
 };
 const SAMPLE_SHOPPING_STORES = ["라움 리빙", "데일리무드", "코코네일샵", "그린테이블", "노르딕홈", "무드컴퍼니", "어반셀렉트"];
 const SAMPLE_PLACE_STORES = ["미도인 성수점", "온천집 강남점", "역전할머니맥주 홍대점", "파리바게뜨 이태원점", "스타벅스 강남점"];
+const SAMPLE_COUPANG_STORES = ["리빙무드", "데일리핏", "그린키친", "베스트홈", "스마트리빙", "데일리셀렉트"];
 function lookupStoreName(platform: Platform, id: string): string | null {
   if (KNOWN_STORES[id]) return KNOWN_STORES[id];
   if (!/^\d{6,}$/.test(id)) return null;
-  const list = platform === "naver_place" ? SAMPLE_PLACE_STORES : SAMPLE_SHOPPING_STORES;
+  const list = platform === "naver_place" ? SAMPLE_PLACE_STORES : platform === "coupang" ? SAMPLE_COUPANG_STORES : SAMPLE_SHOPPING_STORES;
   const hash = [...id].reduce((a, c) => a + c.charCodeAt(0), 0);
   return list[hash % list.length];
 }
@@ -466,8 +521,8 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
 
   const allKeywords = items.flatMap(i => i.keywords);
 
-  // 네이버 쇼핑: 하나의 업체(스토어)가 여러 상품을 운영 → 업체별로 묶어서 표시
-  const isShopping = activePlatform === "naver_shopping";
+  // 네이버 쇼핑·쿠팡: 하나의 업체(스토어)가 여러 상품을 운영 → 업체별로 묶어서 표시
+  const isShopping = activePlatform !== "naver_place";
   const groups: { store: string | null; items: RankItem[] }[] = (() => {
     if (!isShopping) return [{ store: null, items }];
     const map = new Map<string, RankItem[]>();
@@ -500,7 +555,7 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
             </span>
             <div className="min-w-0">
               <h1 className="text-[22px] font-extrabold text-brand-dark leading-tight">통합 순위관리</h1>
-              <p className="text-[14px] text-brand-sub mt-0.5">네이버 플레이스·쇼핑 키워드 순위를 한 페이지에서 추적하세요.</p>
+              <p className="text-[14px] text-brand-sub mt-0.5">네이버 플레이스·쇼핑, 쿠팡 키워드 순위를 한 페이지에서 추적하세요.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -980,6 +1035,12 @@ export default function RankManagement({ initialPlatform = "naver_place" }: { in
                               "검색 키워드 입력 후 플레이스 탭 기준 순위입니다.",
                               "지역 + 키워드 조합으로 순위가 결정됩니다.",
                               "저장/길찾기/리뷰 미션 수행 시 순위 상승에 유리합니다.",
+                            ]
+                          : activePlatform === "coupang"
+                          ? [
+                              "쿠팡 검색 결과 내 상품 순위입니다.",
+                              "로켓배송 / 판매자배송 여부에 따라 노출이 달라집니다.",
+                              "판매량, 리뷰 수, 구매전환율이 순위에 영향을 미칩니다.",
                             ]
                           : [
                               "네이버쇼핑 검색 결과 내 상품 순위입니다.",

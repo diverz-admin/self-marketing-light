@@ -5,6 +5,7 @@ import SidebarNav from "@/components/marketing/SidebarNav";
 import ContentArea from "@/components/marketing/ContentArea";
 import MobileBottomNav from "@/components/marketing/MobileBottomNav";
 import MobileMenu from "@/components/marketing/MobileMenu";
+import { MobileMenuProvider } from "@/components/marketing/MobileMenuContext";
 import { CartProvider } from "@/components/marketing/CartContext";
 import { HeaderBalance, HeaderCartButton } from "@/components/marketing/HeaderCart";
 
@@ -18,6 +19,7 @@ const MOCK = {
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <CartProvider>
+    <MobileMenuProvider>
     <div className="h-screen flex bg-[#EDEFF2]">
 
       {/* ── Left Sidebar (full height) ── */}
@@ -103,6 +105,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       {/* 모바일 전용 하단 탭바 */}
       <MobileBottomNav />
     </div>
+    </MobileMenuProvider>
     </CartProvider>
   );
 }

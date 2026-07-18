@@ -10,7 +10,6 @@ const USER = { name: "사용자", grade: "Bronze", point: 0, activeAdCount: 0 };
 function UserCard({ pathname }: { pathname: string }) {
   const campaignsActive = pathname === "/marketing/my/campaigns" || pathname.startsWith("/marketing/my/campaigns/");
   const reportActive = pathname === "/marketing/report" || pathname.startsWith("/marketing/report/");
-  const chatActive = pathname === "/marketing/community/chatroom" || pathname.startsWith("/marketing/community/chatroom/");
   return (
     <div className="mx-1 mt-1.5 mb-4 rounded-2xl overflow-hidden"
       style={{ background: "linear-gradient(155deg,#1B3160 0%,#111D37 100%)", boxShadow: "0 8px 22px rgba(13,52,115,0.20)" }}>
@@ -69,19 +68,6 @@ function UserCard({ pathname }: { pathname: string }) {
           <Link href="/marketing/report"
             className={`flex items-center justify-between gap-1 px-2 py-1.5 rounded-lg text-[13px] font-semibold transition-colors ${reportActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/[0.06]"}`}>
             My SNS 대시보드
-            <svg className="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-          <Link href="/marketing/community/chatroom"
-            className={`flex items-center justify-between gap-1 px-2 py-1.5 rounded-lg text-[13px] font-semibold transition-colors ${chatActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/[0.06]"}`}>
-            <span className="flex items-center gap-1.5">
-              오픈채팅
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-70" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#22C55E]" />
-              </span>
-            </span>
             <svg className="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
@@ -203,7 +189,6 @@ const NAV_GROUPS: NavGroup[] = [
         children: [
           { label: "공지사항", href: "/marketing/notices" },
           { label: "게시판", href: "/marketing/community/board" },
-          { label: "오픈채팅", href: "/marketing/community/chatroom" },
         ],
       },
     ],
@@ -219,6 +204,7 @@ const NAV_GROUPS: NavGroup[] = [
         children: [
           { label: "네이버 플레이스", href: "/marketing/rank/place" },
           { label: "네이버 쇼핑", href: "/marketing/rank/shopping" },
+          { label: "쿠팡", href: "/marketing/rank/coupang" },
         ],
       },
     ],
@@ -244,6 +230,15 @@ const NAV_GROUPS: NavGroup[] = [
         children: [
           { label: "[상위노출] 캠페인 신청", href: "/marketing/reward/shopping" },
           { label: "[상위노출] 캠페인 관리", href: "/marketing/reward/shopping/manage" },
+        ],
+      },
+      {
+        label: "쿠팡 리워드",
+        href: "/marketing/reward/coupang",
+        icon: { kind: "brand", brand: "coupang" },
+        children: [
+          { label: "[상위노출] 캠페인 신청", href: "/marketing/reward/coupang" },
+          { label: "[상위노출] 캠페인 관리", href: "/marketing/reward/coupang/manage" },
         ],
       },
     ],

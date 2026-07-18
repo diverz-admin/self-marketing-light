@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarNav from "./SidebarNav";
+import { useMobileMenu } from "./MobileMenuContext";
 
 /* 모바일 전용 햄버거 메뉴 + 좌측 슬라이드 드로어 (PC 사이드바 전체를 노출) */
 export default function MobileMenu() {
-  const [open, setOpen] = useState(false);
+  const { open, openMenu, closeMenu } = useMobileMenu();
 
   // 내비게이션 링크 클릭 시 자동으로 닫힘 (아코디언 토글 버튼은 유지)
   const closeIfLink = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("a")) setOpen(false);
+    if ((e.target as HTMLElement).closest("a")) closeMenu();
   };
 
   return (
@@ -19,7 +19,7 @@ export default function MobileMenu() {
       {/* 햄버거 버튼 (모바일 전용) */}
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openMenu}
         aria-label="메뉴 열기"
         className="md:hidden shrink-0 -ml-1 h-9 w-9 flex items-center justify-center rounded-xl text-[#2B3648] hover:bg-[#F2F4F6] transition-colors"
       >
@@ -31,7 +31,7 @@ export default function MobileMenu() {
       {/* 배경 오버레이 */}
       <div
         aria-hidden
-        onClick={() => setOpen(false)}
+        onClick={closeMenu}
         className={`md:hidden fixed inset-0 z-[100] bg-black/40 transition-opacity duration-200 ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
@@ -52,7 +52,7 @@ export default function MobileMenu() {
           </Link>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={closeMenu}
             aria-label="메뉴 닫기"
             className="shrink-0 h-8 w-8 flex items-center justify-center rounded-lg text-[#5B6472] hover:bg-[#F2F4F6] transition-colors"
           >

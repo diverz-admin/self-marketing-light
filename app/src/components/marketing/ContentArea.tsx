@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon3D, { Icon3DName } from "./Icon3D";
-import OpenChatWidget from "./OpenChatWidget";
 
 /** 하단 롤링 광고배너 (자동 순환) */
 const ROLLING_BANNERS: {
@@ -126,11 +125,6 @@ export default function ContentArea({ children }: { children: React.ReactNode })
               {/* 롤링 광고배너 */}
               <div className="shrink-0">
                 <RollingBanner />
-              </div>
-
-              {/* 맨 하단 실시간 오픈채팅 — 남은 높이를 끝까지 채움 (하단 끝선 정렬) */}
-              <div className="flex-1 min-h-0">
-                <OpenChatWidget />
               </div>
             </div>
           </aside>
