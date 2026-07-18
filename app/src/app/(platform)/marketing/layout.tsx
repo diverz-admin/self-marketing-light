@@ -29,7 +29,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         {/* 로고 */}
         <div className="px-5 pt-5 pb-4 shrink-0">
           <Link href="/marketing" className="flex flex-col gap-1.5">
-            <Image src="/blue-egg-logo-v2.png" alt="BLUE EGG biz" width={242} height={113} priority className="h-10 w-auto" />
+            <Image src="/blue-egg-logo-v2.png" alt="BLUE EGG biz" width={242} height={113} priority unoptimized className="h-8 w-auto self-start" />
             <p className="text-[11px] text-[#99A0AC] leading-tight pl-0.5">셀프 마케팅 플랫폼</p>
           </Link>
         </div>
