@@ -29,21 +29,36 @@ function RollingBanner() {
       href={b.href}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative flex items-center gap-3 rounded-2xl overflow-hidden px-4 py-3.5 group"
+      className="relative flex flex-col rounded-2xl overflow-hidden px-6 py-6 group min-h-[200px]"
       style={{ background: b.grad }}
     >
-      <div key={idx} className="animate-roll-fade flex items-center gap-3 min-w-0 flex-1">
-        <span className="flex h-11 w-11 rounded-xl bg-white items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.18)]">
-          <Icon3D name={b.icon} className="w-7 h-7" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <span className="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/15 text-white mb-1">{b.tag}</span>
-          <p className="text-[15px] font-extrabold text-white leading-tight whitespace-pre-line">{b.title}</p>
+      {/* 장식 원 */}
+      <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/[0.06] pointer-events-none" />
+      <div className="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/[0.05] pointer-events-none" />
+
+      <div key={idx} className="animate-roll-fade relative flex flex-col h-full min-w-0">
+        {/* 상단: 아이콘 + 태그 */}
+        <div className="flex items-center justify-between">
+          <span className="flex h-12 w-12 rounded-xl bg-white items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.18)]">
+            <Icon3D name={b.icon} className="w-7 h-7" />
+          </span>
+          <span className="inline-block text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/15 text-white">{b.tag}</span>
         </div>
+
+        {/* 중단: 제목 + 설명 */}
+        <div className="mt-4 min-w-0">
+          <p className="text-[19px] font-extrabold text-white leading-tight whitespace-pre-line">{b.title}</p>
+          <p className="text-[13px] text-white/60 leading-relaxed mt-2">{b.desc}</p>
+        </div>
+
+        {/* 하단: CTA */}
+        <span className="mt-auto inline-flex items-center gap-1.5 text-[13.5px] font-bold text-white/85 group-hover:text-white transition-colors">
+          자세히 보기
+          <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </span>
       </div>
-      <svg className="w-4 h-4 text-white/50 shrink-0 group-hover:text-white group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-      </svg>
     </Link>
   );
 }
@@ -100,30 +115,40 @@ export default function ContentArea({ children }: { children: React.ReactNode })
 
         {isDashboard && (
           <aside className="hidden xl:flex flex-col w-[320px] shrink-0 border-l border-[#E2E6ED] bg-[#EDEFF2] overflow-hidden">
-            <div className="flex-1 min-h-0 flex flex-col p-5 gap-4">
+            <div className="flex-1 min-h-0 flex flex-col p-5 gap-4 overflow-y-auto">
               {/* 고객 지원 */}
-              <div className="shrink-0 flex items-center gap-3 rounded-2xl border border-[#E2E6ED] bg-white px-5 py-4">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-bold text-[#99A0AC] uppercase tracking-wider mb-1">고객 지원</p>
-                  <p className="text-[16px] font-bold text-[#111D37] leading-snug">세팅에 도움이<br />필요하신가요?</p>
-                </div>
-                <Link href="/marketing/support" className="shrink-0 whitespace-nowrap px-4 py-3 rounded-xl text-[13px] font-bold bg-[#F5F6F8] border border-[#E2E6ED] text-[#2B3648] hover:bg-[#EDEFF2] transition-colors">
+              <div className="shrink-0 flex flex-col rounded-2xl border border-[#E2E6ED] bg-white px-6 py-6">
+                <span className="inline-flex h-12 w-12 rounded-xl bg-[#EEF3FC] items-center justify-center shrink-0 mb-3.5">
+                  <svg className="w-6 h-6 text-[#2E6BE0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 4.5v6.75A6.75 6.75 0 015.25 11.25V4.5m0 6.75V15a6.75 6.75 0 006.75 6.75m0 0a2.25 2.25 0 104.5 0 2.25 2.25 0 00-4.5 0zM3 8.25h2.25M18.75 8.25H21" />
+                  </svg>
+                </span>
+                <p className="text-[12px] font-bold text-[#99A0AC] uppercase tracking-wider mb-1.5">고객 지원</p>
+                <p className="text-[19px] font-extrabold text-[#111D37] leading-snug">세팅에 도움이<br />필요하신가요?</p>
+                <p className="text-[13px] text-[#6B7280] leading-relaxed mt-2.5">전문 컨설턴트가 캠페인 세팅부터 최적화까지 1:1로 도와드립니다.</p>
+                <Link href="/marketing/support" className="mt-8 flex items-center justify-center gap-1.5 w-full px-4 py-3.5 rounded-xl text-[14px] font-bold bg-[#0D3473] text-white hover:bg-[#0D2148] transition-colors">
                   전문 무료상담 신청
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </Link>
               </div>
               {/* 트래픽 제휴 */}
-              <div className="shrink-0 flex items-center gap-3 rounded-2xl bg-[#111D37] px-5 py-4">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-bold text-white/40 uppercase tracking-wider mb-1">트래픽 제휴</p>
-                  <p className="text-[16px] font-bold text-white leading-snug">광고대행사를<br />운영중이신가요?</p>
-                </div>
-                <Link href="/marketing/support" className="shrink-0 whitespace-nowrap px-4 py-3 rounded-xl text-[13px] font-bold bg-white/10 text-white hover:bg-white/20 transition-colors">
+              <div className="shrink-0 flex flex-col rounded-2xl bg-[#111D37] px-6 py-6">
+                <span className="inline-flex h-12 w-12 rounded-xl bg-white/10 items-center justify-center shrink-0 mb-3.5">
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                  </svg>
+                </span>
+                <p className="text-[12px] font-bold text-white/40 uppercase tracking-wider mb-1.5">트래픽 제휴</p>
+                <p className="text-[19px] font-extrabold text-white leading-snug">광고대행사를<br />운영중이신가요?</p>
+                <p className="text-[13px] text-white/55 leading-relaxed mt-2.5">제휴사 전용 특별 단가와 전담 매니저를 지원해 드립니다.</p>
+                <Link href="/marketing/support" className="mt-8 flex items-center justify-center gap-1.5 w-full px-4 py-3.5 rounded-xl text-[14px] font-bold bg-white text-[#0D3473] hover:bg-white/90 transition-colors">
                   제휴 문의하기
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </Link>
               </div>
 
               {/* 롤링 광고배너 */}
-              <div className="shrink-0">
+              <div className="shrink-0 flex flex-col">
                 <RollingBanner />
               </div>
             </div>
