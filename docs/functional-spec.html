@@ -1,0 +1,1190 @@
+<title>BLUE EGG 기능 정의서 v0.1.1</title>
+
+<style>
+  :root {
+    --paper:        #F2F6F6;
+    --surface:      #FFFFFF;
+    --surface-2:    #E8EFEF;
+    --ink:          #0C1A1C;
+    --ink-2:        #35494C;
+    --ink-3:        #62787B;
+    --rule:         #CBDADA;
+    --rule-soft:    #DEE9E9;
+    --accent:       #0B7F82;
+    --accent-2:     #075A5C;
+    --accent-wash:  #DCEEEE;
+
+    --ok:    #1F6F4A;
+    --ok-bg: #DCEDE2;
+    --warn:  #8A5A11;
+    --warn-bg:#F4E7CE;
+    --crit:  #A33420;
+    --crit-bg:#F6DDD7;
+    --mute:  #5B6470;
+    --mute-bg:#E2E5EA;
+
+    --font-body: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    --font-serif: ui-serif, "Nanum Myeongjo", AppleMyungjo, Batang, serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    --w: 1180px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:     #0A1416;
+      --surface:   #101E21;
+      --surface-2: #16292C;
+      --ink:       #E6F0EF;
+      --ink-2:     #AFC4C4;
+      --ink-3:     #7E9698;
+      --rule:      #23393C;
+      --rule-soft: #1B2F32;
+      --accent:    #4FC2C0;
+      --accent-2:  #8FDCD8;
+      --accent-wash:#12292B;
+
+      --ok:    #6FD09B;  --ok-bg:  #12301F;
+      --warn:  #E0B45F;  --warn-bg:#332711;
+      --crit:  #EE8D77;  --crit-bg:#3A1B14;
+      --mute:  #98A4B0;  --mute-bg:#1D262C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:     #0A1416;
+    --surface:   #101E21;
+    --surface-2: #16292C;
+    --ink:       #E6F0EF;
+    --ink-2:     #AFC4C4;
+    --ink-3:     #7E9698;
+    --rule:      #23393C;
+    --rule-soft: #1B2F32;
+    --accent:    #4FC2C0;
+    --accent-2:  #8FDCD8;
+    --accent-wash:#12292B;
+    --ok:    #6FD09B;  --ok-bg:  #12301F;
+    --warn:  #E0B45F;  --warn-bg:#332711;
+    --crit:  #EE8D77;  --crit-bg:#3A1B14;
+    --mute:  #98A4B0;  --mute-bg:#1D262C;
+  }
+  :root[data-theme="light"] {
+    --paper:        #F2F6F6;
+    --surface:      #FFFFFF;
+    --surface-2:    #E8EFEF;
+    --ink:          #0C1A1C;
+    --ink-2:        #35494C;
+    --ink-3:        #62787B;
+    --rule:         #CBDADA;
+    --rule-soft:    #DEE9E9;
+    --accent:       #0B7F82;
+    --accent-2:     #075A5C;
+    --accent-wash:  #DCEEEE;
+    --ok:    #1F6F4A;  --ok-bg: #DCEDE2;
+    --warn:  #8A5A11;  --warn-bg:#F4E7CE;
+    --crit:  #A33420;  --crit-bg:#F6DDD7;
+    --mute:  #5B6470;  --mute-bg:#E2E5EA;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  /* ---------- shell ---------- */
+  .shell {
+    max-width: var(--w);
+    margin: 0 auto;
+    padding: 0 28px 120px;
+    display: grid;
+    grid-template-columns: 208px minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  /* ---------- cover ---------- */
+  .cover {
+    max-width: var(--w);
+    margin: 0 auto;
+    padding: 72px 28px 44px;
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .kicker::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--rule);
+  }
+  .cover h1 {
+    font-size: clamp(38px, 6.4vw, 62px);
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+    margin: 22px 0 0;
+    text-wrap: balance;
+  }
+  .cover h1 em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+  }
+  .lede {
+    margin: 20px 0 0;
+    max-width: 62ch;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--ink-2);
+  }
+  .meta {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 40px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .meta b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- nav rail ---------- */
+  nav {
+    position: sticky;
+    top: 28px;
+    font-size: 13px;
+    padding-top: 6px;
+  }
+  nav .navlabel {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 10px;
+  }
+  nav ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  nav a {
+    display: flex;
+    gap: 9px;
+    padding: 5px 0;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-radius: 3px;
+    transition: color .15s;
+  }
+  nav a:hover { color: var(--accent); }
+  nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  nav a span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    padding-top: 2px;
+  }
+
+  .legendbox {
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .legendbox .navlabel { border: 0; padding: 0; margin-bottom: 4px; }
+  .legendrow { display: flex; gap: 9px; align-items: baseline; font-size: 12px; color: var(--ink-2); }
+
+  /* ---------- sections ---------- */
+  main { min-width: 0; }
+  section { padding-top: 8px; scroll-margin-top: 20px; }
+  section + section { margin-top: 68px; }
+
+  h2 {
+    font-size: 27px;
+    letter-spacing: -0.028em;
+    font-weight: 750;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  h2 .num {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .h2rule { height: 2px; background: var(--ink); margin: 14px 0 26px; opacity: .82; }
+
+  h3 {
+    font-size: 17.5px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 40px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  h3 code {
+    font-size: 12.5px;
+    color: var(--accent);
+    background: var(--accent-wash);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 28px 0 10px;
+    color: var(--ink);
+  }
+
+  p { margin: 0 0 14px; max-width: 74ch; }
+  p.wide { max-width: none; }
+  section > p:last-child { margin-bottom: 0; }
+
+  a { color: var(--accent); }
+
+  /* ---------- inline ---------- */
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.855em;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  strong { font-weight: 700; }
+
+  /* ---------- tables ---------- */
+  .tw {
+    overflow-x: auto;
+    margin: 16px 0 22px;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.id, td.num, .tnum { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.id { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+  td.r { text-align: right; }
+  td small { color: var(--ink-3); font-size: 12px; }
+
+  /* ---------- grade chips ---------- */
+  .g {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+    line-height: 1.55;
+  }
+  .g.a { background: var(--ok-bg);   color: var(--ok);   }
+  .g.b { background: var(--warn-bg); color: var(--warn); }
+  .g.c { background: var(--crit-bg); color: var(--crit); }
+  .g.d { background: var(--mute-bg); color: var(--mute); }
+  .g.x { background: transparent; color: var(--ink-3); border: 1px solid var(--rule); }
+
+  /* ---------- status board ---------- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    overflow: hidden;
+    margin: 20px 0 8px;
+  }
+  .cell { background: var(--surface); padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 7px; }
+  .cell .ct { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .cell .cd { font-size: 12.5px; color: var(--ink-3); line-height: 1.6; }
+  .bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+  .bar i { display: block; height: 100%; }
+  .bar .fa { background: var(--ok); }
+  .bar .fb { background: var(--warn); }
+  .bar .fc { background: var(--crit); }
+  .bar .fd { background: var(--mute); opacity: .5; }
+
+  /* ---------- callouts ---------- */
+  .note {
+    margin: 18px 0 22px;
+    padding: 14px 18px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+    line-height: 1.68;
+    color: var(--ink-2);
+  }
+  .note b { color: var(--ink); }
+  .note.warn { border-left-color: var(--crit); }
+  .note.warn b { color: var(--crit); }
+  .note p:last-child { margin-bottom: 0; }
+  .note p { max-width: none; }
+  .note .nl {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .note.warn .nl { color: var(--crit); }
+
+  /* ---------- formula block ---------- */
+  pre {
+    margin: 16px 0 22px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.95;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  pre b { color: var(--accent); font-weight: 600; }
+  pre i { color: var(--ink-3); font-style: normal; }
+
+  ul.plain { margin: 12px 0 20px; padding-left: 20px; }
+  ul.plain li { margin-bottom: 6px; max-width: 74ch; }
+
+  footer {
+    max-width: var(--w);
+    margin: 0 auto;
+    padding: 30px 28px 70px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; gap: 0; }
+    nav { position: static; margin-bottom: 46px; }
+    nav ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .legendbox { display: none; }
+    .cover { padding-top: 48px; }
+  }
+
+  /* ---------- print / PDF ---------- */
+  @media print {
+    :root {
+      --paper: #fff; --surface: #fff; --surface-2: #F1F5F5;
+      --ink: #000; --ink-2: #233436; --ink-3: #55686A;
+      --rule: #B9C9C9; --rule-soft: #D8E3E3;
+    }
+    body { font-size: 10.5pt; line-height: 1.55; }
+    nav, footer { display: none; }
+    .shell { display: block; max-width: none; padding: 0 0 0; }
+    .cover { padding: 0 0 24px; max-width: none; }
+    .cover h1 { font-size: 30pt; }
+    .lede { font-size: 11.5pt; }
+    section + section { margin-top: 26pt; }
+    section { break-before: page; page-break-before: always; }
+    section:first-of-type { break-before: auto; page-break-before: auto; }
+    h2 { font-size: 17pt; }
+    h3 { font-size: 12.5pt; break-after: avoid; page-break-after: avoid; }
+    h4 { break-after: avoid; page-break-after: avoid; }
+    table { font-size: 8.6pt; }
+    th, td { padding: 5px 8px; }
+    .tw, .note, pre, .board { break-inside: auto; page-break-inside: auto; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    a { color: #000; text-decoration: none; }
+    @page { margin: 15mm 13mm; }
+  }
+</style>
+
+<header class="cover">
+  <div class="kicker">Functional Specification &nbsp;·&nbsp; v0.1.1</div>
+  <h1>BLUE EGG<br>셀프 마케팅 플랫폼 <em>기능 정의서</em></h1>
+  <p class="lede">
+    구현된 약 60개 광고주 화면과 6개 운영자 화면, 12개 DB 테이블을 전수 조사해
+    실제로 확정된 기능·입력값·계산식·상태값을 역산해 정본으로 고정한 문서입니다.
+    <code>docs/PRD.md</code>가 “무엇을 왜 만들 것인가”를 정의한다면, 이 문서는 “지금 무엇이 어디까지 되어 있는가”를 정의합니다.
+  </p>
+  <div class="meta">
+    <div><b>작성일</b> &nbsp;2026-07-21</div>
+    <div><b>기준 코드</b> &nbsp;app/ · Next.js 16 · Drizzle + Supabase</div>
+    <div><b>대조 문서</b> &nbsp;docs/PRD.md</div>
+    <div><b>기능 항목</b> &nbsp;100+</div>
+    <div><b>개정</b> &nbsp;v0.1.1 — 커뮤니티 범위 한정</div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <nav aria-label="목차">
+    <div class="navlabel">목차</div>
+    <ol>
+      <li><a href="#s0"><span>00</span>읽는 법</a></li>
+      <li><a href="#s1"><span>01</span>서비스 범위</a></li>
+      <li><a href="#s2"><span>02</span>서비스 카탈로그</a></li>
+      <li><a href="#s3"><span>03</span>기능 정의</a></li>
+      <li><a href="#s4"><span>04</span>데이터 모델</a></li>
+      <li><a href="#s5"><span>05</span>비즈니스 규칙</a></li>
+      <li><a href="#s6"><span>06</span>코드 구조 이슈</a></li>
+      <li><a href="#s7"><span>07</span>개발 백로그</a></li>
+      <li><a href="#s8"><span>08</span>결정 필요 사항</a></li>
+    </ol>
+    <div class="legendbox">
+      <div class="navlabel">구현 등급</div>
+      <div class="legendrow"><span class="g a">A</span> DB 연동 완료</div>
+      <div class="legendrow"><span class="g b">B</span> 로직 확정·저장 목업</div>
+      <div class="legendrow"><span class="g c">C</span> UI만 · 핸들러 없음</div>
+      <div class="legendrow"><span class="g d">D</span> 고아 · 데드코드</div>
+      <div class="legendrow"><span class="g x">—</span> 미구현</div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ============ 00 ============ -->
+    <section id="s0">
+      <h2><span class="num">00</span>이 문서를 읽는 법</h2>
+      <div class="h2rule"></div>
+
+      <p>모든 기능에는 <strong>구현 등급</strong>이 붙어 있습니다. 등급은 “완성도”가 아니라 <strong>“무엇이 남았는가”</strong>를 가리킵니다.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:64px">등급</th><th>의미</th><th>남은 일</th></tr></thead>
+          <tbody>
+            <tr><td><span class="g a">A</span></td><td>UI + DB / 서버액션 연동 완료. 실제로 동작함</td><td>없음 또는 보강</td></tr>
+            <tr><td><span class="g b">B</span></td><td>UI 완성 + 계산식·검증 로직 확정. 저장소만 목업(localStorage / setTimeout)</td><td><strong>백엔드 연결만</strong></td></tr>
+            <tr><td><span class="g c">C</span></td><td>UI만 존재. 핸들러 없음 또는 <code>alert()</code> 스텁</td><td>기능 설계 + 구현</td></tr>
+            <tr><td><span class="g d">D</span></td><td>라우트는 있으나 네비게이션에서 도달 불가, 또는 데드코드</td><td>연결 또는 삭제 판단</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>영역별 현황</h4>
+      <div class="board">
+        <div class="cell">
+          <div class="ct">운영자 콘솔 <span class="g a">A</span></div>
+          <div class="bar"><i class="fa" style="width:88%"></i><i class="fd" style="width:12%"></i></div>
+          <div class="cd">6개 화면 전부 실 DB 조회 + 서버액션 쓰기. 상세 페이지·페이지네이션·감사 로그만 부재</div>
+        </div>
+        <div class="cell">
+          <div class="ct">리워드 마케팅 <span class="g b">B</span></div>
+          <div class="bar"><i class="fb" style="width:78%"></i><i class="fc" style="width:14%"></i><i class="fd" style="width:8%"></i></div>
+          <div class="cd">신청·관리·연장 로직 전부 확정. 저장이 전무해 주문이 남지 않음</div>
+        </div>
+        <div class="cell">
+          <div class="ct">리뷰 · 체험단 <span class="g b">B</span></div>
+          <div class="bar"><i class="fb" style="width:66%"></i><i class="fc" style="width:12%"></i><i class="fd" style="width:22%"></i></div>
+          <div class="cd">단가표 6등급 확정. 신청 라우트 5개가 탭에 미노출</div>
+        </div>
+        <div class="cell">
+          <div class="ct">통합 순위관리 <span class="g b">B</span></div>
+          <div class="bar"><i class="fb" style="width:80%"></i><i class="fd" style="width:20%"></i></div>
+          <div class="cd">UI 완성도 최상. <strong>순위 수집 파이프라인이 없음</strong></div>
+        </div>
+        <div class="cell">
+          <div class="ct">포인트 · 결제 <span class="g c">C</span></div>
+          <div class="bar"><i class="fb" style="width:45%"></i><i class="fc" style="width:55%"></i></div>
+          <div class="cd">잔액이 5개 소스로 분산. 충전 버튼에 핸들러 없음</div>
+        </div>
+        <div class="cell">
+          <div class="ct">상담형 상품 12종 <span class="g c">C</span></div>
+          <div class="bar"><i class="fc" style="width:100%"></i></div>
+          <div class="cd">랜딩은 완성, 모든 CTA가 <code>alert()</code>. <strong>리드 획득 경로 0</strong></div>
+        </div>
+        <div class="cell">
+          <div class="ct">인증 · 계정 <span class="g a">A</span></div>
+          <div class="bar"><i class="fa" style="width:58%"></i><i class="fc" style="width:22%"></i><i class="fd" style="width:20%"></i></div>
+          <div class="cd">가입·로그인 동작. 로그아웃 버튼과 라우트 가드 부재</div>
+        </div>
+        <div class="cell">
+          <div class="ct">공개 홈페이지 <span class="g a">A</span></div>
+          <div class="bar"><i class="fa" style="width:75%"></i><i class="fc" style="width:25%"></i></div>
+          <div class="cd">4페이지 정적 완성. 문의 폼이 <code>mailto:</code>이고 수신 주소가 TODO</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 01 ============ -->
+    <section id="s1">
+      <h2><span class="num">01</span>서비스 범위</h2>
+      <div class="h2rule"></div>
+
+      <h3>3개 애플리케이션</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>영역</th><th>경로</th><th>대상</th><th style="width:130px">상태</th></tr></thead>
+          <tbody>
+            <tr><td><strong>공개 홈페이지</strong></td><td class="id">(site)/</td><td>잠재 고객</td><td>정적 완성 <span class="g a">A</span> <span class="g c">C</span></td></tr>
+            <tr><td><strong>광고주 플랫폼</strong></td><td class="id">(platform)/marketing/**</td><td>사업자 · 셀러</td><td>UI 완성, 대부분 <span class="g b">B</span></td></tr>
+            <tr><td><strong>운영자 콘솔</strong></td><td class="id">(platform)/admin/**</td><td>내부 운영자</td><td>실 DB 연동 <span class="g a">A</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>사용자 역할 <code>user_role</code></h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>역할</th><th>값</th><th>접근 범위</th><th style="width:70px">구현</th></tr></thead>
+          <tbody>
+            <tr><td>광고주</td><td class="id">advertiser</td><td><code>/marketing/**</code> · 가입 시 기본값</td><td><span class="g a">A</span></td></tr>
+            <tr><td>공급자</td><td class="id">supplier</td><td>포털 없음. 어드민이 대신 관리</td><td><span class="g x">스키마만</span></td></tr>
+            <tr><td>관리자</td><td class="id">admin</td><td><code>/admin/**</code></td><td><span class="g a">A</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="nl">갭</span>
+        세분 권한(퍼미션)이 없습니다. 운영자 · 정산담당 · CS를 구분하려면 역할 체계 확장이 필요합니다.
+      </div>
+
+      <h3>레거시 영역 <span class="g d">D</span></h3>
+      <p><code>(platform)/dashboard/**</code>(프로필 · 포트폴리오 · 블로그)와 <code>/[username]</code> 공개 프로필은 <strong>개인 셀프 브랜딩 시절의 유물</strong>입니다. 서버액션은 완성돼 있으나 페이지가 빈 배열을 넘겨 읽기 경로가 끊겨 있고, 인증 가드도 없습니다. <code>users</code> · <code>profiles</code> · <code>projects</code> · <code>posts</code> 테이블도 이 영역 전용입니다.</p>
+      <p><strong>결정 필요:</strong> 삭제 / 보류 / B2B용 재활용(사업자 프로필) 중 택 1.</p>
+    </section>
+
+    <!-- ============ 02 ============ -->
+    <section id="s2">
+      <h2><span class="num">02</span>서비스 카탈로그</h2>
+      <div class="h2rule"></div>
+
+      <p>프론트엔드가 정의한 실제 판매 상품군은 PRD의 9개 <code>product_type</code>보다 세분화되어 있습니다.</p>
+
+<pre>1. 리워드 마케팅   reward/{place, shopping, coupang, google} + place/guaranteed
+2. 리뷰 · 체험단   review/place/{blog-reporter, receipt, visitor, reservation, blog-experience}
+                   review/shopping/{product-experience, blog-reporter, blog-experience}
+3. 통합 순위관리   rank/{place, shopping, coupang}                    <i>← 무료 부가</i>
+4. 퍼포먼스 광고   ads/{naver-cpc, naver-cpc-refund, meta}            <i>← 상담형</i>
+5. 바이럴          community/cafe                                     <i>← 상담형</i>
+6. 콘텐츠 제작     content/{image, branding, homepage, detail, video}  <i>← 상담형</i>
+7. 커뮤니티        community/board, notices
+8. 마이            my/{campaigns, charge}, cart, report, support</pre>
+
+      <h3>판매 모델 3종</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>모델</th><th>대상</th><th>흐름</th><th>결제</th></tr></thead>
+          <tbody>
+            <tr><td><strong>셀프 주문형</strong></td><td>리워드, 리뷰 · 체험단</td><td>상품 선택 → 캠페인 설정 → 즉시 결제 / 장바구니</td><td>포인트 차감</td></tr>
+            <tr><td><strong>상담형</strong></td><td>광고대행, 바이럴, 콘텐츠</td><td>랜딩 열람 → 문의 접수 → 오프라인 계약</td><td>별도</td></tr>
+            <tr><td><strong>무료 부가</strong></td><td>순위관리, 커뮤니티, 리포트</td><td>로그인 후 상시 이용</td><td>없음</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <span class="nl">확정된 것</span>
+        <p>PRD 미해결질문 #1(건별 결제 vs 크레딧 충전)은 구현이 이미 <b>선불 포인트 차감 단일 모델</b>로 수렴했습니다. 건별 PG 결제는 어디에도 없습니다. 이대로 확정할 것을 권장합니다.</p>
+      </div>
+    </section>
+
+    <!-- ============ 03 ============ -->
+    <section id="s3">
+      <h2><span class="num">03</span>기능 정의</h2>
+      <div class="h2rule"></div>
+
+      <!-- AUTH -->
+      <h3><code>FR-AUTH</code> 인증 · 계정</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:86px">ID</th><th style="width:150px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">AUTH-01</td><td>회원가입</td><td>이메일 / 비밀번호. Supabase <code>auth.signUp</code> + 동일 id로 <code>public.users</code> insert(role=advertiser). 성공 시 <code>/marketing</code></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">AUTH-02</td><td>로그인</td><td><code>signInWithPassword</code> · 쿠키 세션</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">AUTH-03</td><td>로그아웃</td><td><code>signout()</code> 액션 존재. <strong>UI 버튼에 미연결</strong>(헤더 · 사이드바 · 어드민 모두)</td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">AUTH-04</td><td>관리자 로그인</td><td><code>/admin/login</code> → <code>users.role='admin'</code> 검증, 아니면 강제 <code>signOut</code></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">AUTH-05</td><td>관리자 부트스트랩</td><td><code>BOOTSTRAP_ADMIN_EMAILS</code> 하드코딩 이메일 자동 admin 승격 <strong>⚠ 운영 전 제거</strong></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">AUTH-06</td><td>라우트 보호</td><td><code>proxy.ts</code>가 no-op 패스스루. 보호는 레이아웃 <code>requireAdmin()</code> + 서버액션 가드에만 의존. <strong><code>/marketing/**</code> · <code>/dashboard/**</code>는 가드 없음</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">AUTH-07</td><td>소셜 로그인 · 비밀번호 재설정</td><td>없음</td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CAT -->
+      <h3><code>FR-CAT</code> 상품 카탈로그</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:86px">ID</th><th style="width:150px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">CAT-01</td><td>상품 마스터</td><td><code>products</code> 테이블 — product_type, unit, unit_price, min/max_qty, est_duration_days, form_schema, is_active</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">CAT-02</td><td>판매 on/off</td><td>어드민 토글 → <code>toggleProductActive</code> (낙관적 업데이트 + 실패 시 롤백)</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">CAT-03</td><td>상품 CRUD</td><td><strong>UI 없음.</strong> 시드 스크립트 / 코드 upsert로만 생성</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">CAT-04</td><td>동적 폼 스키마</td><td><code>form_schema</code> 컬럼은 있으나 <strong>어떤 화면도 읽지 않음</strong>. 신청 폼 9종이 전부 하드코딩</td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="nl">핵심 갭</span>
+        <p>PRD 7장의 “상품 타입 추가가 코드 변경 없이 가능해야 한다”는 비기능 요구가 지켜지지 않고 있습니다. 신청 폼 9종이 각각 하드코딩돼 있고 단가표도 파일마다 복제되어 있습니다. → 백로그 P0.</p>
+      </div>
+
+      <!-- RWD -->
+      <h3><code>FR-RWD</code> 리워드 마케팅 · 셀프 주문</h3>
+      <p><strong>공통 신청 흐름</strong> — <code>reward/{place, shopping, coupang, google}</code></p>
+<pre>STEP 1  매체(상품) 선택  →  STEP 2  캠페인 설정  →  결제(즉시 차감 | 장바구니)</pre>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:130px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">RWD-01</td><td>매체 선택</td><td>매체를 그룹(공통 / 맛집 / 일반 / 로켓)으로 묶어 카드 선택. 매체마다 <strong>단가 · 효율지표 · 순위상승률 · 순위추이 미니차트</strong> 노출</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-02</td><td>견적 계산</td><td><strong>주문금액 = 일 작업량 × 매체 단가</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-03</td><td>캠페인 설정</td><td>작업 기간, 일 작업량, 순위 상승 희망 키워드, 대상 링크 <small>(기간 날짜 선택기 미구현)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-04</td><td>즉시 차감 결제</td><td><code>spend(orderAmount)</code> → 잔액 차감 → 완료 배너</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-05</td><td>장바구니</td><td><code>addItem()</code> — <strong>담는 즉시 포인트 차감</strong> (일반적 장바구니와 다름)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-06</td><td>결제 검증</td><td>필수 3필드 미입력 시 버튼 비활성 / 잔액 부족 시 에러</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-07</td><td>모바일 결제</td><td>하단 고정 바 + 슬라이드업 결제 시트</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-08</td><td>쿠폰</td><td>버튼만 존재. 할인 항상 <code>-0원</code></td><td><span class="g c">C</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>매체 단가표 — 확정본</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>매체</th><th class="r">단가 (원/유입)</th><th>매체</th><th class="r">단가 (원/유입)</th></tr></thead>
+          <tbody>
+            <tr><td>랜덤X</td><td class="r tnum">70</td><td>앤드류</td><td class="r tnum">95</td></tr>
+            <tr><td>골렌</td><td class="r tnum">75</td><td>세븐</td><td class="r tnum">100</td></tr>
+            <tr><td>올스타</td><td class="r tnum">80</td><td>nbt</td><td class="r tnum">110</td></tr>
+            <tr><td>감귤</td><td class="r tnum">85</td><td>골든</td><td class="r tnum">115</td></tr>
+            <tr><td>아우라</td><td class="r tnum">90</td><td>버즈빌</td><td class="r tnum">120</td></tr>
+            <tr><td></td><td></td><td>프리마</td><td class="r tnum">130</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>구글 리워드</strong> — 구글SA 120 · SA+ 150 · GDN배너 90 · GDN리타겟 110 · YT인스트림 100 · YT범퍼 80</p>
+
+      <h4>운영 규칙 — 고정 문구로 확정됨</h4>
+      <ul class="plain">
+        <li>당일 접수 마감 <strong>13:30</strong></li>
+        <li>당일 구동 가능</li>
+        <li>구동 기간 <strong>최소 3일 이상</strong></li>
+      </ul>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th>채널별 특이사항</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">RWD-10</td><td>플레이스 — 매체 3그룹(공통 / 맛집 / 일반). 플레이스 링크는 <strong>모바일 기준</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-11</td><td>쇼핑 — 공통 매체 3종만</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-12</td><td>쿠팡 — 서비스 선택 <code>검색하기 / 찜하기</code>. <strong>⚠ 현재 가격에 미반영</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-13</td><td>구글 — 서비스 선택 <code>검색 유입 / 디스플레이</code>. <strong>사이드바 미연결</strong></td><td><span class="g d">D</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>리워드 캠페인 관리 <code style="background:none;padding:0;color:var(--ink-3)">reward/*/manage</code></h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:120px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">RWD-20</td><td>상태값</td><td><code>running</code> 진행중 / <code>pending</code> 대기중 / <code>done</code> 완료</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-21</td><td>필터</td><td>진행중 / 대기중 / 완료 / 전체 + 키워드 검색. <strong>완료 선택 시 연 · 월 2단 셀렉트</strong>(종료일 기준)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-22</td><td>요약 배너</td><td>전체 / 진행중 / 완료 건수</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-23</td><td>순위 추이 상세</td><td>행 확장 → 최초순위 → 현재순위 변동 차트 + 기간별(7 / 30 / 전체) 순위 차트</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RWD-24</td><td><strong>연장하기</strong></td><td>단가 = <code>round(주문금액 / 일작업량)</code> · 일 작업량 ±10 스텝, 최소 10 · 연장 기간 <code>7 / 15 / 30일</code><br><strong>연장금액 = 일작업량 × 일수 × 단가</strong> · 신규 종료일 = 종료일 + 일수</td><td><span class="g b">B</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>보장형 캠페인 <code style="background:none;padding:0;color:var(--ink-3)">reward/place/guaranteed</code></h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:140px">규칙</th><th>값</th></tr></thead>
+          <tbody>
+            <tr><td class="id">RWD-30</td><td>보장 순위</td><td><strong>5위 이내</strong></td></tr>
+            <tr><td class="id">RWD-31</td><td>보장 기간</td><td><strong>25일</strong> (카운트 기준)</td></tr>
+            <tr><td class="id">RWD-32</td><td>카운트 규칙</td><td>순위 ≤ 5인 날만 1일 카운트. <strong>6위 이상인 날은 카운트 정지</strong></td></tr>
+            <tr><td class="id">RWD-33</td><td>진행률</td><td><code>min(카운트일 / 25 × 100, 100)</code> · 잔여 = <code>max(0, 25 − 카운트일)</code></td></tr>
+            <tr><td class="id">RWD-34</td><td>카운트 시작일</td><td>최초로 5위 이내 진입한 날짜</td></tr>
+            <tr><td class="id">RWD-35</td><td>미달성 시</td><td><strong>100% 환불</strong></td></tr>
+            <tr><td class="id">RWD-36</td><td>상태 라벨</td><td>완료 = <strong>“보장완료”</strong></td></tr>
+            <tr><td class="id">RWD-37</td><td>신청</td><td><code>alert()</code> 스텁 — <strong>⚠ 주문 불가</strong> <span class="g c">C</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="nl">컴플라이언스 검토 필요</span>
+        <p>PRD 10.1은 “순위 보장” 표현 금지를 명시하는데, <code>reward/place/guaranteed</code>는 정면으로 <b>“5위 보장 / 미달성 100% 환불”</b>을 내세웁니다. <b>의도된 예외인지, 카피 수정 대상인지 결정이 필요합니다.</b> 환불 조건이 명확한 성과보상형으로 간다면 카운트 산정식(RWD-32)을 약관에 반드시 명문화해야 합니다.</p>
+      </div>
+
+      <!-- REV -->
+      <h3><code>FR-REV</code> 리뷰 · 체험단 · 셀프 주문</h3>
+      <h4>신청 유형과 단가 — 확정본</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>라우트</th><th>유형</th><th>단가 계산</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">review/place/blog-reporter</td><td>블로그배포(기자단)</td><td><strong>⚠ 가격 계산 없음</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">review/place/receipt</td><td>영수증리뷰</td><td>1,500원 × (발행일수 × 일발행량)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">review/place/visitor</td><td>방문자리뷰</td><td>1,000원 × 총건수</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">review/place/reservation</td><td>예약자리뷰</td><td>1,000원 × 총건수</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">review/place/blog-experience</td><td>블로그 체험단</td><td>배포등급 단가 × 총건수</td><td><span class="g d">D</span></td></tr>
+            <tr><td class="id">review/shopping/product-experience</td><td>상품 체험단</td><td>제품제공 <strong>2,000원</strong> / 제품미제공 <strong>1,500원</strong> × 총건수</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">review/shopping/blog-*</td><td>쇼핑 블로그</td><td>배포등급 단가 × 총건수</td><td><span class="g d">D</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>배포등급 상품표 — 3개 파일에 중복 정의됨</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>등급</th><th>발행</th><th class="r">글자수</th><th class="r">이미지</th><th>블로그 등급</th><th class="r">단가</th></tr></thead>
+          <tbody>
+            <tr><td>일반배포</td><td>당일</td><td class="r tnum">700자</td><td class="r tnum">7장</td><td>일반~준최4</td><td class="r tnum">1,500원</td></tr>
+            <tr><td>베이직</td><td>익일</td><td class="r tnum">500자</td><td class="r tnum">5장</td><td>준최2~5</td><td class="r tnum">2,000원</td></tr>
+            <tr><td>스탠다드</td><td>익일</td><td class="r tnum">700자</td><td class="r tnum">7장</td><td>준최2~5</td><td class="r tnum">2,300원</td></tr>
+            <tr><td>프리미엄</td><td>익일</td><td class="r tnum">1,000자</td><td class="r tnum">10장</td><td>준최2~5</td><td class="r tnum">2,600원</td></tr>
+            <tr><td>최블배포</td><td>당일</td><td class="r tnum">1,500자</td><td class="r tnum">17장</td><td>최적2~3(블연)</td><td class="r tnum">40,000원</td></tr>
+            <tr><td>슈프림배포</td><td>익일</td><td class="r tnum">2,000자</td><td class="r tnum">20장</td><td>준최4~7</td><td class="r tnum">7,000원 <small>정가 12,000 · 오픈기념</small></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:120px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">REV-01</td><td>공통 입력</td><td>캠페인명* · 대상 링크* · 메인 키워드* · 해시태그(Enter 칩 추가, <code>#</code> 자동) · 업체/상품 정보*(500자) · 모집인원 · 일건수 · 발행 시작일 · 발행 일수 <strong>1~7 clamp</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-02</td><td>포스팅 유형</td><td>후기성 / 정보성 / 자유성</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-03</td><td>제목 유형</td><td>업체(상품)명 / 업체명+키워드 / 키워드</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-04</td><td>동의 항목</td><td>필수 2(이용정책, <strong>공정위 문구 삽입</strong>) + 선택 2(지도 첨부, 연락처 첨부). 필수 미동의 시 제출 차단</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-05</td><td>이미지 전달</td><td>구글드라이브 링크 방식 + AI 분류기 주의 4항목. <strong>직접 업로드 미구현</strong></td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">REV-06</td><td>영수증리뷰 특수</td><td>사업자등록번호(<code>000-00-00000</code>) · 영수증 첨부 여부 · 강조사항 300자</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-07</td><td>채널 선택</td><td>쇼핑 계열 — 네이버 쇼핑 / 쿠팡. 쿠팡 단독 라우트는 쇼핑으로 리다이렉트(채널 통합)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-08</td><td>제출</td><td>필수동의 검증 후 완료 화면. 안내 — <strong>“검수 후 1~2일 내 캠페인 시작”</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-09</td><td>장바구니 담기</td><td>⚠ 버튼이 <code>/marketing/cart</code> <strong>링크일 뿐</strong> — 담기 동작 없음</td><td><span class="g c">C</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>리뷰 캠페인 관리 — <code style="background:none;padding:0;color:var(--ink-3)">ReviewManageTable</code> 공용 컴포넌트가 8개 라우트 공유</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:120px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">REV-20</td><td>캠페인 상태</td><td>진행중 / 대기중 / <strong>일시정지</strong> / 완료</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-21</td><td>리뷰어 상태</td><td>제출완료 / 검토중 / 승인 / 반려</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-22</td><td>진행률</td><td><code>round(완료건수 / 모집인원 × 100)</code></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-23</td><td>행 확장 상세</td><td>진행 4지표(모집 / 완료 / 진행률 / 잔여) + 등록 URL · 요청일 · 결제금액 + <strong>블로그 작성 URL 테이블</strong> + <strong>신청자 목록</strong>(블로거명 / 블로그URL / 제출일 / 리뷰상태)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">REV-24</td><td><strong>수정 요청</strong></td><td>textarea 1,000자. 규칙 — <strong>“키워드는 변경 불가. 업체 관련 내용(이벤트 / 영업시간 / 메뉴)만 수정 가능”</strong></td><td><span class="g b">B</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RANK -->
+      <h3><code>FR-RANK</code> 통합 순위관리 · 무료</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:86px">ID</th><th style="width:130px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">RANK-01</td><td>플랫폼</td><td>네이버 플레이스 / 네이버 쇼핑 / 쿠팡. 탭 전환 시 라우트 동기화</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-02</td><td>추적 등록</td><td>플레이스 / 상품 ID* — <strong>URL 붙여넣기 시 정규식으로 ID 자동 추출</strong> <code>place/(\d+)</code> <code>products/(\d+)</code></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-03</td><td>키워드</td><td>키워드1 필수. <strong>키워드2 · 3은 네이버 플레이스에서만</strong> 허용</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-04</td><td>조회 한도</td><td><strong>순위 300위까지.</strong> 초과 · 미탐지는 “순위밖”</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-05</td><td>매장명 자동 연동</td><td>ID 입력 시 업체명 자동 조회 <small>(현재 해시 기반 목업)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-06</td><td>순위 분포</td><td>1~3 / 1~5 / 1~10 / 1~20 / 6~20 / 21~50 / 51~100 / 101~200 / 201~300 / 순위밖 <small>(10구간)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-07</td><td>목록</td><td>업체 · 상품명 / 메인 키워드 / 최근 7일 순위 칩 / 월 검색량 / 등록일. 쇼핑 · 쿠팡은 <strong>스토어 단위 그룹핑</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-08</td><td>상세</td><td>키워드별 현재순위 / 최초순위 / 오늘순위 / 변동 ▲▼</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-09</td><td>플레이스 부가지표</td><td>방문자리뷰 · 블로그리뷰 · N1 · N2 · N3 (값 + 전일 대비). <strong>색상 규칙 — 증가 = 빨강, 감소 = 파랑</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-10</td><td>기간 차트</td><td>7일 / 30일 / 전체(60일). 데이터 2건 미만 시 “데이터 수집 중”</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">RANK-11</td><td>순위 수집 배치</td><td><strong>없음.</strong> 전부 목업 생성 함수</td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="nl">핵심 갭</span>
+        <p>이 기능이 무료 리텐션 훅인데 <b>실제 순위 크롤링 / 수집 파이프라인이 없습니다.</b> PRD 미해결질문 #5(자체 구현 vs 외부 연동) 결정이 최우선입니다.</p>
+      </div>
+
+      <!-- CRT -->
+      <h3><code>FR-CRT</code> 포인트 · 장바구니 · 결제</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:130px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">CRT-01</td><td>포인트 잔액</td><td>헤더 상시 노출. 현재 <code>CartContext</code> + localStorage <small>(초기 500,000P)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-02</td><td>장바구니 담기</td><td><strong>담는 즉시 포인트 차감</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-03</td><td>개별 삭제</td><td>삭제 시 <strong>포인트 환급</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-04</td><td>전체 비우기</td><td>목록만 비우고 <strong>⚠ 포인트 미환급 — 버그</strong></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-05</td><td>주문 확정</td><td>목록 비우기만 (차감은 담을 때 완료)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-06</td><td>충전 · 계좌이체</td><td><strong>입금액 = floor(요청포인트 × 1.1)</strong> 부가세 10% · <strong>최소 충전 10,000P</strong> · 빠른 선택 +1만 / +3만 / +5만 / +10만 · 입금계좌 신한 140-015-056200 (주)BlueEgg, 클립보드 복사 <small>⚠ 제출 버튼 핸들러 없음</small></td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">CRT-07</td><td>충전 · 카드</td><td>“준비 중” 안내만</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">CRT-08</td><td>세금계산서</td><td>사업자번호(10자리 포맷) / 상호* / 성명* / 우편번호 / 주소* / 업태 / 업종 / 이메일*. 미충족 시 제출 차단</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">CRT-09</td><td>포인트 내역</td><td>최근 내역 표시. “전체 내역 보기” 핸들러 없음</td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">CRT-10</td><td>PG 연동</td><td>없음</td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="nl">심각한 정합성 문제</span>
+        <p>포인트 잔액이 <b>5개 소스로 분산</b>되어 있습니다 — <code>CartContext</code> 500,000(헤더) / <code>my/charge</code> 87,300 / 리뷰 신청 폼 11,500 / <code>SidebarNav</code> 0 / <code>layout</code> 0.<br><b>DB <code>users.credit_balance</code> 단일 소스로 통합이 필수입니다.</b> → 백로그 P0-1.</p>
+      </div>
+
+      <!-- MY -->
+      <h3><code>FR-MY</code> 마이 · 리포트 · 지원</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:74px">ID</th><th style="width:130px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">MY-01</td><td>통합 캠페인 현황</td><td>리워드 + 리뷰 통합 목록. <strong>3중 필터</strong> — 플랫폼(전체 / 플레이스 / 쇼핑 / 쿠팡) × 유형(전체 / 리워드 / 리뷰) × 상태(전체 / 진행중 / 대기중 / 완료)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">MY-02</td><td>서비스별 요약</td><td>리워드 / 리뷰 각각 진행중 · 완료 건수 실시간 집계 + 관리 페이지 링크</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">MY-03</td><td>행 상세</td><td>리워드 → 순위 추이 차트 / 리뷰 → 신청자 · 선정 · 발행 수 + 리뷰 리스트(발행완료 / 작성중 / 선정)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">MY-04</td><td>SNS 리포트</td><td>3채널 — 메타광고(광고비 / 노출 / 클릭 / 전환 / ROAS) · 인스타그램(도달 / 좋아요 / 댓글 / 저장 / 팔로워) · 블로그(발행 / 방문자 / 조회수 / 상위노출 / 체류). 월별 추이 + 성과 테이블 <small>(화면에 “샘플 데이터” 명시)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">MY-05</td><td>계정 연동</td><td>채널별 연동 가이드 게시글 딥링크. <strong>실제 API 연동 없음</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">MY-06</td><td>리포트 월 선택</td><td>UI만 있고 데이터 미반영</td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">MY-07</td><td>고객지원</td><td>문의 유형 5종(서비스 이용 / 결제 · 포인트 / 캠페인 문의 / 제휴 문의 / 기타) + 이메일* / 제목* / 내용* → 접수 완료 화면 <small>(저장 안 됨)</small></td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">MY-08</td><td>문의 채널</td><td>카카오톡 @blueegg(평일 09–18) / 전화 1600-0000 / 이메일 help@blueegg.biz — <strong>링크 아닌 텍스트</strong></td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">MY-09</td><td>CSV 다운로드</td><td>PRD 6.5 요구사항. <strong>미구현</strong> <small>(<code>xlsx</code> 의존성만 설치됨)</small></td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- COM -->
+      <h3><code>FR-COM</code> 커뮤니티 · 공지</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:130px">기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">COM-01</td><td>게시판</td><td>카테고리(공지 / 자유 / 질문 / 정보) × 보드(전체 / 네이버 쇼핑 / 네이버 플레이스 / 쿠팡), 상단 고정, 제목 · 작성자 검색, 마스터-디테일(모바일 아코디언)</td><td><span class="g b">B</span></td></tr>
+            <tr><td class="id">COM-02</td><td>글쓰기 · 댓글</td><td><strong>없음</strong> (읽기 전용)</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">COM-03</td><td>공지사항</td><td>목록 + 상세. 검색은 제목만 필터, <strong>검색 버튼 빈 핸들러</strong></td><td><span class="g b">B</span> <span class="g c">C</span></td></tr>
+            <tr><td class="id">COM-04</td><td>커뮤니티 허브</td><td>게시판 진입 카드 + 외부 채널(네이버 카페) 배너</td><td><span class="g b">B</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <span class="nl">범위</span>
+        <p>커뮤니티 영역은 <b>게시판 + 공지사항</b>으로 한정합니다.</p>
+      </div>
+
+      <!-- LEAD -->
+      <h3><code>FR-LEAD</code> 상담형 상품 · 광고대행 / 바이럴 / 콘텐츠</h3>
+      <div class="note warn">
+        <span class="nl">최우선 기회</span>
+        <p>12개 랜딩 페이지가 완성돼 있으나 <b>모든 CTA가 <code>alert()</code> 또는 핸들러 없음</b>입니다. 즉 <b>리드 획득 경로가 0</b>입니다. 문의 폼 하나만 붙이면 79만~1,000만원대 상품을 즉시 영업할 수 있습니다.</p>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:82px">ID</th><th style="width:120px">상품</th><th>확정된 상품 정보</th><th style="width:120px">CTA 상태</th></tr></thead>
+          <tbody>
+            <tr><td class="id">LEAD-01</td><td>네이버 SA 최적화</td><td>광고순위 = 입찰가 × 품질지수. 개선 4영역(파워링크 / 쇼핑검색 / 브랜드검색 / 파워컨텐츠). 성과 CPC −42% · CTR ×2.3 · ROAS +38%</td><td><span class="g c">C</span> alert ×3</td></tr>
+            <tr><td class="id">LEAD-02</td><td><strong>광고비 환급</strong></td><td>슬라이더 50~2,000만원(50 스텝). <strong>환급률 — ≥1,000만 10% / ≥500만 7% / ≥200만 5% / ≥50만 3% / 미만 0%</strong><br>월 환급 = <code>round(집행액 × 요율)</code> · 연 환급 = 월 × 12<br>등록 폼 — 매체사(네이버SA / GFA / 카카오모먼트 / 구글Ads) · 계정ID · 계정명 · 광고주ID(숫자만)</td><td><span class="g c">C</span> ⚠ 동의 체크가 제출 조건에 미반영</td></tr>
+            <tr><td class="id">LEAD-03</td><td>META 퍼포먼스</td><td>5단계 프로세스. 시작 1~3영업일</td><td><span class="g c">C</span> <span class="g d">D</span> 고아</td></tr>
+            <tr><td class="id">LEAD-04</td><td>네이버 카페 침투</td><td>유형 5종(핫딜정보형 / 리뷰형 / 자유질답형 / 콘텐츠기획형 / <strong>노출형</strong>). 노출형1 = 댓글 4개 + 조회수 1,000↑ / 노출형2 = 댓글 2개 + 조회수 500↑<br><strong>최소 10개 카페, 30개 이상 권장 · 3~5영업일 내 게시 · 캠페인 1~4주 · 100% A/S</strong></td><td><span class="g c">C</span> alert ×3</td></tr>
+            <tr><td class="id">LEAD-05</td><td>이미지 제작</td><td>베이직(3종 · 컷당 3장) / 스탠다드(10종 · 5장) / 프리미엄(전체 · 10장 + 영상) — <strong>가격 미정</strong></td><td><span class="g c">C</span></td></tr>
+            <tr><td class="id">LEAD-06</td><td>브랜딩</td><td>Standard 190만~ (2주 · 시안1안 · 수정2회 · 가이드북 15~20p) / Deluxe 490만~ (3주 · 2안 · 3회 · 30~40p) / Premium 1,000만~ (6주 · 3안 · 무제한 · 50~70p)</td><td><span class="g c">C</span> 핸들러 없음</td></tr>
+            <tr><td class="id">LEAD-07</td><td>홈페이지</td><td>Standard 99만~ (10영업일 · 랜딩 1p) / Deluxe 199만~ (3주 · 메인1+서브5) / Premium 399만~ (5–6주 · 메인1+서브7)</td><td><span class="g c">C</span> 핸들러 없음</td></tr>
+            <tr><td class="id">LEAD-08</td><td>상세페이지</td><td>Standard 79만~ (7영업일 · 20,000px · 6–7섹션) / Deluxe 149만~ (10영업일 · 40,000px · 10섹션) / Premium 219만~ (12–14영업일 · 50,000px · 15섹션↑)</td><td><span class="g c">C</span> 핸들러 없음</td></tr>
+            <tr><td class="id">LEAD-09</td><td>영상 제작</td><td>Standard 99만~ (30초 FHD · 수정2회) / Deluxe 199만~ (60초 · 3회) / Premium 399만~ (3분 4K · 무제한 + 원본)</td><td><span class="g c">C</span> 핸들러 없음</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>필수 정의</strong> — 통합 문의(리드) 접수 기능: <code>inquiries</code> 테이블 + 상담 신청 모달 + 어드민 리드 관리. 현재 <code>(site)/contact</code>만 <code>mailto:</code>로 처리하며 수신 주소도 TODO 상태(<code>help@blueegg.example</code>)입니다.</p>
+
+      <!-- ADM -->
+      <h3><code>FR-ADM</code> 운영자 콘솔 · 실 DB 연동 완료</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:80px">ID</th><th style="width:130px">화면 · 기능</th><th>정의</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">ADM-01</td><td>대시보드</td><td>KPI 4종(누적매출 / 전체회원 / 진행중 캠페인 / 승인대기) + 최근 14일 매출 추이 + 캠페인 상태 분포 + 미정산 잔액 + 최근 캠페인 7건</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-02</td><td>회원 관리</td><td>목록(회원 / 역할 / 크레딧 / 캠페인수 / 가입일), 역할 탭 필터 + 이름 · 이메일 검색</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-03</td><td>역할 변경</td><td>select → <code>setUserRole</code></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-04</td><td>크레딧 조정</td><td>+충전 / −차감 + 금액 + 사유 → <strong>트랜잭션</strong>(<code>credits</code> 원장 insert + <code>users.credit_balance</code> 증감)</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-05</td><td>캠페인 관리</td><td>광고주 / 사업장 · 상품 · 키워드 · 진행률(campaign_events 합 / 총량) · 견적 · 결제금액 · 상태. 상태 탭 6종 + 건수</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-06</td><td>캠페인 승인 · 반려</td><td>승인 → <code>scheduled</code> / 반려 → <code>canceled</code>. ⚠ 그 외 9개 상태 임의 전환 select</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-07</td><td>상품 관리</td><td>목록 + 판매 토글</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-08</td><td>주문 · 결제</td><td>총 결제액 / 환불액 / 순매출 + 목록(주문자 / 상품 / 결제수단 / 금액 / 상태 / 일시), 상태 탭</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-09</td><td>환불 처리</td><td><code>paid ↔ refunded</code> 토글. <strong>⚠ DB status만 변경 — 크레딧 환급 · PG 취소 없음</strong></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-10</td><td>정산 관리</td><td>공급자 / 채널 / 기간 / 금액 / 상태 + 상태 전환(pending → processing → completed)</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">ADM-11</td><td>정산 자동 집계</td><td>없음 (시드 데이터만)</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-12</td><td>공급자 · 배정 관리</td><td><code>suppliers</code> / <code>assignments</code> 테이블은 있으나 <strong>화면 없음</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-13</td><td>상세 페이지</td><td>캠페인 · 주문 · 회원 <strong>상세 라우트 없음</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-14</td><td>페이지네이션</td><td>없음 — 전건 로드 후 클라이언트 필터. <strong>데이터 증가 시 장애 요인</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-15</td><td>엑셀 내보내기</td><td>없음</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-16</td><td>감사 로그</td><td>누가 상태를 바꿨는지 기록 없음 — <strong>PRD 7장 감사성 위배</strong></td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-17</td><td>반려 사유</td><td>입력란 없음 → 광고주에게 사유 전달 불가</td><td><span class="g x">미구현</span></td></tr>
+            <tr><td class="id">ADM-18</td><td>어드민 로그아웃</td><td>버튼 없음</td><td><span class="g x">미구현</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>상태 전이 제약 부재</h4>
+      <p>현재 어떤 상태에서든 임의 상태로 전환이 가능합니다. PRD 8장의 상태머신을 서버액션에 강제해야 합니다.</p>
+<pre>draft → submitted → reviewing → scheduled → running → completed
+                              ↘ canceled
+running ↔ paused
+running / scheduled → canceled / refunded</pre>
+
+      <!-- SITE -->
+      <h3><code>FR-SITE</code> 공개 홈페이지</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:82px">ID</th><th style="width:100px">페이지</th><th>내용</th><th style="width:64px">등급</th></tr></thead>
+          <tbody>
+            <tr><td class="id">SITE-01</td><td><code>/</code></td><td>랜딩 — 대상 / 작동방식 / 특징 / 서비스 / 통계 / 후기 / CTA</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">SITE-02</td><td><code>/pricing</code></td><td>3플랜 — 플레이스 유입 100원/유입 · 스마트스토어 트래픽 80원/유입 · 블로그 기자단 50,000원/건 <strong>⚠ 실제 신청 화면 단가와 불일치</strong></td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">SITE-03</td><td><code>/about</code></td><td>서비스 소개</td><td><span class="g a">A</span></td></tr>
+            <tr><td class="id">SITE-04</td><td><code>/contact</code></td><td>문의 폼 → <strong><code>mailto:</code> 링크로만 처리</strong>. 수신 주소 TODO</td><td><span class="g c">C</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="nl">가격 불일치</span>
+        <p><code>/pricing</code>의 100원 · 80원은 <code>marketing/actions.ts</code>의 DB 시드 단가이며, 실제 신청 화면의 매체 단가(70~130원)와 다릅니다. <b>홈페이지 · DB · 신청화면 3곳의 단가 정본을 하나로 통일해야 합니다.</b></p>
+      </div>
+    </section>
+
+    <!-- ============ 04 ============ -->
+    <section id="s4">
+      <h2><span class="num">04</span>데이터 모델</h2>
+      <div class="h2rule"></div>
+
+      <h3>구현된 테이블 12개</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:110px">그룹</th><th style="width:290px">테이블</th><th>용도</th></tr></thead>
+          <tbody>
+            <tr><td>레거시</td><td class="id">users, profiles, projects, posts</td><td><code>users</code>만 현역. 나머지 3개는 개인 브랜딩 유물</td></tr>
+            <tr><td>광고주</td><td class="id">businesses, campaigns, campaign_events</td><td>사업장 · 캠페인 · 일별 실적</td></tr>
+            <tr><td>상품</td><td class="id">products</td><td>카탈로그</td></tr>
+            <tr><td>정산</td><td class="id">orders, credits</td><td>결제 · 포인트 원장</td></tr>
+            <tr><td>공급</td><td class="id">suppliers, assignments, settlements</td><td>공급자 · 배정 · 정산</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Enum 정본</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:180px">enum</th><th>값</th></tr></thead>
+          <tbody>
+            <tr><td class="id">user_role</td><td class="id">advertiser · supplier · admin</td></tr>
+            <tr><td class="id">business_type</td><td class="id">place · store</td></tr>
+            <tr><td class="id">product_type</td><td class="id">place_traffic · store_traffic · store_action · blog_review · visit_review · community_viral · pr_media · influencer · rank_tracking</td></tr>
+            <tr><td class="id">product_unit</td><td class="id">per_visit_day · per_item · subscription</td></tr>
+            <tr><td class="id">campaign_status</td><td class="id">draft · submitted · reviewing · scheduled · running · paused · completed · canceled · refunded</td></tr>
+            <tr><td class="id">payment_status</td><td class="id">paid · refunded · partial_refund</td></tr>
+            <tr><td class="id">assignment_status</td><td class="id">assigned · in_progress · submitted · approved · rejected</td></tr>
+            <tr><td class="id">settlement_status</td><td class="id">pending · processing · completed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>스키마 갭 — 프론트가 요구하지만 테이블에 없는 것</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:170px">필요</th><th style="width:190px">근거 화면</th><th>제안</th></tr></thead>
+          <tbody>
+            <tr><td><strong>순위 추적</strong></td><td><code>rank/*</code> 전체</td><td class="id">rank_trackings(business_id, platform, external_id, keywords[]) · rank_snapshots(tracking_id, keyword, date, rank, monthly_search, extra jsonb)</td></tr>
+            <tr><td><strong>리뷰 신청자 · 결과물</strong></td><td>ReviewManageTable 상세</td><td class="id">campaign_applicants(campaign_id, blogger_name, blog_url, submitted_at, status) · campaign_deliverables(campaign_id, post_url, published_at)</td></tr>
+            <tr><td><strong>문의(리드)</strong></td><td>상담형 랜딩 12개 · /support · /contact</td><td class="id">inquiries(type, name, phone, email, company, budget, message, source_page, status)</td></tr>
+            <tr><td>장바구니</td><td><code>cart</code></td><td class="id">cart_items <small>(현재 localStorage)</small></td></tr>
+            <tr><td>캠페인 연장 이력</td><td>ExtendModal</td><td class="id">campaign_extensions 또는 campaigns.parent_id</td></tr>
+            <tr><td>보장형 카운트</td><td>guaranteed/manage</td><td class="id">campaigns.meta — guarantee_threshold / target_days / counted_days</td></tr>
+            <tr><td>게시판 · 공지</td><td>community/board · notices</td><td class="id">posts 재활용 또는 boards / board_posts / notices</td></tr>
+            <tr><td>세금계산서 정보</td><td>my/charge</td><td class="id">users 확장 또는 billing_profiles</td></tr>
+            <tr><td>매체(공급 상품) 마스터</td><td>리워드 매체 11종 단가</td><td class="id">products 확장 또는 media_channels(name, platform, unit_price, efficiency, rise_rate)</td></tr>
+            <tr><td>users.username · phone · company · status</td><td><code>/[username]</code> · 회원관리</td><td>컬럼 추가 — 현재 username을 <strong>이메일 prefix LIKE 매칭</strong>. 충돌 위험</td></tr>
+            <tr><td>수정 요청 이력</td><td>REV-24</td><td class="id">campaign_change_requests</td></tr>
+            <tr><td>감사 로그</td><td>ADM-16</td><td class="id">audit_logs(actor_id, entity, entity_id, before, after, at)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>기타 데이터 이슈</h3>
+      <ul class="plain">
+        <li><code>orders.method</code> · <code>suppliers.channel_type</code>이 enum이 아닌 자유 텍스트</li>
+        <li><code>credits.ref_id</code>에 FK 미설정</li>
+        <li><code>posts.status</code>가 enum이 아닌 text</li>
+        <li><code>campaign_events</code> 생성 경로가 시드 스크립트뿐 → <strong>실행 / 딜리버리 파이프라인 부재</strong></li>
+      </ul>
+    </section>
+
+    <!-- ============ 05 ============ -->
+    <section id="s5">
+      <h2><span class="num">05</span>비즈니스 규칙 정본</h2>
+      <div class="h2rule"></div>
+
+      <h4>계산식</h4>
+<pre><b>리워드 주문금액</b>    = 일 작업량 × 매체 단가
+<b>리워드 연장금액</b>    = 일 작업량 × 연장일수 × round(기존 주문금액 / 기존 일작업량)
+<b>리뷰 주문금액</b>      = 유형 단가 × (발행일수 × 일발행량)   <i>또는</i>   유형 단가 × 모집인원
+<b>포인트 충전 입금액</b> = floor(요청 포인트 × 1.1)              <i>// 부가세 10%</i>
+<b>광고비 환급액</b>      = round(월 집행액 × 요율)               <i>// 10% / 7% / 5% / 3% / 0%</i>
+<b>캠페인 진행률</b>      = round(완료건수 / 총건수 × 100)
+<b>보장형 진행률</b>      = min(순위 5위 이내 유지일수 / 25 × 100, 100)</pre>
+
+      <h4>제약 규칙</h4>
+      <ul class="plain">
+        <li>최소 충전 <strong>10,000P</strong></li>
+        <li>리워드 최소 구동 <strong>3일</strong>, 연장 시 일 작업량 최소 <strong>10</strong> (10 단위)</li>
+        <li>리뷰 발행 일수 <strong>1~7일</strong></li>
+        <li>순위 조회 상한 <strong>300위</strong></li>
+        <li>리뷰 수정 요청 시 <strong>키워드 변경 불가</strong></li>
+        <li>당일 접수 마감 <strong>13:30</strong></li>
+      </ul>
+    </section>
+
+    <!-- ============ 06 ============ -->
+    <section id="s6">
+      <h2><span class="num">06</span>코드 구조 이슈</h2>
+      <div class="h2rule"></div>
+      <p>기능 안정성에 직결되는 항목만 추렸습니다.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:130px">이슈</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td><strong>중복 정의</strong></td><td><code>TYPE_OPTIONS</code>(배포등급 6종) 3개 파일 · <code>MEDIA_PRICES</code> 등 4개 파일 · <code>ExtendModal</code> + manage 테이블 전체가 4개 파일에 복제 → <strong>단가 변경 시 누락이 확실</strong></td></tr>
+            <tr><td><strong>데드코드</strong></td><td><code>marketing/actions.ts</code>(DB 연동 서버액션 3개)를 <strong>어떤 페이지도 import하지 않음</strong>. <code>AdBanners</code> · <code>RightSidebar</code> 컴포넌트 미사용. <code>AddKeywordModal</code> 도달 불가</td></tr>
+            <tr><td><strong>고아 라우트</strong></td><td><code>home2</code> · <code>reward/google</code>(+manage) · <code>ads/meta</code> · <code>experience/blog</code> · <code>review/place/{visitor, reservation, blog-experience}</code> · <code>review/shopping/{blog-reporter, blog-experience}</code> — 사이드바 미연결</td></tr>
+            <tr><td><strong>폼-액션 불일치</strong></td><td><code>experience/blog</code> 폼의 <code>name</code> 속성은 <code>createBlogCampaign</code>과 정확히 일치하나 미연결</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 07 ============ -->
+    <section id="s7">
+      <h2><span class="num">07</span>개발 백로그</h2>
+      <div class="h2rule"></div>
+
+      <h3>P0 — 실 서비스 최소 조건</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:40px">#</th><th style="width:230px">항목</th><th>내용</th><th style="width:120px">관련</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td><strong>포인트 단일화</strong></td><td><code>users.credit_balance</code>를 정본으로, <code>credits</code> 원장 기반. localStorage 제거</td><td class="id">CRT-01~05</td></tr>
+            <tr><td class="num">2</td><td><strong>포인트 충전 실동작</strong></td><td>계좌이체 입금 요청 저장 → 어드민 승인 → 크레딧 반영</td><td class="id">CRT-06</td></tr>
+            <tr><td class="num">3</td><td><strong>캠페인 신청 → DB 저장</strong></td><td>리워드 4종 + 리뷰 8종을 <code>campaigns</code> insert로 연결(<code>inputs</code> jsonb 활용), 포인트 차감 트랜잭션</td><td class="id">RWD-04·05 · REV-08</td></tr>
+            <tr><td class="num">4</td><td><strong>인증 가드</strong></td><td><code>/marketing/**</code> 미로그인 차단 + 로그아웃 버튼</td><td class="id">AUTH-03·06</td></tr>
+            <tr><td class="num">5</td><td><strong>상품 · 단가 마스터 통합</strong></td><td>매체 11종 · 배포등급 6종을 DB로 이관, 중복 상수 제거</td><td class="id">CAT-03</td></tr>
+            <tr><td class="num">6</td><td><strong>문의(리드) 접수</strong></td><td><code>inquiries</code> 테이블 + 상담 모달 + 어드민 리드 화면 — 12개 랜딩 CTA 살리기</td><td class="id">LEAD-01~09</td></tr>
+            <tr><td class="num">7</td><td><strong>가격 정본 통일</strong></td><td><code>/pricing</code> ↔ DB ↔ 신청 화면</td><td class="id">SITE-02</td></tr>
+            <tr><td class="num">8</td><td>캠페인 관리 DB 전환</td><td>내 캠페인 · 리워드/리뷰 manage를 DB 조회로</td><td class="id">RWD-20 · REV-20 · MY-01</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>P1 — 운영 가능 조건</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:40px">#</th><th>항목</th><th style="width:130px">관련</th></tr></thead>
+          <tbody>
+            <tr><td class="num">9</td><td>순위 수집 파이프라인 <small>(자체 크롤러 vs 외부 API 결정 선행)</small></td><td class="id">RANK-11</td></tr>
+            <tr><td class="num">10</td><td>어드민 상세 페이지 · 페이지네이션 · 반려 사유 · 감사 로그</td><td class="id">ADM-13·14·16·17</td></tr>
+            <tr><td class="num">11</td><td>캠페인 상태머신 강제 <small>(서버액션 검증)</small></td><td class="id">ADM-06</td></tr>
+            <tr><td class="num">12</td><td>환불 로직 완성 <small>(크레딧 환급 + 부분환불 금액 반영)</small></td><td class="id">ADM-09</td></tr>
+            <tr><td class="num">13</td><td>공급자 · 배정 관리 화면</td><td class="id">ADM-12</td></tr>
+            <tr><td class="num">14</td><td>리뷰 신청자 / 결과물 데이터 모델 + 검수 플로우</td><td class="id">REV-23</td></tr>
+            <tr><td class="num">15</td><td>장바구니 서버 이관 + 전체 비우기 환급 버그 수정</td><td class="id">CRT-04</td></tr>
+            <tr><td class="num">16</td><td>알림(이메일 / 카카오) — 검수 결과 · 캠페인 시작·종료 · 포인트 부족</td><td class="id">전역</td></tr>
+            <tr><td class="num">17</td><td>CSV / 엑셀 내보내기</td><td class="id">MY-09 · ADM-15</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>P2 — 확장</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:40px">#</th><th>항목</th></tr></thead>
+          <tbody>
+            <tr><td class="num">18</td><td>정산 자동 집계 + 공급자 포털</td></tr>
+            <tr><td class="num">19</td><td>SNS 리포트 실 API 연동 (메타 / 인스타 / 블로그)</td></tr>
+            <tr><td class="num">20</td><td>게시판 글쓰기 · 댓글</td></tr>
+            <tr><td class="num">21</td><td>쿠폰 · 프로모션</td></tr>
+            <tr><td class="num">22</td><td>동적 폼 스키마(<code>form_schema</code>) 기반 신청 폼 렌더링</td></tr>
+            <tr><td class="num">23</td><td>레거시 <code>dashboard</code> / <code>[username]</code> 정리 · 범위 외 라우트 정리</td></tr>
+            <tr><td class="num">24</td><td>실제 이미지 업로드 (Supabase Storage)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 08 ============ -->
+    <section id="s8">
+      <h2><span class="num">08</span>결정 필요 사항</h2>
+      <div class="h2rule"></div>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:40px">#</th><th style="width:270px">질문</th><th>구현 현황이 시사하는 답</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>결제 모델 — 건별 PG vs 포인트 충전?</td><td><strong>포인트 충전 단일 모델</strong>로 이미 수렴 (전 화면 포인트 차감)</td></tr>
+            <tr><td class="num">2</td><td>보장형 상품의 “순위 보장” 표현을 유지할 것인가?</td><td>PRD 10.1과 정면 충돌. <strong>법무 검토 후 카피 또는 정책 확정 필요</strong></td></tr>
+            <tr><td class="num">3</td><td>순위 추적 — 자체 크롤링 vs 외부 도구 연동?</td><td>미결. RANK 전체가 여기에 종속</td></tr>
+            <tr><td class="num">4</td><td>상담형 상품 12종을 1차 범위에 포함할 것인가?</td><td>랜딩만 완성. <strong>리드 폼만 붙이면 즉시 영업 가능</strong> → 저비용 고효과</td></tr>
+            <tr><td class="num">5</td><td>공급(매체 · 블로거) 확보 — 직접 운영 vs 제휴?</td><td>미결. <code>assignments</code> 스키마만 존재</td></tr>
+            <tr><td class="num">6</td><td>레거시 <code>dashboard</code> / <code>profiles</code> / <code>projects</code> / <code>posts</code> 처리?</td><td>삭제 권장</td></tr>
+            <tr><td class="num">7</td><td>홈페이지와 플랫폼을 별도 도메인으로 유지?</td><td>현재 <code>NEXT_PUBLIC_PLATFORM_URL</code>로 분리 전제</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div>BLUE EGG · 셀프 마케팅 플랫폼 기능 정의서 v0.1.1</div>
+  <div>2026-07-21 코드 상태 기준 · P0 완료 시 v0.2로 갱신</div>
+</footer>

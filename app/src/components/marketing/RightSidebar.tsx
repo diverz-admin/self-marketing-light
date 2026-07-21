@@ -33,13 +33,6 @@ export default function RightSidebar() {
                   마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요.
                 </p>
                 <div className="space-y-1.5">
-                  <a href="/marketing/community" className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-[13px] font-bold transition-all" style={{ background: "#FEE500", color: "#3A1D1D" }}>
-                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 3C6.477 3 2 6.582 2 11c0 2.67 1.45 5.04 3.728 6.593L4.5 21l3.858-2.12A11.27 11.27 0 0012 19c5.523 0 10-3.582 10-8S17.523 3 12 3z"/>
-                    </svg>
-                    카카오 오픈채팅
-                    <svg className="w-3 h-3 ml-auto shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                  </a>
                   <a href="/marketing/community" className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-[13px] font-bold transition-all" style={{ background: "rgba(255,255,255,0.12)", color: "white", border: "1px solid rgba(255,255,255,0.2)" }}>
                     <span className="font-extrabold text-[15px] leading-none shrink-0" style={{ color: "#03C75A" }}>N</span>
                     네이버 카페
