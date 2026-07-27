@@ -5,7 +5,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 /* ── 장바구니 아이템 (리워드 신청 → 결제 시 즉시 담김) ── */
 export type CartItem = {
   id: number;
-  platform: string;       // "네이버 플레이스" / "네이버 쇼핑" / "쿠팡" / "구글"
+  productId: string;      // 어드민 상품등록의 상품 ID — 주문 확정 시 금액을 다시 계산하는 기준
+  platform: string;       // "네이버 플레이스" / "네이버 쇼핑" / "쿠팡"
   name: string;           // 매체 상품명 (버즈빌 등)
   initial: string;
   bg: string;
@@ -31,21 +32,32 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 const LS_ITEMS = "be_cart_items_v1";
-const LS_BALANCE = "be_cart_balance_v1";
-const INITIAL_BALANCE = 500000;
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+/**
+ * 잔액은 서버(credits 원장)가 기준이다 — 레이아웃이 초기값을 내려주고,
+ * 화면 안에서의 증감은 서버 반영 전까지의 임시 표시로만 쓴다.
+ * (장바구니 목록만 localStorage 에 남긴다)
+ */
+export function CartProvider({ children, initialBalance = 0 }: {
+  children: React.ReactNode;
+  initialBalance?: number;
+}) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [balance, setBalance] = useState(INITIAL_BALANCE);
   const [hydrated, setHydrated] = useState(false);
 
-  // 최초 마운트 시 localStorage 로부터 복원
+  /**
+   * 화면 안에서 발생한 증감분만 따로 들고, 표시 잔액은 서버 값 + 증감분으로 계산한다.
+   * 서버가 새 잔액을 내려주면(충전 승인·주문 반영) 그 값이 자동으로 기준이 된다.
+   */
+  const [pendingDelta, setPendingDelta] = useState(0);
+  const balance = initialBalance + pendingDelta;
+  const adjust = (delta: number) => setPendingDelta((d) => d + delta);
+
+  // 최초 마운트 시 localStorage 로부터 장바구니 복원
   useEffect(() => {
     try {
       const rawItems = localStorage.getItem(LS_ITEMS);
       if (rawItems) setItems(JSON.parse(rawItems));
-      const rawBalance = localStorage.getItem(LS_BALANCE);
-      if (rawBalance !== null) setBalance(Number(rawBalance));
     } catch {
       /* ignore */
     }
@@ -56,21 +68,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_ITEMS, JSON.stringify(items));
   }, [items, hydrated]);
-  useEffect(() => {
-    if (hydrated) localStorage.setItem(LS_BALANCE, String(balance));
-  }, [balance, hydrated]);
 
   // 결제(담기) 시 포인트 즉시 차감
   const addItem = (item: Omit<CartItem, "id">) => {
     setItems((prev) => [{ ...item, id: Date.now() }, ...prev]);
-    setBalance((b) => b - item.amount);
+    adjust(-item.amount);
   };
 
   // 삭제 시 차감했던 포인트 환급
   const removeItem = (id: number) => {
     setItems((prev) => {
       const target = prev.find((it) => it.id === id);
-      if (target) setBalance((b) => b + target.amount);
+      if (target) adjust(target.amount);
       return prev.filter((it) => it.id !== id);
     });
   };
@@ -79,10 +88,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clear = () => setItems([]);
 
   // 포인트 충전
-  const charge = (amount: number) => setBalance((b) => b + amount);
+  const charge = (amount: number) => adjust(amount);
 
   // 장바구니를 거치지 않고 포인트만 즉시 차감 (즉시 결제)
-  const spend = (amount: number) => setBalance((b) => b - amount);
+  const spend = (amount: number) => adjust(-amount);
 
   const total = items.reduce((s, it) => s + it.amount, 0);
 

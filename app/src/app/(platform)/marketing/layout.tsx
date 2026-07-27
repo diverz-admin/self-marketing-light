@@ -8,17 +8,22 @@ import MobileMenu from "@/components/marketing/MobileMenu";
 import { MobileMenuProvider } from "@/components/marketing/MobileMenuContext";
 import { CartProvider } from "@/components/marketing/CartContext";
 import { HeaderBalance, HeaderCartButton } from "@/components/marketing/HeaderCart";
+import { createClient } from "@/utils/supabase/server";
+import { loadPointBalance } from "@/lib/points";
 
-const MOCK = {
-  name: "사용자",
-  email: "eggcorp2024@gmail.com",
-  creditBalance: 0,
-  activeCampaignCount: 0,
-};
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+  // 헤더 포인트는 크레딧 원장 합계 — 관리자가 충전을 승인하면 바로 반영된다
+  const balance = user ? await loadPointBalance(user.id) : 0;
+  const displayName =
+    (user?.user_metadata?.name as string | undefined) || user?.email?.split("@")[0] || "사용자";
+
   return (
-    <CartProvider>
+    <CartProvider initialBalance={balance}>
     <MobileMenuProvider>
     <div className="h-screen flex bg-[#EDEFF2]">
 
@@ -83,9 +88,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 className="h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-white text-[13px] font-bold"
                 style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}
               >
-                {MOCK.name.charAt(0)}
+                {displayName.charAt(0)}
               </div>
-              <span className="text-[15px] font-semibold text-[#111D37] hidden sm:block">{MOCK.name} 님</span>
+              <span className="text-[15px] font-semibold text-[#111D37] hidden sm:block">{displayName} 님</span>
               <svg className="w-3.5 h-3.5 text-[#B0B8C1] hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>

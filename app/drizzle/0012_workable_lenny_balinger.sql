@@ -1,0 +1,1 @@
+ALTER TYPE "public"."product_category" ADD VALUE 'reward_google' BEFORE 'place_blog_distribute';

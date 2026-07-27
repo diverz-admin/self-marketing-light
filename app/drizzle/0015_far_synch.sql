@@ -1,0 +1,2 @@
+ALTER TABLE "review_campaigns" ADD COLUMN "assigned_admin_id" uuid;--> statement-breakpoint
+ALTER TABLE "review_campaigns" ADD CONSTRAINT "review_campaigns_assigned_admin_id_users_id_fk" FOREIGN KEY ("assigned_admin_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

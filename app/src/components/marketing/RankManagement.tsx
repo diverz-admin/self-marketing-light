@@ -2,9 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { addRankKeyword } from "@/app/(platform)/marketing/actions";
 
 /* ── Types ── */
 type Platform = "naver_place" | "naver_shopping" | "coupang";
+
+/** 화면 플랫폼 값 → DB rank_platform enum */
+const DB_PLATFORM: Record<Platform, "place" | "shopping" | "coupang"> = {
+  naver_place: "place",
+  naver_shopping: "shopping",
+  coupang: "coupang",
+};
 
 /* 플랫폼 ↔ 사이드바 라우트 매핑 */
 const PLATFORM_ROUTE: Record<Platform, string> = {
@@ -245,12 +253,24 @@ function AddKeywordModal({ platform, onClose }: { platform: Platform; onClose: (
   const [targetUrl, setTargetUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // 등록한 키워드는 어드민 "키워드 순위" 화면에서 관리·집계된다
   const handleAdd = async () => {
     if (!keyword.trim() || !name.trim() || !targetUrl.trim()) return;
+    setError(null);
     setSaving(true);
-    await new Promise(r => setTimeout(r, 700));
+    const res = await addRankKeyword({
+      platform: DB_PLATFORM[platform],
+      keyword,
+      targetName: name,
+      targetUrl,
+    });
     setSaving(false);
+    if ("error" in res) {
+      setError(res.error);
+      return;
+    }
     setDone(true);
     setTimeout(onClose, 1200);
   };
@@ -332,6 +352,12 @@ function AddKeywordModal({ platform, onClose }: { platform: Platform; onClose: (
                 />
               </div>
             </div>
+
+            {error && (
+              <p className="mt-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[13px] font-semibold text-red-500">
+                {error}
+              </p>
+            )}
 
             <button
               onClick={handleAdd}

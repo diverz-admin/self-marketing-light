@@ -1,0 +1,2 @@
+CREATE TYPE "public"."product_category" AS ENUM('reward_place', 'reward_shopping', 'place_blog_distribute', 'place_receipt', 'shopping_product_provided', 'shopping_product_not_provided');--> statement-breakpoint
+ALTER TABLE "products" ADD COLUMN "category" "product_category";

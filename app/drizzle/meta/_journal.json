@@ -8,6 +8,118 @@
       "when": 1781674040901,
       "tag": "0000_skinny_the_fallen",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784688593450,
+      "tag": "0001_wise_vivisector",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784700848956,
+      "tag": "0002_secret_mother_askani",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784708236063,
+      "tag": "0003_easy_charles_xavier",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784708893051,
+      "tag": "0004_curious_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784710818673,
+      "tag": "0005_tired_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784711808382,
+      "tag": "0006_faithful_spyke",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784712041858,
+      "tag": "0007_bored_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784714267004,
+      "tag": "0008_unique_blur",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784784386727,
+      "tag": "0009_green_whizzer",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784790819785,
+      "tag": "0010_tired_baron_strucker",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1784791215892,
+      "tag": "0011_complete_newton_destine",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1784793599957,
+      "tag": "0012_workable_lenny_balinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1784796069080,
+      "tag": "0013_equal_randall",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1784796155558,
+      "tag": "0014_fearless_scarlet_spider",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1784797391397,
+      "tag": "0015_far_synch",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1784868083018,
+      "tag": "0016_steady_the_order",
+      "breakpoints": true
     }
   ]
 }

@@ -367,6 +367,17 @@ input[type="range"]::-moz-range-track {
 }
 
 /* ============================
+   Utilities
+   ============================ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================
    Select
    ============================ */
 select {

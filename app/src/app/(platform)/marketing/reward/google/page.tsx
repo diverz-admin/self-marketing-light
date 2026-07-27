@@ -82,6 +82,7 @@ export default function GoogleRewardPage() {
     await new Promise((r) => setTimeout(r, 700));
     // 결제 시 즉시 포인트 차감 + 장바구니 담기
     addItem({
+      productId: selectedMedia,
       platform: "구글",
       name: selectedItem?.name ?? "",
       initial: selectedItem?.initial ?? "",
