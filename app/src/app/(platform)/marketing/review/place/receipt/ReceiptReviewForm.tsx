@@ -12,6 +12,31 @@ const TYPES = [
   { name: "영수증리뷰", href: "/marketing/review/place/receipt", desc: "실구매 영수증 인증 방문 고객이 리뷰를 남깁니다.", grad: "linear-gradient(135deg,#10B981,#059669)", accent: "#059669", ring: "rgba(5,150,105,0.16)", tint: "#E7F7F0", iconPath: "M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" },
 ];
 
+/** 플레이스 리뷰 신청 폼 공통 섹션 헤더 (블로그배포와 동일 규격) */
+const GRAD_SCHEDULE = "linear-gradient(135deg,#0D3473,#6366F1)";
+const GRAD_REQUIRED = "linear-gradient(135deg,#F97316,#EF4444)";
+const GRAD_DETAIL = "linear-gradient(135deg,#10B981,#059669)";
+
+const ICON_SCHEDULE = "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
+const ICON_REQUIRED = "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z";
+const ICON_DETAIL = "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z";
+
+function SectionHead({ grad, iconPath, title, desc }: { grad: string; iconPath: string; title: string; desc: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: grad }}>
+        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d={iconPath} />
+        </svg>
+      </span>
+      <div>
+        <h2 className="text-[17px] font-bold text-brand-dark">{title}</h2>
+        <p className="text-[13px] text-brand-sub">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
 /** 시작일 + n일 → "YYYY-MM-DD" */
 function addDays(dateStr: string, days: number) {
   const [y, m, d] = dateStr.split("-").map(Number);
@@ -30,11 +55,11 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
   const unitPrice = product?.unitPrice ?? 0;
   const [error, setError] = useState<string | null>(null);
 
+  const [campaignName, setCampaignName] = useState("대박갈비 일산동구청점");
   const [placePid, setPlacePid] = useState("");
   const [startDate, setStartDate] = useState("2026-06-24");
   const [issueDays, setIssueDays] = useState(7);
   const [dailyVolume, setDailyVolume] = useState(5);
-  const [businessName, setBusinessName] = useState("대박갈비 일산동구청점");
   const [mainKeyword, setMainKeyword] = useState("");
   const [receiptAttached, setReceiptAttached] = useState(true);
   const [bizNumber, setBizNumber] = useState("");
@@ -47,6 +72,12 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
   const orderAmount = unitPrice * totalCount;
   const balance = 11500;
 
+  // 스케줄·필수 정보가 모두 채워져야 결제 가능
+  const incomplete =
+    !startDate || issueDays < 1 || dailyVolume < 1 ||
+    !campaignName.trim() || !placePid.trim() || !mainKeyword.trim() ||
+    (!receiptAttached && !bizNumber.trim());
+
   const handleSubmit = async () => {
     if (!agreements.req1 || !agreements.req2) return;
     if (!product) { setError("판매 중인 영수증리뷰 상품이 없습니다. 관리자에게 문의해주세요."); return; }
@@ -58,7 +89,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
       productId,
       platform: "place",
       reviewType: "receipt",
-      storeName: businessName,
+      storeName: campaignName,
       targetUrl: placePid,
       keyword: mainKeyword,
       totalQty: totalCount,
@@ -145,72 +176,129 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
       {/* 2-column layout */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 items-start">
 
-        {/* ── 왼쪽 ── */}
+        {/* ── 왼쪽: 안내 + 스케줄 + 필수 정보 + 강조 내용 (하나의 박스) ── */}
         <div className="space-y-5">
+          <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
 
-          {/* 영수증리뷰 안내 */}
-          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-emerald-50/40 p-5 shadow-[0_1px_2px_rgba(5,150,105,0.05)]">
-            {/* 데코 그라데이션 블롭 */}
-            <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden />
+            {/* 유형 안내 */}
+            <div className="relative overflow-hidden border-b border-brand-border bg-gradient-to-br from-emerald-50 via-white to-emerald-50/40 px-8 py-5">
+              {/* 데코 그라데이션 블롭 */}
+              <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden />
 
-            <div className="relative flex gap-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
-                </svg>
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-[15px] font-extrabold text-emerald-900">영수증리뷰란?</p>
-                  <span className="inline-flex items-center rounded-full bg-emerald-500/12 px-2 py-0.5 text-[11px] font-bold text-emerald-700">실구매 인증</span>
-                </div>
-                <p className="mt-1 text-[14px] leading-relaxed text-emerald-800/80">
-                  실제 결제 영수증을 보유한 방문 고객이 네이버 플레이스에 리뷰를 남기는 캠페인입니다.
-                  검증된 구매자의 진성 리뷰로 별점과 신뢰도를 빠르게 높일 수 있습니다.
-                </p>
+              <div className="relative flex gap-3.5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.9}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
+                  </svg>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[15px] font-extrabold text-brand-dark">영수증리뷰란?</p>
+                    <span className="inline-flex items-center rounded-full bg-emerald-500/12 px-2 py-0.5 text-[11px] font-bold text-emerald-700">실구매 인증</span>
+                  </div>
+                  <p className="mt-1 text-[14px] leading-relaxed text-brand-sub">
+                    실제 결제 영수증을 보유한 방문 고객이 네이버 플레이스에 리뷰를 남기는 캠페인입니다.
+                    검증된 구매자의 진성 리뷰로 별점과 신뢰도를 빠르게 높일 수 있습니다.
+                  </p>
 
-                {/* 핵심 포인트 */}
-                <div className="mt-3.5 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-200/60 bg-white/70 px-3 py-2.5 backdrop-blur-sm">
-                  <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-emerald-900">
-                    <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    핵심 포인트
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    실결제 영수증 인증
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    진성 방문 고객 리뷰
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-amber-700">
-                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.446a1 1 0 00-1.176 0l-3.366 2.446c-.784.57-1.838-.196-1.539-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
-                    </svg>
-                    별점·신뢰도 상승
-                  </span>
+                  {/* 핵심 포인트 */}
+                  <div className="mt-3.5 flex flex-wrap items-center gap-2 rounded-xl border border-brand-border/70 bg-white/70 px-3 py-2.5 backdrop-blur-sm">
+                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-brand-dark">
+                      <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      핵심 포인트
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      실결제 영수증 인증
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-emerald-700">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      진성 방문 고객 리뷰
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-amber-700">
+                      <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.446a1 1 0 00-1.176 0l-3.366 2.446c-.784.57-1.838-.196-1.539-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
+                      </svg>
+                      별점·신뢰도 상승
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 스케줄 설정 */}
-          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
-            <div className="flex items-center gap-3">
-              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#6366F1)" }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </span>
+            {/* 스케줄 설정 */}
+            <div className="px-8 py-5 space-y-5">
+              <SectionHead grad={GRAD_SCHEDULE} iconPath={ICON_SCHEDULE} title="스케줄 설정" desc="발행 기간과 일발행량을 설정하세요" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* 발행 시작일 */}
+                <div>
+                  <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                    발행 시작일 <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                    />
+                  </div>
+                  <p className="text-[13px] text-brand-muted mt-1">원하는 발행 시작일을 선택해주세요</p>
+                </div>
+
+                {/* 발행 일수 */}
+                <div>
+                  <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                    발행 일수 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={issueDays}
+                    onChange={(e) => setIssueDays(Math.min(7, Math.max(1, Number(e.target.value))))}
+                    min={1}
+                    max={7}
+                    className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                  <p className="text-[13px] text-brand-muted mt-1">1~7일 사이로 입력해주세요</p>
+                </div>
+
+                {/* 일발행량 */}
+                <div>
+                  <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                    일발행량 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={dailyVolume}
+                    onChange={(e) => setDailyVolume(Math.max(1, Number(e.target.value)))}
+                    min={1}
+                    className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                  <p className="text-[13px] text-brand-muted mt-1">하루에 발행할 건수를 입력해주세요</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 필수 정보 */}
+            <div className="px-8 py-5 space-y-5 border-t border-brand-border">
+              <SectionHead grad={GRAD_REQUIRED} iconPath={ICON_REQUIRED} title="필수 정보" desc="캠페인명, 플레이스 PID, 키워드를 입력하세요" />
+
+              {/* 캠페인명 */}
               <div>
-                <h2 className="text-[17px] font-bold text-brand-dark">스케줄 설정</h2>
-                <p className="text-[13px] text-brand-sub">발행 기간과 일발행량을 설정하세요</p>
+                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                  캠페인명 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder="대박갈비 일산동구청점"
+                  className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               {/* 플레이스 PID */}
               <div>
                 <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
@@ -221,184 +309,108 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
                     value={placePid}
                     onChange={(e) => setPlacePid(e.target.value)}
                     placeholder="업체명을 검색하세요"
-                    className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                    className="w-full px-0 pr-8 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
                   />
-                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
                 </div>
                 <p className="text-[13px] text-brand-muted mt-1">업체명 검색 또는 PID 숫자를 직접 입력하세요</p>
               </div>
 
-              {/* 발행 시작일 */}
+              {/* 영수증 첨부 여부 */}
               <div>
-                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  발행 시작일 <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full pl-3 pr-9 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
-                  />
+                <p className="text-[15px] font-semibold text-brand-dark mb-2.5">영수증 첨부 여부 <span className="text-red-500">*</span></p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { val: true,  label: "영수증 첨부", desc: "영수증을 첨부합니다" },
+                    { val: false, label: "영수증 미첨부", desc: "작업으로 진행됩니다" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.label}
+                      type="button"
+                      onClick={() => setReceiptAttached(opt.val)}
+                      className={`flex flex-col items-start gap-0.5 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                        receiptAttached === opt.val
+                          ? "border-brand-primary bg-brand-lighter"
+                          : "border-brand-border bg-white hover:bg-brand-lighter"
+                      }`}
+                    >
+                      <span className={`text-[15px] font-bold ${receiptAttached === opt.val ? "text-brand-primary" : "text-brand-dark"}`}>{opt.label}</span>
+                      <span className="text-[13px] text-brand-muted">{opt.desc}</span>
+                    </button>
+                  ))}
                 </div>
-                <p className="text-[13px] text-brand-muted mt-1">원하는 발행 시작일을 선택해주세요</p>
               </div>
 
-              {/* 발행 일수 */}
+              {/* 메인 키워드 */}
               <div>
                 <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  발행 일수 <span className="text-red-500">*</span>
+                  메인 키워드 <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="number"
-                  value={issueDays}
-                  onChange={(e) => setIssueDays(Math.min(7, Math.max(1, Number(e.target.value))))}
-                  min={1}
-                  max={7}
-                  className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
-                />
-                <p className="text-[13px] text-brand-muted mt-1">1~7일 사이로 입력해주세요</p>
-              </div>
-
-              {/* 일발행량 */}
-              <div>
-                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  일발행량 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  value={dailyVolume}
-                  onChange={(e) => setDailyVolume(Math.max(1, Number(e.target.value)))}
-                  min={1}
-                  className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-colors"
-                />
-                <p className="text-[13px] text-brand-muted mt-1">하루에 발행할 건수를 입력해주세요</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 필수 정보 */}
-          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
-            <div className="flex items-center gap-3">
-              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#F97316,#EF4444)" }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
-                </svg>
-              </span>
-              <div>
-                <h2 className="text-[17px] font-bold text-brand-dark">필수 정보</h2>
-                <p className="text-[13px] text-brand-sub">업체명, 키워드, 영수증 첨부 여부를 입력하세요</p>
-              </div>
-            </div>
-
-            {[
-              { label: "업체명",      value: businessName, onChange: setBusinessName, placeholder: "대박갈비 일산동구청점" },
-              { label: "메인 키워드", value: mainKeyword,  onChange: setMainKeyword,  placeholder: "1개만 반영됩니다." },
-            ].map((field) => (
-              <div key={field.label}>
-                <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  {field.label} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  placeholder={field.placeholder}
+                  value={mainKeyword}
+                  onChange={(e) => setMainKeyword(e.target.value)}
+                  placeholder="1개만 반영됩니다."
                   className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
-            ))}
 
-            {/* 영수증 첨부 여부 */}
-            <div>
-              <p className="text-[15px] font-semibold text-brand-dark mb-2.5">영수증 첨부 여부 <span className="text-red-500">*</span></p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { val: true,  label: "영수증 첨부", desc: "영수증을 첨부합니다" },
-                  { val: false, label: "영수증 미첨부", desc: "작업으로 진행됩니다" },
-                ].map((opt) => (
-                  <button
-                    key={opt.label}
-                    type="button"
-                    onClick={() => setReceiptAttached(opt.val)}
-                    className={`flex flex-col items-start gap-0.5 px-3.5 py-2.5 rounded-xl border text-left transition-all ${
-                      receiptAttached === opt.val
-                        ? "border-brand-primary bg-brand-lighter"
-                        : "border-brand-border bg-white hover:bg-brand-lighter"
-                    }`}
-                  >
-                    <span className={`text-[15px] font-bold ${receiptAttached === opt.val ? "text-brand-primary" : "text-brand-dark"}`}>{opt.label}</span>
-                    <span className="text-[13px] text-brand-muted">{opt.desc}</span>
-                  </button>
-                ))}
-              </div>
+              {/* 영수증 미첨부 시 사업자번호 */}
+              {!receiptAttached && (
+                <div>
+                  <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
+                    사업자번호 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    value={bizNumber}
+                    onChange={(e) => setBizNumber(e.target.value)}
+                    placeholder="000-00-00000"
+                    className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                  />
+                  <p className="text-[13px] text-brand-muted mt-1">영수증 미첨부 시 사업자번호 입력은 필수입니다</p>
+                </div>
+              )}
             </div>
 
-            {/* 영수증 미첨부 시 사업자번호 */}
-            {!receiptAttached && (
+            {/* 강조 내용 */}
+            <div className="px-8 py-5 space-y-5 border-t border-brand-border">
+              <SectionHead grad={GRAD_DETAIL} iconPath={ICON_DETAIL} title="강조 내용" desc="키워드 혹은 강조해야 할 내용을 작성하세요" />
+
               <div>
                 <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  사업자번호 <span className="text-red-500">*</span>
+                  키워드 혹은 강조해야 할 내용 <span className="text-[13px] font-normal text-brand-muted">(선택)</span>
                 </label>
-                <input
-                  value={bizNumber}
-                  onChange={(e) => setBizNumber(e.target.value)}
-                  placeholder="000-00-00000"
-                  className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                <textarea
+                  value={emphasis}
+                  onChange={(e) => setEmphasis(e.target.value)}
+                  maxLength={300}
+                  rows={6}
+                  placeholder={`예시)\n-강조하고 싶은 키워드\n-꼭 언급되어야 할 메뉴나 서비스\n-부각하고 싶은 이벤트나 장점 등`}
+                  className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
                 />
-                <p className="text-[13px] text-brand-muted mt-1">영수증 미첨부 시 사업자번호 입력은 필수입니다</p>
+                <p className="text-right text-[12px] text-brand-muted mt-1">{emphasis.length} / 300</p>
               </div>
-            )}
-          </div>
 
-          {/* 강조 내용 */}
-          <div className="bg-white rounded-2xl border border-brand-border px-8 py-5 space-y-5">
-            <div className="flex items-center gap-3">
-              <span className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                </svg>
-              </span>
-              <div>
-                <h2 className="text-[17px] font-bold text-brand-dark">강조 내용</h2>
-                <p className="text-[13px] text-brand-sub">키워드 혹은 강조해야 할 내용을 작성하세요</p>
+              {/* 영수증 주의사항 */}
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
+                <p className="text-[14px] font-extrabold text-amber-700 mb-2">영수증 인증 안내</p>
+                <ul className="space-y-1.5">
+                  {[
+                    "영수증은 결제일로부터 7일 이내만 인정됩니다.",
+                    "영수증 미제출 시 캠페인 참여가 취소될 수 있습니다.",
+                    "네이버 플레이스 리뷰 작성 후 URL을 제출해야 완료 처리됩니다.",
+                  ].map((note, i) => (
+                    <li key={i} className="flex items-start gap-2 text-[13px] text-amber-700">
+                      <span className="font-bold shrink-0 mt-px">•</span>
+                      {note}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
-            <div>
-              <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                키워드 혹은 강조해야 할 내용 <span className="text-[13px] font-normal text-brand-muted">(선택)</span>
-              </label>
-              <textarea
-                value={emphasis}
-                onChange={(e) => setEmphasis(e.target.value)}
-                maxLength={300}
-                rows={4}
-                placeholder={`예시)\n-강조하고 싶은 키워드\n-꼭 언급되어야 할 메뉴나 서비스\n-부각하고 싶은 이벤트나 장점 등`}
-                className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all resize-none"
-              />
-              <p className="text-right text-[12px] text-brand-muted mt-1">{emphasis.length} / 300</p>
-            </div>
-
-            {/* 영수증 주의사항 */}
-            <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
-              <p className="text-[14px] font-extrabold text-amber-700 mb-2">영수증 인증 안내</p>
-              <ul className="space-y-1.5">
-                {[
-                  "영수증은 결제일로부터 7일 이내만 인정됩니다.",
-                  "영수증 미제출 시 캠페인 참여가 취소될 수 있습니다.",
-                  "네이버 플레이스 리뷰 작성 후 URL을 제출해야 완료 처리됩니다.",
-                ].map((note, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[13px] text-amber-700">
-                    <span className="font-bold shrink-0 mt-px">•</span>
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
-
         </div>
 
         {/* ── 오른쪽: 캠페인 설정 ── */}
@@ -415,6 +427,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
             </div>
           </div>
 
+          {/* 결제 */}
           <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-4">
             {/* 상품 선택 — 어드민에 등록된 영수증리뷰 상품 */}
             {products.length === 0 ? (
@@ -443,13 +456,11 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
               </div>
             )}
 
-            {/* 단가 안내 */}
+            {/* 단가 · 결제 금액 */}
             <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter rounded-xl">
               <span className="text-[15px] text-brand-sub">건당 단가</span>
               <span className="text-[17px] font-extrabold text-brand-dark">{unitPrice.toLocaleString()}원</span>
             </div>
-
-            {/* 결제 금액 */}
             <div className="flex items-center justify-between px-4 py-3 bg-brand-lighter border border-brand-border rounded-xl">
               <span className="text-[16px] font-bold text-brand-dark">결제 금액</span>
               <div className="flex items-baseline gap-1">
@@ -496,12 +507,14 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
               </p>
             )}
 
-            {/* 캠페인 등록 / 결제 버튼 */}
             {/* 결제 / 장바구니 */}
+            {incomplete && (
+              <p className="text-[12px] font-semibold text-red-500 mb-2">스케줄·필수 정보를 모두 입력해주세요</p>
+            )}
             <div className="grid grid-cols-[1.5fr_1fr] gap-2.5">
               <button
                 onClick={handleSubmit}
-                disabled={isPending || !agreements.req1 || !agreements.req2}
+                disabled={isPending || !agreements.req1 || !agreements.req2 || incomplete}
                 className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 {isPending ? "등록 중..." : (
@@ -516,7 +529,8 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
 
               <Link
                 href="/marketing/cart"
-                className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"
+                aria-disabled={incomplete}
+                className={`w-full py-3.5 rounded-xl text-[15px] font-extrabold text-brand-primary bg-white border-2 border-brand-primary hover:bg-brand-primary/5 transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap ${incomplete ? "opacity-40 pointer-events-none" : ""}`}
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
