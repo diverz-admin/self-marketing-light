@@ -976,7 +976,21 @@ export async function setGuaranteedStatus(id: string, status: string): Promise<R
   }
 }
 
-export type GuaranteedSettingInput = {
+export type GuaranteedCampaignInput = {
+  /** 없으면 신규 등록 */
+  id?: string;
+  /** 신규 등록에서만 쓴다 — 캠페인을 붙일 광고주 */
+  userId?: string;
+  platform?: string;
+  /** 고객 화면의 "플레이스명" */
+  targetName?: string;
+  /** 고객 화면의 "플레이스 링크" */
+  targetUrl?: string;
+  keyword?: string;
+  /** 상품 종류 (버즈빌·골든 등) — setting 에 담는다 */
+  product?: string;
+  /** 일 작업량 — setting 에 담는다 */
+  dailyQty?: string;
   targetRank?: string;
   guaranteedDays?: string;
   achievedDays?: string;
@@ -987,33 +1001,67 @@ export type GuaranteedSettingInput = {
   memo?: string;
 };
 
-/** 보장형 캠페인 셋팅 페이지 저장 */
-export async function updateGuaranteedSetting(
-  id: string,
-  input: GuaranteedSettingInput,
-): Promise<Result> {
+/**
+ * 보장형 캠페인 등록·셋팅 저장.
+ * 보장형은 고객이 직접 셋팅하지 않고 관리자가 만들어 주므로 신규 등록도 여기서 처리한다.
+ * 저장 값은 고객 화면(/marketing/reward/place/guaranteed/manage)의 항목과 1:1로 맞춘다.
+ */
+export async function upsertGuaranteedCampaign(input: GuaranteedCampaignInput): Promise<Result> {
   try {
     // 셋팅한 관리자가 곧 담당자다
     const admin = await requireAdmin();
-    await db
-      .update(guaranteedCampaigns)
-      .set({
-        assignedAdminId: admin.id,
-        targetRank: int(input.targetRank, 1) ?? 1,
-        guaranteedDays: int(input.guaranteedDays, 30) ?? 30,
-        achievedDays: int(input.achievedDays, 0) ?? 0,
-        currentRank: int(input.currentRank),
-        startDate: orNull(input.startDate),
-        endDate: orNull(input.endDate),
-        amount: num(input.amount),
-        memo: orNull(input.memo),
-        updatedAt: new Date(),
-      })
-      .where(eq(guaranteedCampaigns.id, id));
+    const platform = pick(RANK_PLATFORMS, input.platform ?? "place");
+    if (!platform) return { error: "잘못된 플랫폼입니다." };
+
+    const targetName = (input.targetName ?? "").trim();
+    const keyword = (input.keyword ?? "").trim();
+    if (!targetName) return { error: "업체명을 입력하세요." };
+    if (!keyword) return { error: "키워드를 입력하세요." };
+
+    const values = {
+      platform,
+      targetName,
+      targetUrl: orNull(input.targetUrl),
+      keyword,
+      targetRank: int(input.targetRank, 1) ?? 1,
+      guaranteedDays: int(input.guaranteedDays, 30) ?? 30,
+      achievedDays: int(input.achievedDays, 0) ?? 0,
+      currentRank: int(input.currentRank),
+      startDate: orNull(input.startDate),
+      endDate: orNull(input.endDate),
+      amount: num(input.amount),
+      // 스키마에 컬럼이 없는 셋팅 값(상품 종류·일 작업량)은 setting 에 담는다
+      setting: {
+        product: (input.product ?? "").trim(),
+        dailyQty: int(input.dailyQty, 0) ?? 0,
+      },
+      memo: orNull(input.memo),
+      assignedAdminId: admin.id,
+      updatedAt: new Date(),
+    };
+
+    if (input.id) {
+      await db.update(guaranteedCampaigns).set(values).where(eq(guaranteedCampaigns.id, input.id));
+    } else {
+      if (!input.userId) return { error: "회원을 선택하세요." };
+      // 관리자가 만든 캠페인은 셋팅이 끝난 상태로 시작한다
+      await db.insert(guaranteedCampaigns).values({ ...values, userId: input.userId, status: "setting" });
+    }
     revalidatePath("/admin/reward/guaranteed");
     return ok();
   } catch (e) {
-    return fail(e, "셋팅 저장 실패");
+    return fail(e, "보장형 캠페인 저장 실패");
+  }
+}
+
+export async function deleteGuaranteedCampaign(id: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    await db.delete(guaranteedCampaigns).where(eq(guaranteedCampaigns.id, id));
+    revalidatePath("/admin/reward/guaranteed");
+    return ok();
+  } catch (e) {
+    return fail(e, "보장형 캠페인 삭제 실패");
   }
 }
 

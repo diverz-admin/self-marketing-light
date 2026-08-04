@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useState, useTransition } from "react";
 import {
   Card, TableShell, Th, Td, EmptyState, Badge, Tabs, SearchInput,
-  Button, Modal, ModalFooter, Field, Input, Textarea, Notice,
+  Button, Modal, ModalFooter, Field, Input, Select, Textarea, Notice,
 } from "@/components/admin/ui";
 import { ExtensionsPanel, type ExtensionRow } from "@/components/admin/ExtensionsPanel";
 import { PricingPanel, type PricingRuleRow } from "@/components/admin/PricingPanel";
@@ -14,15 +14,23 @@ import { exportToExcel } from "@/lib/excel-export";
 import {
   formatKRW, formatDate, byStagePriority, guaranteedStageMeta, GUARANTEED_STAGES, rankPlatformMeta,
 } from "@/lib/admin-format";
-import { updateGuaranteedSetting, setGuaranteedStatus, type GuaranteedSettingInput } from "../../actions";
+import {
+  upsertGuaranteedCampaign, deleteGuaranteedCampaign, setGuaranteedStatus,
+  type GuaranteedCampaignInput,
+} from "../../actions";
 
 /**
  * 보장형 캠페인 관리 — 상위노출 관리와 같은 구성으로 맞췄다.
  *   단계 필터 → 대상·순위·보장 카운트·기간 테이블 → 아코디언(링크 + 보장 카운트 + 순위 추이)
- * 고객 화면(/marketing/reward/place/guaranteed/manage)의 "보장 카운트" 개념을 그대로 쓴다.
+ * 보장형은 고객이 직접 셋팅하지 않고 관리자가 캠페인을 만들어 준다.
+ * 입력 항목은 고객 화면(/marketing/reward/place/guaranteed/manage)의 컬럼과 1:1로 맞춘다.
  */
+export type UserOption = { id: string; name: string; email: string };
+
 export type GuaranteedRow = {
   id: string;
+  /** 캠페인이 붙어 있는 광고주 계정 */
+  userId: string;
   /** 가입 시 등록한 회사명 */
   advertiser: string;
   userName: string;
@@ -32,6 +40,10 @@ export type GuaranteedRow = {
   keyword: string;
   targetName: string;
   targetUrl: string | null;
+  /** 상품 종류 (버즈빌·골든 등) */
+  product: string;
+  /** 일 작업량 */
+  dailyQty: number;
   targetRank: number;
   guaranteedDays: number;
   achievedDays: number;
@@ -52,14 +64,16 @@ export type GuaranteedRow = {
 
 const STAGE_FILTERS = [{ key: "all", label: "전체" }, ...GUARANTEED_STAGES.map((s) => ({ key: s.key, label: s.label }))];
 
-/** 셋팅 모달을 열 수 있는 단계 — 상위노출과 동일하게 "셋팅 완료" 하나로 처리한다 */
-const SETTING_STAGES = ["submitted", "setting_done"];
+/** 보장형에서 다루는 플랫폼 — 순위추적과 같은 값을 쓴다 */
+const PLATFORMS = ["place", "shopping", "coupang"];
 
 export function GuaranteedClient({
   rows,
   extensions,
   rules,
   presets,
+  users,
+  productTitles,
   years,
   period,
 }: {
@@ -67,6 +81,10 @@ export function GuaranteedClient({
   extensions: ExtensionRow[];
   rules: PricingRuleRow[];
   presets: { key: string; label: string; unit?: string }[];
+  /** 캠페인을 붙일 광고주 목록 */
+  users: UserOption[];
+  /** 플랫폼별 상품 이름 (상품 종류 자동완성) */
+  productTitles: Record<string, string[]>;
   /** 완료 데이터가 있는 연도 (서버 집계) */
   years: number[];
   /** URL 로 전달된 연/월/일 조회 조건 */
@@ -76,7 +94,8 @@ export function GuaranteedClient({
   // 화면을 열면 처리해야 할 신청접수부터 보이게 한다
   const [filter, setFilter] = useState("submitted");
   const [query, setQuery] = useState("");
-  const [settingTarget, setSettingTarget] = useState<GuaranteedRow | null>(null);
+  /** "new" 면 신규 등록, 행이면 셋팅 수정 */
+  const [editing, setEditing] = useState<GuaranteedRow | "new" | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const stageCount = (key: string) => (key === "all" ? rows.length : rows.filter((r) => r.stage === key).length);
@@ -111,6 +130,8 @@ export function GuaranteedClient({
         업체명: g.targetName,
         링크: g.targetUrl ?? "",
         키워드: g.keyword,
+        상품: g.product,
+        일작업량: g.dailyQty,
         보장순위: g.targetRank,
         현재순위: g.currentRank ?? "",
         보장일수: g.guaranteedDays,
@@ -179,6 +200,8 @@ export function GuaranteedClient({
                 placeholder="광고주 · 업체 · 키워드 검색"
                 className="w-full sm:w-64"
               />
+              {/* 보장형은 고객이 신청하지 않는 건도 있어 관리자가 직접 만든다 */}
+              <Button size="sm" onClick={() => setEditing("new")}>캠페인 등록</Button>
             </div>
           </div>
 
@@ -194,6 +217,7 @@ export function GuaranteedClient({
                     <Th>광고주</Th>
                     <Th>업체명</Th>
                     <Th>키워드</Th>
+                    <Th>상품 / 일 작업량</Th>
                     <Th className="text-center">보장 / 현재 순위</Th>
                     <Th className="text-center">보장 카운트</Th>
                     <Th>카운트 시작일</Th>
@@ -239,6 +263,12 @@ export function GuaranteedClient({
                           <Badge tone={pMeta.tone}>{pMeta.label}</Badge>
                         </Td>
                         <Td className="text-[13px] text-brand-text">{g.keyword}</Td>
+                        <Td className="text-[13px] whitespace-nowrap">
+                          <div className="text-brand-text">{g.product || <span className="text-brand-muted">미지정</span>}</div>
+                          <div className="text-[12px] text-brand-muted tabular-nums">
+                            {g.dailyQty > 0 ? `${g.dailyQty.toLocaleString()}건/일` : "-"}
+                          </div>
+                        </Td>
                         <Td className="text-center tabular-nums">
                           <div className="font-semibold text-brand-dark">{g.targetRank}위 보장</div>
                           <div className="text-[12px]">
@@ -276,12 +306,15 @@ export function GuaranteedClient({
                         <Td>
                           <Badge tone={meta.tone}>{meta.label}</Badge>
                         </Td>
+                        {/* 셋팅은 관리자 몫이라 단계와 상관없이 언제든 열 수 있다 */}
                         <Td className="text-center">
-                          {SETTING_STAGES.includes(g.stage) && (
-                            <Button size="sm" onClick={() => setSettingTarget(g)}>
-                              셋팅 완료
-                            </Button>
-                          )}
+                          <Button
+                            size="sm"
+                            variant={g.stage === "submitted" ? "primary" : "secondary"}
+                            onClick={() => setEditing(g)}
+                          >
+                            {g.stage === "submitted" ? "셋팅하기" : "셋팅 수정"}
+                          </Button>
                         </Td>
                         {/* 담당자 = 셋팅을 처리한 관리자 (처리 시 자동으로 기록된다) */}
                         <Td className="text-[13px]">
@@ -294,7 +327,7 @@ export function GuaranteedClient({
                       </tr>
                       {expandedId === g.id && (
                         <tr>
-                          <td colSpan={12} className="p-0 bg-brand-light/40 border-t border-brand-border">
+                          <td colSpan={13} className="p-0 bg-brand-light/40 border-t border-brand-border">
                             <RankTrendPanel
                               targetName={g.targetName}
                               keyword={g.keyword}
@@ -320,7 +353,14 @@ export function GuaranteedClient({
         </Card>
       )}
 
-      {settingTarget && <GuaranteedSettingModal row={settingTarget} onClose={() => setSettingTarget(null)} />}
+      {editing && (
+        <GuaranteedSettingModal
+          row={editing === "new" ? null : editing}
+          users={users}
+          productTitles={productTitles}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }
@@ -360,40 +400,98 @@ function GuaranteeCount({ row }: { row: GuaranteedRow }) {
   );
 }
 
+/** 시작일 + n일 → "YYYY-MM-DD" (보장 일수로 종료일을 자동 계산할 때 쓴다) */
+function addDays(dateStr: string, days: number) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return "";
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + Math.max(1, days) - 1);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+}
+
 /**
- * 셋팅 완료 — 보장 순위·기간·금액을 확정하면서 단계를 넘긴다.
- * 저장하면 시작일에 맞춰 자동으로 구동중이 된다.
+ * 보장형 캠페인 등록 · 셋팅.
+ * 보장형은 고객이 셋팅하지 않으므로 관리자가 여기서 캠페인을 만들고 조건을 확정한다.
+ * 입력 항목은 고객 화면(보장형 캠페인 관리)의 컬럼과 같은 순서로 둔다.
  */
-function GuaranteedSettingModal({ row, onClose }: { row: GuaranteedRow; onClose: () => void }) {
-  const [form, setForm] = useState<GuaranteedSettingInput>({
-    targetRank: String(row.targetRank),
-    guaranteedDays: String(row.guaranteedDays),
-    achievedDays: String(row.achievedDays),
-    currentRank: row.currentRank != null ? String(row.currentRank) : "",
+function GuaranteedSettingModal({
+  row,
+  users,
+  productTitles,
+  onClose,
+}: {
+  /** null 이면 신규 등록 */
+  row: GuaranteedRow | null;
+  users: UserOption[];
+  productTitles: Record<string, string[]>;
+  onClose: () => void;
+}) {
+  const [form, setForm] = useState<GuaranteedCampaignInput>({
+    id: row?.id,
+    userId: row?.userId ?? "",
+    platform: row?.platform ?? "place",
+    targetName: row && row.targetName !== "-" ? row.targetName : "",
+    targetUrl: row?.targetUrl ?? "",
+    keyword: row?.keyword ?? "",
+    product: row?.product ?? "",
+    dailyQty: row && row.dailyQty > 0 ? String(row.dailyQty) : "",
+    targetRank: String(row?.targetRank ?? 5),
+    guaranteedDays: String(row?.guaranteedDays ?? 25),
+    achievedDays: String(row?.achievedDays ?? 0),
+    currentRank: row?.currentRank != null ? String(row.currentRank) : "",
     // 기간은 임시값이라도 항상 채워져 오므로 그대로 기본값으로 쓴다
-    startDate: row.startDate,
-    endDate: row.endDate,
-    amount: String(row.amount),
-    memo: row.memo ?? "",
+    startDate: row?.startDate ?? "",
+    endDate: row?.endDate ?? "",
+    amount: String(row?.amount ?? 0),
+    memo: row?.memo ?? "",
   });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const set = <K extends keyof GuaranteedSettingInput>(key: K, value: GuaranteedSettingInput[K]) =>
+  const set = <K extends keyof GuaranteedCampaignInput>(key: K, value: GuaranteedCampaignInput[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  /** 시작일·보장 일수를 바꾸면 종료일을 다시 계산해 준다 (이후 직접 수정 가능) */
+  const setPeriodDriver = (key: "startDate" | "guaranteedDays", value: string) =>
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      const days = Number(next.guaranteedDays || 0);
+      if (next.startDate && days > 0) next.endDate = addDays(next.startDate, days);
+      return next;
+    });
+
+  const titles = productTitles[form.platform ?? "place"] ?? [];
 
   const submit = () => {
     setError(null);
     startTransition(async () => {
-      const res = await updateGuaranteedSetting(row.id, form);
+      const res = await upsertGuaranteedCampaign(form);
       if ("error" in res) {
         setError(res.error);
         return;
       }
-      // 셋팅을 확정하면 셋팅완료 단계로 넘어간다 (이후 구동중·보장완료는 기간에 맞춰 자동)
-      const moved = await setGuaranteedStatus(row.id, "setting");
-      if ("error" in moved) {
-        setError(moved.error);
+      // 기존 건은 셋팅을 확정하면 셋팅완료로 넘긴다 (이후 구동중·보장완료는 기간에 맞춰 자동)
+      if (row) {
+        const moved = await setGuaranteedStatus(row.id, "setting");
+        if ("error" in moved) {
+          setError(moved.error);
+          return;
+        }
+      }
+      onClose();
+    });
+  };
+
+  const remove = () => {
+    if (!row) return;
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteGuaranteedCampaign(row.id);
+      if ("error" in res) {
+        setError(res.error);
         return;
       }
       onClose();
@@ -402,14 +500,76 @@ function GuaranteedSettingModal({ row, onClose }: { row: GuaranteedRow; onClose:
 
   return (
     <Modal
-      title="셋팅 완료"
-      description={`${row.advertiser} · ${row.targetName} — 저장하면 시작일에 맞춰 자동으로 구동됩니다`}
+      title={row ? "보장형 캠페인 셋팅" : "보장형 캠페인 등록"}
+      description={
+        row
+          ? `${row.advertiser} · ${row.targetName} — 저장하면 시작일에 맞춰 자동으로 구동됩니다`
+          : "보장형은 고객이 셋팅하지 않습니다. 회원을 고르고 캠페인을 만들어 주세요."
+      }
       onClose={onClose}
-      width="max-w-[560px]"
-      footer={<ModalFooter onClose={onClose} onSubmit={submit} pending={pending} />}
+      width="max-w-[680px]"
+      footer={<ModalFooter onClose={onClose} onSubmit={submit} pending={pending} submitLabel={row ? "저장" : "등록"} />}
     >
       <div className="grid grid-cols-2 gap-3">
-        <Field label="보장 순위">
+        <Field label="회원" hint={row ? "등록 후에는 광고주를 바꿀 수 없습니다" : undefined}>
+          {row ? (
+            <Input value={`${row.userName} (${row.userEmail})`} readOnly disabled />
+          ) : (
+            <Select value={form.userId} onChange={(e) => set("userId", e.target.value)}>
+              <option value="">회원을 선택하세요</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+        <Field label="플랫폼">
+          <Select value={form.platform} onChange={(e) => set("platform", e.target.value)}>
+            {PLATFORMS.map((p) => (
+              <option key={p} value={p}>
+                {rankPlatformMeta[p]?.label ?? p}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="업체명" hint="고객 화면의 플레이스명">
+          <Input value={form.targetName} onChange={(e) => set("targetName", e.target.value)} />
+        </Field>
+        <Field label="키워드">
+          <Input value={form.keyword} onChange={(e) => set("keyword", e.target.value)} />
+        </Field>
+      </div>
+
+      <Field label="플레이스 링크">
+        <Input value={form.targetUrl} onChange={(e) => set("targetUrl", e.target.value)} placeholder="https://" />
+      </Field>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="상품 종류" hint="리워드 상품등록에 올라온 이름">
+          <Input
+            value={form.product}
+            onChange={(e) => set("product", e.target.value)}
+            list="guaranteed-product-titles"
+            placeholder="버즈빌"
+          />
+          <datalist id="guaranteed-product-titles">
+            {titles.map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
+        </Field>
+        <Field label="일 작업량 (건/일)">
+          <Input value={form.dailyQty} onChange={(e) => set("dailyQty", e.target.value)} inputMode="numeric" />
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="보장 순위" hint="이 순위 안에 있는 날만 카운트합니다">
           <Input value={form.targetRank} onChange={(e) => set("targetRank", e.target.value)} inputMode="numeric" />
         </Field>
         <Field label="현재 순위">
@@ -419,7 +579,11 @@ function GuaranteedSettingModal({ row, onClose }: { row: GuaranteedRow; onClose:
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="보장 일수">
-          <Input value={form.guaranteedDays} onChange={(e) => set("guaranteedDays", e.target.value)} inputMode="numeric" />
+          <Input
+            value={form.guaranteedDays}
+            onChange={(e) => setPeriodDriver("guaranteedDays", e.target.value)}
+            inputMode="numeric"
+          />
         </Field>
         <Field label="달성 일수" hint="순위 이력이 쌓이면 자동 계산됩니다">
           <Input value={form.achievedDays} onChange={(e) => set("achievedDays", e.target.value)} inputMode="numeric" />
@@ -428,9 +592,13 @@ function GuaranteedSettingModal({ row, onClose }: { row: GuaranteedRow; onClose:
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="시작일">
-          <Input type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
+          <Input
+            type="date"
+            value={form.startDate}
+            onChange={(e) => setPeriodDriver("startDate", e.target.value)}
+          />
         </Field>
-        <Field label="종료일">
+        <Field label="종료일" hint="시작일·보장 일수로 자동 계산됩니다">
           <Input type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
         </Field>
       </div>
@@ -444,6 +612,32 @@ function GuaranteedSettingModal({ row, onClose }: { row: GuaranteedRow; onClose:
       </Field>
 
       {error && <Notice ok={false}>{error}</Notice>}
+
+      {row && (
+        <div className="pt-1 border-t border-brand-border mt-1">
+          {confirmDelete ? (
+            <div className="flex items-center justify-between gap-3 pt-3">
+              <span className="text-[13px] text-brand-sub">이 캠페인을 삭제할까요? 되돌릴 수 없습니다.</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+                  취소
+                </Button>
+                <Button size="sm" variant="danger" disabled={pending} onClick={remove}>
+                  삭제
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="mt-3 text-[13px] font-semibold text-red-500 hover:underline"
+            >
+              캠페인 삭제
+            </button>
+          )}
+        </div>
+      )}
     </Modal>
   );
 }

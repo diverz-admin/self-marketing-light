@@ -1,16 +1,16 @@
 import { db } from "@/db";
 import {
   guaranteedCampaigns, users, memberProfiles, campaignExtensions, pricingRules,
-  rankKeywords, rankSnapshots,
+  rankKeywords, rankSnapshots, products,
 } from "@/db/schema";
-import { and, asc, desc, eq, gte, isNotNull, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { PageTitle } from "@/components/admin/ui";
 import { guaranteedStage, todayKST } from "@/lib/admin-format";
 import { parsePeriod, periodRange } from "@/lib/period-filter";
 import type { ExtensionRow } from "@/components/admin/ExtensionsPanel";
 import type { PricingRuleRow } from "@/components/admin/PricingPanel";
-import { GuaranteedClient, type GuaranteedRow } from "./GuaranteedClient";
+import { GuaranteedClient, type GuaranteedRow, type UserOption } from "./GuaranteedClient";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +55,7 @@ export default async function AdminGuaranteedPage({
       )
     : undefined;
 
-  const [rows, extensionRows, ruleRows, rankRows, snapshotRows] = await Promise.all([
+  const [rows, extensionRows, ruleRows, rankRows, snapshotRows, userRows, productRows] = await Promise.all([
     db
       .select({
         id: guaranteedCampaigns.id,
@@ -76,6 +76,7 @@ export default async function AdminGuaranteedPage({
         endDate: guaranteedCampaigns.endDate,
         amount: guaranteedCampaigns.amount,
         status: guaranteedCampaigns.status,
+        setting: guaranteedCampaigns.setting,
         memo: guaranteedCampaigns.memo,
         createdAt: guaranteedCampaigns.createdAt,
       })
@@ -131,6 +132,14 @@ export default async function AdminGuaranteedPage({
       })
       .from(rankSnapshots)
       .orderBy(rankSnapshots.snapshotDate),
+    // 보장형은 관리자가 캠페인을 만들어 주므로 붙일 회원을 고를 수 있어야 한다
+    db.select({ id: users.id, name: users.name, email: users.email }).from(users).orderBy(users.name).limit(500),
+    // 상품 종류(버즈빌·골든 등)는 리워드 상품등록에 올라온 이름을 그대로 쓴다
+    db
+      .select({ title: products.title, channel: products.channel })
+      .from(products)
+      .where(inArray(products.category, ["reward_place", "reward_shopping", "reward_coupang"]))
+      .orderBy(asc(products.title)),
   ]);
 
   // 기간 선택지는 화면에 로드된 행이 아니라 전체 데이터에서 뽑는다
@@ -154,12 +163,15 @@ export default async function AdminGuaranteedPage({
   const data: GuaranteedRow[] = rows.map((g) => {
     const rank = rankMap.get(`${g.userId}:${g.platform}:${g.keyword}`);
     const history = (rank && historyMap.get(rank.id)) || [];
+    // 상품 종류·일 작업량은 스키마 컬럼이 아니라 setting 에 담아 둔다
+    const setting = (g.setting ?? {}) as Record<string, unknown>;
     // 보장 카운트 = 보장 순위 안에 머문 일수 (이력이 있으면 이력 기준, 없으면 저장값)
     const countedDays = history.length ? history.filter((h) => h.rank <= g.targetRank).length : g.achievedDays;
     const countStart = history.find((h) => h.rank <= g.targetRank)?.date ?? null;
 
     return {
       id: g.id,
+      userId: g.userId,
       advertiser: g.orgName ?? g.userName ?? "-",
       userName: g.userName ?? "(탈퇴 회원)",
       userEmail: g.userEmail ?? "-",
@@ -168,6 +180,8 @@ export default async function AdminGuaranteedPage({
       keyword: g.keyword,
       targetName: g.targetName ?? "-",
       targetUrl: g.targetUrl,
+      product: typeof setting.product === "string" ? setting.product : "",
+      dailyQty: typeof setting.dailyQty === "number" ? setting.dailyQty : 0,
       targetRank: g.targetRank,
       guaranteedDays: g.guaranteedDays,
       achievedDays: countedDays,
@@ -199,6 +213,17 @@ export default async function AdminGuaranteedPage({
     createdAt: e.createdAt.toISOString(),
   }));
 
+  const userOptions: UserOption[] = userRows.map((u) => ({ id: u.id, name: u.name, email: u.email }));
+
+  // 플랫폼별 상품 이름 목록 (셋팅 모달의 "상품 종류" 자동완성)
+  const productTitles: Record<string, string[]> = {};
+  for (const p of productRows) {
+    const channel = p.channel ?? "place";
+    const list = productTitles[channel] ?? [];
+    if (!list.includes(p.title)) list.push(p.title);
+    productTitles[channel] = list;
+  }
+
   const rules: PricingRuleRow[] = ruleRows.map((r) => ({
     id: r.id,
     category: r.category,
@@ -214,13 +239,15 @@ export default async function AdminGuaranteedPage({
     <div>
       <PageTitle
         title="보장형 캠페인 관리"
-        description="보장 순위 유지 현황을 확인하고 셋팅합니다. 연장 신청도 여기서 처리합니다."
+        description="보장형은 고객이 셋팅하지 않습니다. 캠페인을 직접 등록·셋팅하고 보장 순위 유지 현황을 관리합니다."
       />
       <GuaranteedClient
         rows={data}
         extensions={extensions}
         rules={rules}
         presets={GUARANTEED_PRICING_PRESETS}
+        users={userOptions}
+        productTitles={productTitles}
         years={years}
         period={periodParams}
       />
