@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { viewerId } from "@/lib/viewer";
 import ReviewManageTable from "@/components/marketing/ReviewManageTable";
 import PageHeader from "@/components/marketing/PageHeader";
 import { loadMyReviewCampaigns } from "@/lib/my-review-campaigns";
@@ -7,13 +6,9 @@ import { loadMyReviewCampaigns } from "@/lib/my-review-campaigns";
 export const dynamic = "force-dynamic";
 
 export default async function PlaceReviewManagePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const userId = await viewerId();
 
-  const campaigns = await loadMyReviewCampaigns(user.id, ["place"]);
+  const campaigns = await loadMyReviewCampaigns(userId, ["place"]);
 
   return (
     <div className="w-full space-y-5">

@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { viewerId } from "@/lib/viewer";
 import ReviewManageTable from "@/components/marketing/ReviewManageTable";
 import PageHeader from "@/components/marketing/PageHeader";
 import { loadMyReviewCampaigns } from "@/lib/my-review-campaigns";
@@ -11,14 +10,10 @@ const TABS = [
 ];
 
 export default async function ShoppingReviewManagePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const userId = await viewerId();
 
   // 쇼핑 리뷰 관리 화면은 네이버 쇼핑·쿠팡 신청을 함께 보여준다 (신청 화면이 하나로 합쳐져 있다)
-  const campaigns = await loadMyReviewCampaigns(user.id, ["naver_shopping", "coupang"]);
+  const campaigns = await loadMyReviewCampaigns(userId, ["naver_shopping", "coupang"]);
 
   return (
     <div className="w-full space-y-5">

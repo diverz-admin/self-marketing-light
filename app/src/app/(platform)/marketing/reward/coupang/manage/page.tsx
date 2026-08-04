@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { viewerId } from "@/lib/viewer";
 import { todayKST } from "@/lib/admin-format";
 import { loadMyRewardCampaigns } from "@/lib/my-reward-campaigns";
 import RewardManageView from "@/components/marketing/RewardManageView";
@@ -7,13 +6,9 @@ import RewardManageView from "@/components/marketing/RewardManageView";
 export const dynamic = "force-dynamic";
 
 export default async function CoupangManagePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const userId = await viewerId();
 
-  const { items, rankHistory } = await loadMyRewardCampaigns(user.id, "coupang");
+  const { items, rankHistory } = await loadMyRewardCampaigns(userId, "coupang");
 
   return (
     <RewardManageView
