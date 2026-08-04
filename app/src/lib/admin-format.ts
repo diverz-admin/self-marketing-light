@@ -527,6 +527,21 @@ export function reviewProductDefaults(channel: string, reviewType: string) {
   };
 }
 
+/**
+ * 리뷰 상품등록 화면의 고정 줄 — 채널 × 리뷰 유형 조합이 곧 상품이다.
+ * 리뷰는 유형이 원고 조건을 이미 정하므로 관리자가 정할 값은 건별 가격뿐이다.
+ */
+export const REVIEW_PRICE_ROWS: { channel: string; reviewType: string }[] =
+  REVIEW_PRODUCT_CHANNELS.flatMap((c) =>
+    (REVIEW_TYPES_BY_CHANNEL[c.key] ?? []).map((reviewType) => ({ channel: c.key, reviewType })),
+  );
+
+/** 가격 줄의 기본 상품명 ("네이버 플레이스 블로그 배포") */
+export function reviewPriceRowLabel(channel: string, reviewType: string) {
+  const channelLabel = REVIEW_PRODUCT_CHANNELS.find((c) => c.key === channel)?.label ?? channel;
+  return `${channelLabel} ${reviewTypeLabel[reviewType] ?? reviewType}`;
+}
+
 // ── 리워드 상품 카드 (사용자 상품 선택 화면) ──
 
 /** 카드 묶음 — 사용자 화면에서 이 순서대로 섹션이 나뉜다 (플레이스·쇼핑 기본값) */

@@ -27,6 +27,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createClient } from "@/utils/supabase/server";
 import { BIZ_DOC_BUCKET } from "@/lib/storage";
 import { parseAttachments, type Attachment } from "@/lib/attachments";
+import { REVIEW_TYPES_BY_CHANNEL, reviewProductDefaults, reviewPriceRowLabel } from "@/lib/admin-format";
 
 type Result = { success: true } | { error: string };
 
@@ -58,6 +59,8 @@ const BOARD_TYPES = ["free", "review", "commerce", "qna", "tip"] as const;
 const BOARD_CHANNELS = ["shopping", "place", "coupang"] as const;
 const COUPON_DISCOUNT_TYPES = ["amount", "percent"] as const;
 const RANK_PLATFORMS = ["place", "shopping", "coupang"] as const;
+/** 리뷰 건별 가격을 매기는 채널 — products.channel 값과 같다 */
+const REVIEW_PRICE_CHANNELS = ["place", "shopping", "coupang"] as const;
 const REVIEW_PLATFORMS = ["place", "naver_shopping", "coupang"] as const;
 const REVIEW_TYPES = [
   "blog_distribute", "receipt", "visitor", "reservation",
@@ -903,6 +906,74 @@ export async function deleteProduct(productId: string): Promise<Result> {
     return ok();
   } catch (e) {
     return fail(e, "상품 삭제 실패 (연결된 캠페인이 있으면 삭제할 수 없습니다)");
+  }
+}
+
+export type ReviewPriceInput = {
+  /** 이미 있는 상품이면 그 상품을 갱신하고, 없으면 새로 만든다 */
+  productId?: string;
+  channel: string;
+  reviewType: string;
+  unitPrice: string;
+  isActive: boolean;
+};
+
+/**
+ * 리뷰 상품등록 — 채널 + 리뷰 유형별 "건별 가격" 한 줄을 저장한다.
+ * 리뷰는 원고 조건이 유형으로 이미 정해져 있어 상품마다 다룰 값이 가격뿐이다.
+ * 고객 신청 화면은 channel + reviewType 으로 상품을 찾으므로 저장할 때 두 값을 반드시 채운다.
+ */
+export async function saveReviewPrice(input: ReviewPriceInput): Promise<Result> {
+  try {
+    await requireAdmin();
+    const channel = pick(REVIEW_PRICE_CHANNELS, input.channel);
+    if (!channel) return { error: "잘못된 플랫폼입니다." };
+    const allowed = REVIEW_TYPES_BY_CHANNEL[channel] ?? [];
+    if (!allowed.includes(input.reviewType)) return { error: "해당 플랫폼에 없는 리뷰 유형입니다." };
+    const reviewType = pick(REVIEW_TYPES, input.reviewType);
+    if (!reviewType) return { error: "잘못된 리뷰 유형입니다." };
+
+    const price = Number(num(input.unitPrice));
+    if (!Number.isFinite(price) || price < 0) return { error: "건별 가격을 확인해주세요." };
+
+    const defaults = reviewProductDefaults(channel, reviewType);
+    const category = pick(PRODUCT_CATEGORIES, defaults.category);
+    const productType = pick(PRODUCT_TYPES, defaults.productType) ?? "blog_review";
+
+    if (input.productId) {
+      await db
+        .update(products)
+        .set({
+          // 기존 상품에 채널·유형이 비어 있으면 여기서 채워 고객 화면과 연결한다
+          channel,
+          reviewType,
+          category,
+          unitPrice: String(price),
+          isActive: input.isActive,
+          updatedAt: new Date(),
+        })
+        .where(eq(products.id, input.productId));
+    } else {
+      await db.insert(products).values({
+        productType,
+        category,
+        channel,
+        reviewType,
+        title: reviewPriceRowLabel(channel, reviewType),
+        unit: "per_item",
+        unitPrice: String(price),
+        isActive: input.isActive,
+      });
+    }
+
+    revalidatePath("/admin/review/products");
+    // 고객 신청 화면은 이 가격을 그대로 보여준다
+    revalidatePath("/marketing/review/place/blog-reporter");
+    revalidatePath("/marketing/review/place/receipt");
+    revalidatePath("/marketing/review/shopping/product-experience");
+    return ok();
+  } catch (e) {
+    return fail(e, "건별 가격 저장 실패");
   }
 }
 
