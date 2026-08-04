@@ -56,7 +56,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
   const [error, setError] = useState<string | null>(null);
 
   const [campaignName, setCampaignName] = useState("대박갈비 일산동구청점");
-  const [placePid, setPlacePid] = useState("");
+  const [placeLink, setPlaceLink] = useState("");
   const [startDate, setStartDate] = useState("2026-06-24");
   const [issueDays, setIssueDays] = useState(7);
   const [dailyVolume, setDailyVolume] = useState(5);
@@ -75,7 +75,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
   // 스케줄·필수 정보가 모두 채워져야 결제 가능
   const incomplete =
     !startDate || issueDays < 1 || dailyVolume < 1 ||
-    !campaignName.trim() || !placePid.trim() || !mainKeyword.trim() ||
+    !campaignName.trim() || !placeLink.trim() || !mainKeyword.trim() ||
     (!receiptAttached && !bizNumber.trim());
 
   const handleSubmit = async () => {
@@ -90,7 +90,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
       platform: "place",
       reviewType: "receipt",
       storeName: campaignName,
-      targetUrl: placePid,
+      targetUrl: placeLink,
       keyword: mainKeyword,
       totalQty: totalCount,
       startDate,
@@ -284,7 +284,7 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
 
             {/* 필수 정보 */}
             <div className="px-8 py-5 space-y-5 border-t border-brand-border">
-              <SectionHead grad={GRAD_REQUIRED} iconPath={ICON_REQUIRED} title="필수 정보" desc="캠페인명, 플레이스 PID, 키워드를 입력하세요" />
+              <SectionHead grad={GRAD_REQUIRED} iconPath={ICON_REQUIRED} title="필수 정보" desc="캠페인명, 플레이스 링크, 키워드를 입력하세요" />
 
               {/* 캠페인명 */}
               <div>
@@ -299,23 +299,18 @@ export default function ReceiptReviewForm({ products }: { products: ReviewProduc
                 />
               </div>
 
-              {/* 플레이스 PID */}
+              {/* 플레이스 링크 */}
               <div>
                 <label className="block text-[15px] font-semibold text-brand-dark mb-1.5">
-                  플레이스 PID <span className="text-red-500">*</span>
+                  플레이스 링크 <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <input
-                    value={placePid}
-                    onChange={(e) => setPlacePid(e.target.value)}
-                    placeholder="업체명을 검색하세요"
-                    className="w-full px-0 pr-8 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
-                  />
-                  <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                </div>
-                <p className="text-[13px] text-brand-muted mt-1">업체명 검색 또는 PID 숫자를 직접 입력하세요</p>
+                <input
+                  value={placeLink}
+                  onChange={(e) => setPlaceLink(e.target.value)}
+                  placeholder="https://m.place.naver.com/restaurant/..."
+                  className="w-full px-0 py-2 border-b border-brand-border text-[15px] text-brand-dark bg-transparent focus:outline-none focus:border-brand-primary transition-colors"
+                />
+                <p className="text-[13px] text-brand-muted mt-1">네이버 플레이스 모바일 주소를 붙여넣어 주세요</p>
               </div>
 
               {/* 영수증 첨부 여부 */}
