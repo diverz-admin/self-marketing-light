@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo, useState, useTransition } from "react";
 import {
-  Card, TableShell, Th, Td, EmptyState, Badge, Tabs, SearchInput, InlineSelect,
+  Card, TableShell, Th, Td, EmptyState, Badge, Tabs, SearchInput, InlineSelect, StatCard,
   Button, Modal, ModalFooter, Field, Input, Textarea, Notice,
 } from "@/components/admin/ui";
 import { ExtensionsPanel, type ExtensionRow } from "@/components/admin/ExtensionsPanel";
@@ -12,14 +12,14 @@ import type { PeriodParams } from "@/lib/period-filter";
 import { exportToExcel } from "@/lib/excel-export";
 import {
   formatKRW, formatDate, formatNumber, byStagePriority,
-  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel, reviewTaskStatusMeta,
+  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel, reviewTaskStatusMeta, reviewPlatformMeta,
 } from "@/lib/admin-format";
-import { placeReviewDetails, placeReviewSchedule } from "@/lib/place-review-setting";
+import { reviewRequestDetails, reviewScheduleText, reviewScheduleDetail } from "@/lib/review-request-setting";
 import type { ReviewCampaignRow, ReviewTaskRow } from "@/components/admin/ReviewCampaignsClient";
 import {
   setReviewCampaignStatus, upsertReviewCampaign, upsertReviewTask, deleteReviewTask,
   type ReviewCampaignInput,
-} from "../../actions";
+} from "@/app/(platform)/admin/(console)/actions";
 
 /**
  * 플레이스 리뷰 관리 — 고객 신청 화면(/marketing/review/place/*)과 짝을 이룬다.
@@ -30,17 +30,34 @@ import {
  * 그래서 목록은 유형으로 나누고, 신청 내용은 행을 펼쳐 유형에 맞게 보여준다.
  * 금액(건별 단가)은 "리뷰 상품등록"에서 정하므로 이 화면에서는 다루지 않는다.
  */
-const PLACE_TYPES = [
-  { key: "all", label: "전체" },
-  { key: "blog_distribute", label: "블로그배포" },
-  { key: "receipt", label: "영수증리뷰" },
-];
+export type ReviewRequestConfig = {
+  /** 화면 이름 — 빈 목록 문구·연장 탭 제목에 쓴다 */
+  label: string;
+  /** 엑셀 파일명 */
+  fileName: string;
+  /** 유형 칩 ("전체"는 자동으로 앞에 붙는다) */
+  types: { key: string; label: string }[];
+  /** 대상 링크 라벨 — "플레이스 링크" | "상품 링크" */
+  linkLabel: string;
+  /** 채널이 둘 이상인 화면(쇼핑)은 채널 열을 함께 보여준다 */
+  showChannel?: boolean;
+};
 
 const STAGE_FILTERS = [{ key: "all", label: "전체" }, ...REVIEW_STAGES.map((s) => ({ key: s.key, label: s.label }))];
 
-const TYPE_TONE: Record<string, "blue" | "green"> = {
+const TYPE_TONE: Record<string, "blue" | "green" | "purple" | "amber"> = {
   blog_distribute: "blue",
   receipt: "green",
+  product_provided: "purple",
+  product_not_provided: "amber",
+};
+
+/** 유형마다 URL 이 가리키는 대상이 다르다 */
+const URL_LABEL: Record<string, string> = {
+  blog_distribute: "블로그 작성 URL",
+  receipt: "리뷰 URL",
+  product_provided: "리뷰 URL",
+  product_not_provided: "리뷰 URL",
 };
 
 /** 작성 URL 이 들어오면 승인으로 올려 완료 건수에 반영한다 */
@@ -53,13 +70,16 @@ function todayYMD() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-export function PlaceReviewClient({
+export function ReviewRequestClient({
+  config,
   rows,
   tasks,
   extensions,
   years,
   period,
 }: {
+  /** 화면마다 다른 부분만 주입한다 (플레이스 / 쇼핑) */
+  config: ReviewRequestConfig;
   rows: ReviewCampaignRow[];
   /** 캠페인별 개별 리뷰 건 — 실제 작성 URL 이 여기 쌓인다 */
   tasks: ReviewTaskRow[];
@@ -76,6 +96,11 @@ export function PlaceReviewClient({
   const [query, setQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [settingTarget, setSettingTarget] = useState<ReviewCampaignRow | null>(null);
+
+  const typeChips = useMemo(
+    () => [{ key: "all", label: "전체" }, ...config.types],
+    [config.types],
+  );
 
   const byType = useMemo(() => (type === "all" ? rows : rows.filter((r) => r.reviewType === type)), [rows, type]);
 
@@ -107,10 +132,9 @@ export function PlaceReviewClient({
   /** 신청 내용까지 담아 내려받는다 — 셋팅 담당자가 이 파일만 보고 작업할 수 있게 */
   const exportRows = () => {
     exportToExcel({
-      fileName: "플레이스리뷰_신청내역",
+      fileName: config.fileName,
       rows: filtered.map((r) => {
-        const s = placeReviewSchedule(r.setting);
-        const detail = placeReviewDetails(r.reviewType, r.setting);
+        const detail = reviewRequestDetails(r.reviewType, r.setting, r.requestNote);
         const pick = (label: string) => {
           const f = detail.find((d) => d.label === label);
           if (!f) return "";
@@ -121,12 +145,13 @@ export function PlaceReviewClient({
           광고주: r.advertiser,
           담당자: r.assignedAdminName || "미지정",
           유형: reviewTypeLabel[r.reviewType] ?? r.reviewType,
+          채널: reviewPlatformMeta[r.platform]?.label ?? r.platform,
           캠페인명: r.storeName,
-          플레이스링크: r.targetUrl ?? "",
+          [config.linkLabel.replace(/ /g, "")]: r.targetUrl ?? "",
           메인키워드: r.keyword ?? "",
-          발행일수: s.issueDays || "",
-          일발행량: s.dailyVolume || "",
+          스케줄: reviewScheduleDetail(r.setting) ?? "",
           총건수: r.totalQty,
+          "등록URL": tasksOf(r.id).filter((t) => !!t.postUrl).length,
           포스팅유형: pick("포스팅 유형"),
           해시태그: pick("해시태그"),
           업체정보: pick("업체 정보"),
@@ -135,6 +160,9 @@ export function PlaceReviewClient({
           영수증첨부: pick("영수증 첨부"),
           사업자번호: pick("사업자번호"),
           강조내용: pick("강조 내용"),
+          제목유형: pick("제목 유형"),
+          포토리뷰: pick("포토리뷰"),
+          작성가이드: pick("작성 가이드"),
           시작일: r.startDate ?? "",
           종료일: r.endDate ?? "",
           금액: r.totalAmount,
@@ -173,41 +201,67 @@ export function PlaceReviewClient({
       </div>
 
       {view === "extensions" ? (
-        <ExtensionsPanel rows={extensions} title="플레이스 리뷰 연장 신청" />
+        <ExtensionsPanel rows={extensions} title={`${config.label} 연장 신청`} />
       ) : (
-        <Card className="overflow-hidden p-0">
-          {/* 유형 → 단계 순서로 좁힌다 (플레이스 리뷰는 유형이 둘뿐이라 유형이 먼저다) */}
-          <div className="flex items-center gap-2 px-5 pt-4 flex-wrap">
-            {PLACE_TYPES.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setType(t.key)}
-                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
-                  type === t.key ? "bg-brand-dark text-white" : "bg-brand-light text-brand-sub hover:bg-brand-border"
-                }`}
-              >
-                {t.label}
-                <span className="ml-1.5 tabular-nums opacity-70">{typeCount(t.key)}</span>
-              </button>
-            ))}
+        <>
+          {/* 오늘 손이 필요한 양을 먼저 보여준다 */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <StatCard label="전체 신청" value={formatNumber(rows.length)} sub={config.types.map((t) => t.label).join(" · ")} />
+            <StatCard
+              label="처리 필요"
+              value={formatNumber(rows.filter((r) => r.stage === "submitted").length)}
+              sub="셋팅을 기다리는 신청"
+              tone="amber"
+            />
+            <StatCard
+              label="진행중"
+              value={formatNumber(rows.filter((r) => r.stage === "running").length)}
+              sub="구동 중인 캠페인"
+              tone="green"
+            />
+            <StatCard
+              label="작성 URL"
+              value={formatNumber(tasks.filter((t) => !!t.postUrl).length)}
+              sub={`총 ${formatNumber(rows.reduce((sum, r) => sum + r.totalQty, 0))}건 중 등록`}
+              tone="blue"
+            />
           </div>
 
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-brand-border flex-wrap">
-            {STAGE_FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setStage(f.key)}
-                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
-                  stage === f.key
-                    ? "bg-brand-primary text-white"
-                    : "bg-brand-light text-brand-sub hover:bg-brand-border"
-                }`}
-              >
-                {f.label}
-                <span className="ml-1.5 tabular-nums opacity-70">{stageCount(f.key)}</span>
-              </button>
-            ))}
-          </div>
+          <Card className="overflow-hidden p-0">
+            {/* 유형 → 단계 순서로 좁힌다 (플레이스 리뷰는 유형이 둘뿐이라 유형이 먼저다) */}
+            <div className="flex items-center gap-2 px-5 pt-4 flex-wrap">
+              <span className="w-9 shrink-0 text-[12px] font-bold text-brand-muted">유형</span>
+              {typeChips.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setType(t.key)}
+                  className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
+                    type === t.key ? "bg-brand-dark text-white" : "bg-brand-light text-brand-sub hover:bg-brand-border"
+                  }`}
+                >
+                  {t.label}
+                  <span className="ml-1.5 tabular-nums opacity-70">{typeCount(t.key)}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-brand-border flex-wrap">
+              <span className="w-9 shrink-0 text-[12px] font-bold text-brand-muted">단계</span>
+              {STAGE_FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setStage(f.key)}
+                  className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
+                    stage === f.key
+                      ? "bg-brand-primary text-white"
+                      : "bg-brand-light text-brand-sub hover:bg-brand-border"
+                  }`}
+                >
+                  {f.label}
+                  <span className="ml-1.5 tabular-nums opacity-70">{stageCount(f.key)}</span>
+                </button>
+              ))}
+            </div>
 
           {/* 리뷰완료 연/월/일 조회 — 서버에서 종료일 기준으로 걸러 온다 */}
           <PeriodPicker years={years} value={period} count={filtered.length} label="리뷰완료 조회" />
@@ -219,10 +273,11 @@ export function PlaceReviewClient({
                   <>
                     <Th className="w-8" />
                     <Th>광고주</Th>
+                    {config.showChannel && <Th>채널</Th>}
                     <Th>캠페인명</Th>
                     <Th>유형</Th>
                     <Th>메인 키워드</Th>
-                    <Th className="text-center">발행 / 건수</Th>
+                    <Th className="min-w-[150px]">진행 (작성 URL)</Th>
                     <Th>기간</Th>
                     <Th className="text-right">금액</Th>
                     <Th>단계</Th>
@@ -234,11 +289,18 @@ export function PlaceReviewClient({
                 {filtered.map((r) => {
                   const meta = reviewStageMeta[r.stage] ?? { label: r.status, tone: "gray" as const };
                   const isOpen = expandedId === r.id;
-                  const s = placeReviewSchedule(r.setting);
                   return (
                     <Fragment key={r.id}>
-                      <tr className="hover:bg-brand-light/50 transition-colors align-top">
-                        <Td className="align-middle">
+                      {/* 셋팅을 기다리는 줄은 왼쪽 띠로 눈에 띄게 한다 */}
+                      <tr
+                        className={`transition-colors align-top ${
+                          isOpen ? "bg-brand-light/60" : "hover:bg-brand-light/50"
+                        }`}
+                      >
+                        <Td className="align-middle relative">
+                          {r.stage === "submitted" && (
+                            <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-amber-400" aria-hidden />
+                          )}
                           <button
                             aria-label={isOpen ? "접기" : "신청 내용 보기"}
                             onClick={() => setExpandedId(isOpen ? null : r.id)}
@@ -259,9 +321,16 @@ export function PlaceReviewClient({
                           <div className="font-semibold text-brand-dark">{r.advertiser}</div>
                           <div className="text-[12px] text-brand-muted">{formatDate(r.createdAt)} 신청</div>
                         </Td>
+                        {config.showChannel && (
+                          <Td>
+                            <Badge tone={reviewPlatformMeta[r.platform]?.tone ?? "gray"}>
+                              {reviewPlatformMeta[r.platform]?.label ?? r.platform}
+                            </Badge>
+                          </Td>
+                        )}
                         <Td>
                           <div className="text-brand-dark font-medium">{r.storeName}</div>
-                          {r.targetUrl && <TargetLink url={r.targetUrl} label="플레이스 링크" />}
+                          {r.targetUrl && <TargetLink url={r.targetUrl} label={config.linkLabel} />}
                         </Td>
                         <Td>
                           <Badge tone={TYPE_TONE[r.reviewType] ?? "gray"}>
@@ -269,23 +338,13 @@ export function PlaceReviewClient({
                           </Badge>
                         </Td>
                         <Td className="text-[13px] text-brand-text">{r.keyword || "-"}</Td>
-                        <Td className="text-center whitespace-nowrap">
-                          <div className="text-[13px] text-brand-dark tabular-nums">
-                            {s.issueDays > 0 ? `${s.issueDays}일 × ${formatNumber(s.dailyVolume)}건` : "-"}
-                          </div>
-                          <div className="text-[12px] text-brand-muted tabular-nums">
-                            총 {formatNumber(r.totalQty)}건
-                          </div>
-                          {/* 실제 작성 URL 이 몇 건 들어왔는지 목록에서 바로 보이게 한다 */}
-                          <div className="text-[12px] tabular-nums">
-                            {urlCountOf(r.id) > 0 ? (
-                              <span className="text-brand-primary font-semibold">
-                                URL {formatNumber(urlCountOf(r.id))}건
-                              </span>
-                            ) : (
-                              <span className="text-brand-muted">URL 미등록</span>
-                            )}
-                          </div>
+                        {/* 작성 URL 이 얼마나 들어왔는지 — 목록에서 진행도를 바로 읽게 한다 */}
+                        <Td className="whitespace-nowrap">
+                          <ProgressCell
+                            done={urlCountOf(r.id)}
+                            total={r.totalQty}
+                            schedule={reviewScheduleText(r.setting)}
+                          />
                         </Td>
                         <Td className="text-[12.5px] whitespace-nowrap">
                           <div className={r.periodProvisional ? "text-brand-muted" : "text-brand-sub"}>
@@ -320,7 +379,10 @@ export function PlaceReviewClient({
                       </tr>
                       {isOpen && (
                         <tr>
-                          <td colSpan={11} className="p-0 bg-brand-light/40 border-t border-brand-border">
+                          <td
+                            colSpan={config.showChannel ? 12 : 11}
+                            className="p-0 bg-brand-light/40 border-t border-brand-border"
+                          >
                             <RequestDetail row={r} tasks={tasksOf(r.id)} />
                           </td>
                         </tr>
@@ -334,79 +396,138 @@ export function PlaceReviewClient({
               </div>
             </>
           ) : (
-            <EmptyState message="해당 조건의 플레이스 리뷰 신청이 없습니다." />
-          )}
-        </Card>
+              <EmptyState message={`해당 조건의 ${config.label} 신청이 없습니다.`} />
+            )}
+          </Card>
+        </>
       )}
 
       {settingTarget && (
-        <PlaceReviewSettingModal row={settingTarget} onClose={() => setSettingTarget(null)} />
+        <ReviewSettingModal row={settingTarget} config={config} onClose={() => setSettingTarget(null)} />
       )}
+    </div>
+  );
+}
+
+/** 작성 URL 등록 진행도 — 숫자와 막대를 함께 둬 한눈에 읽히게 한다 */
+function ProgressCell({ done, total, schedule }: { done: number; total: number; schedule: string | null }) {
+  const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
+  const complete = total > 0 && done >= total;
+
+  return (
+    <div className="min-w-[130px]">
+      <div className="flex items-baseline justify-between gap-2 mb-1">
+        <span className="text-[13px] font-semibold text-brand-dark tabular-nums">
+          {formatNumber(done)}
+          <span className="text-[12px] font-medium text-brand-muted"> / {formatNumber(total)}건</span>
+        </span>
+        <span
+          className={`text-[11.5px] font-bold tabular-nums ${
+            complete ? "text-green-600" : done > 0 ? "text-brand-primary" : "text-brand-muted"
+          }`}
+        >
+          {pct}%
+        </span>
+      </div>
+      <div className="h-1.5 rounded-full bg-brand-border overflow-hidden">
+        <div
+          className={`h-full rounded-full ${complete ? "bg-green-500" : "bg-brand-primary"}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="mt-1 text-[11.5px] text-brand-muted tabular-nums">{schedule ?? "발행 스케줄 미입력"}</p>
     </div>
   );
 }
 
 /** 고객이 신청 폼에 채운 값 — 유형에 따라 항목이 달라진다 */
 function RequestDetail({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTaskRow[] }) {
-  const fields = placeReviewDetails(row.reviewType, row.setting);
-  const schedule = placeReviewSchedule(row.setting);
+  const fields = reviewRequestDetails(row.reviewType, row.setting, row.requestNote);
+  const schedule = reviewScheduleDetail(row.setting);
+
+  const missing = fields.filter((f) => f.empty).length;
 
   return (
-    <div className="px-5 py-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <p className="text-[13px] font-bold text-brand-dark">신청 내용</p>
-        <Badge tone={TYPE_TONE[row.reviewType] ?? "gray"}>
-          {reviewTypeLabel[row.reviewType] ?? row.reviewType}
-        </Badge>
-      </div>
+    <div className="px-5 py-4 space-y-3">
+      {/* 읽기 전용 — 고객이 채운 값이라 회색 머리말을 두고, 아래 작성 URL 카드와 무게를 다르게 한다 */}
+      <section className="rounded-xl border border-brand-border overflow-hidden">
+        <header className="flex items-center gap-2 px-4 py-2.5 bg-brand-light/60 border-b border-brand-border flex-wrap">
+          <p className="text-[13px] font-bold text-brand-dark">신청 내용</p>
+          <Badge tone={TYPE_TONE[row.reviewType] ?? "gray"}>
+            {reviewTypeLabel[row.reviewType] ?? row.reviewType}
+          </Badge>
+          <span className="text-[12px] text-brand-muted">고객이 신청 화면에서 입력한 값</span>
+          {missing > 0 && (
+            <span className="ml-auto text-[12px] font-semibold text-amber-600">미입력 {missing}건</span>
+          )}
+        </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-        <DetailItem label="발행 스케줄">
-          <span className="text-[13px] text-brand-dark tabular-nums">
-            {schedule.issueDays > 0
-              ? `${schedule.issueDays}일 × ${formatNumber(schedule.dailyVolume)}건 = 총 ${formatNumber(schedule.total)}건`
-              : "미입력"}
-          </span>
-        </DetailItem>
+        <dl className="divide-y divide-brand-border bg-white">
+          <SpecRow label="스케줄" empty={!schedule}>
+            <span className="tabular-nums">{schedule ?? "미입력"}</span>
+          </SpecRow>
 
-        {fields.map((f) => (
-          <DetailItem key={f.label} label={f.label} wide={f.kind === "long"}>
-            {f.kind === "tags" ? (
-              <div className="flex flex-wrap gap-1.5">
-                {(f.tags ?? []).map((t, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-0.5 rounded-full bg-brand-primary-50 text-brand-primary text-[12px] font-medium"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            ) : f.kind === "link" ? (
-              <a
-                href={f.value}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[13px] text-brand-primary hover:underline break-all"
-              >
-                {f.value}
-              </a>
-            ) : f.kind === "long" ? (
-              <p className="text-[13px] text-brand-text whitespace-pre-wrap leading-relaxed">{f.value}</p>
-            ) : (
-              <span className="text-[13px] text-brand-dark">{f.value}</span>
-            )}
-          </DetailItem>
-        ))}
+          {fields.map((f) => (
+            <SpecRow key={f.label} label={f.label} empty={f.empty}>
+              {f.kind === "tags" ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {(f.tags ?? []).map((t, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 rounded-full bg-brand-primary-50 text-brand-primary text-[12px] font-medium"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              ) : f.kind === "link" ? (
+                <a
+                  href={f.value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-primary hover:underline break-all"
+                >
+                  {f.value}
+                </a>
+              ) : f.kind === "long" ? (
+                <p className="whitespace-pre-wrap leading-relaxed">{f.value}</p>
+              ) : (
+                f.value
+              )}
+            </SpecRow>
+          ))}
 
-        {row.adminMemo && (
-          <DetailItem label="관리 메모" wide>
-            <p className="text-[13px] text-brand-text whitespace-pre-wrap leading-relaxed">{row.adminMemo}</p>
-          </DetailItem>
-        )}
-      </div>
+          {row.adminMemo && (
+            <SpecRow label="관리 메모">
+              <p className="whitespace-pre-wrap leading-relaxed">{row.adminMemo}</p>
+            </SpecRow>
+          )}
+        </dl>
+      </section>
 
       <TaskUrlPanel row={row} tasks={tasks} />
+    </div>
+  );
+}
+
+/** 라벨과 값을 나란히 두는 스펙 표 한 줄 — 넓은 화면에서도 짝이 흩어지지 않는다 */
+function SpecRow({
+  label,
+  empty = false,
+  children,
+}: {
+  label: string;
+  empty?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start">
+      <dt className="w-[104px] shrink-0 self-stretch bg-brand-light/40 px-3 py-2.5 text-[12px] font-bold text-brand-sub">
+        {label}
+      </dt>
+      <dd className={`min-w-0 flex-1 px-3.5 py-2.5 text-[13px] ${empty ? "text-brand-muted" : "text-brand-dark"}`}>
+        {children}
+      </dd>
     </div>
   );
 }
@@ -419,7 +540,9 @@ function RequestDetail({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTa
  * 승인으로 두면 캠페인 완료 건수에 반영된다.
  */
 function TaskUrlPanel({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTaskRow[] }) {
+  // 영수증리뷰만 영수증 이미지 URL 을 따로 받는다
   const isReceipt = row.reviewType === "receipt";
+  const urlLabel = URL_LABEL[row.reviewType] ?? "작성 URL";
   const [adding, setAdding] = useState(false);
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -456,13 +579,27 @@ function TaskUrlPanel({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTas
   const registered = tasks.filter((t) => !!t.postUrl).length;
   const filtering = !!year || !!month;
 
+  const pct = row.totalQty > 0 ? Math.min(100, Math.round((registered / row.totalQty) * 100)) : 0;
+
   return (
-    <div className="rounded-xl border border-brand-border bg-white p-4">
+    <div className="rounded-xl border border-brand-primary/25 bg-white overflow-hidden">
+      {/* 이 카드가 실제로 손을 대는 곳이라 액센트 머리말을 준다 */}
+      <div className="h-[3px] bg-brand-primary/70" aria-hidden />
+      <div className="p-4">
       <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-[13px] font-bold text-brand-dark">작성 URL</p>
           <span className="text-[12px] text-brand-muted tabular-nums">
             등록 {formatNumber(registered)} / 총 {formatNumber(row.totalQty)}건
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-16 h-1.5 rounded-full bg-brand-border overflow-hidden">
+              <span
+                className={`block h-full rounded-full ${pct >= 100 ? "bg-green-500" : "bg-brand-primary"}`}
+                style={{ width: `${pct}%` }}
+              />
+            </span>
+            <span className="text-[11.5px] font-bold text-brand-sub tabular-nums">{pct}%</span>
           </span>
 
           {/* 완료 건은 계속 쌓이므로 연/월로 좁혀 본다 */}
@@ -508,13 +645,46 @@ function TaskUrlPanel({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTas
       </div>
 
       {visible.length === 0 && !adding ? (
-        <p className="text-[12.5px] text-brand-muted py-2">
-          {filtering ? "해당 기간에 등록된 작성 URL 이 없습니다." : "아직 등록된 작성 URL 이 없습니다."}
-        </p>
+        <div className="rounded-lg border border-dashed border-brand-border bg-brand-light/40 px-4 py-7 text-center">
+          <svg
+            className="mx-auto mb-2 h-6 w-6 text-brand-muted"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+          <p className="text-[13px] font-semibold text-brand-dark">
+            {filtering ? "해당 기간에 등록된 작성 URL 이 없습니다." : "아직 등록된 작성 URL 이 없습니다."}
+          </p>
+          <p className="mt-1 text-[12px] text-brand-muted">
+            {filtering
+              ? "연도·월 조건을 바꿔 보세요."
+              : "리뷰가 게시되면 URL 을 등록하세요. 고객의 리뷰 관리 화면에도 함께 보입니다."}
+          </p>
+          {!filtering && (
+            <Button size="sm" className="mt-3" onClick={() => setAdding(true)}>
+              첫 URL 등록하기
+            </Button>
+          )}
+        </div>
       ) : (
         <div className="space-y-2">
           {visible.map((t, i) => (
-            <TaskUrlRow key={t.id} index={i + 1} campaignId={row.id} task={t} isReceipt={isReceipt} />
+            <TaskUrlRow
+              key={t.id}
+              index={i + 1}
+              campaignId={row.id}
+              task={t}
+              isReceipt={isReceipt}
+              urlLabel={urlLabel}
+            />
           ))}
         </div>
       )}
@@ -526,10 +696,12 @@ function TaskUrlPanel({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTas
             campaignId={row.id}
             task={null}
             isReceipt={isReceipt}
+            urlLabel={urlLabel}
             onDone={() => setAdding(false)}
           />
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -539,6 +711,7 @@ function TaskUrlRow({
   campaignId,
   task,
   isReceipt,
+  urlLabel,
   onDone,
 }: {
   index: number;
@@ -546,6 +719,8 @@ function TaskUrlRow({
   /** null 이면 새로 추가하는 줄 */
   task: ReviewTaskRow | null;
   isReceipt: boolean;
+  /** 유형에 맞는 URL 이름 (블로그 작성 URL / 리뷰 URL …) */
+  urlLabel: string;
   onDone?: () => void;
 }) {
   const [postUrl, setPostUrl] = useState(task?.postUrl ?? "");
@@ -605,8 +780,8 @@ function TaskUrlRow({
         <input
           value={postUrl}
           onChange={(e) => setPostUrl(e.target.value)}
-          placeholder={isReceipt ? "리뷰 URL (https://)" : "블로그 작성 URL (https://)"}
-          aria-label={isReceipt ? "리뷰 URL" : "블로그 작성 URL"}
+          placeholder={`${urlLabel} (https://)`}
+          aria-label={urlLabel}
           className="min-w-0 flex-1 rounded-lg border border-brand-border bg-white px-2.5 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
         />
 
@@ -681,28 +856,19 @@ function TaskUrlRow({
   );
 }
 
-function DetailItem({
-  label,
-  wide = false,
-  children,
-}: {
-  label: string;
-  wide?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={wide ? "md:col-span-2" : undefined}>
-      <p className="text-[12px] font-bold text-brand-muted mb-1">{label}</p>
-      {children}
-    </div>
-  );
-}
-
 /**
  * 셋팅 — 고객 신청 내용은 그대로 두고, 관리자가 정하는 값만 고친다.
  * 저장하면 시작일에 맞춰 자동으로 진행중이 된다.
  */
-function PlaceReviewSettingModal({ row, onClose }: { row: ReviewCampaignRow; onClose: () => void }) {
+function ReviewSettingModal({
+  row,
+  config,
+  onClose,
+}: {
+  row: ReviewCampaignRow;
+  config: ReviewRequestConfig;
+  onClose: () => void;
+}) {
   const [form, setForm] = useState<ReviewCampaignInput>({
     id: row.id,
     userId: row.userId,
@@ -749,7 +915,7 @@ function PlaceReviewSettingModal({ row, onClose }: { row: ReviewCampaignRow; onC
 
   return (
     <Modal
-      title="플레이스 리뷰 셋팅"
+      title={`${config.label} 셋팅`}
       description={`${row.advertiser} · ${row.storeName} — 저장하면 시작일에 맞춰 자동으로 진행됩니다`}
       onClose={onClose}
       width="max-w-[680px]"
@@ -770,7 +936,7 @@ function PlaceReviewSettingModal({ row, onClose }: { row: ReviewCampaignRow; onC
         </Field>
       </div>
 
-      <Field label="플레이스 링크">
+      <Field label={config.linkLabel}>
         <Input value={form.targetUrl} onChange={(e) => set("targetUrl", e.target.value)} placeholder="https://" />
       </Field>
 
@@ -806,8 +972,8 @@ function PlaceReviewSettingModal({ row, onClose }: { row: ReviewCampaignRow; onC
 
 /** 모달 안에서 한 줄로 훑는 신청 내용 */
 function RequestSummary({ row }: { row: ReviewCampaignRow }) {
-  const schedule = placeReviewSchedule(row.setting);
-  const fields = placeReviewDetails(row.reviewType, row.setting);
+  const schedule = reviewScheduleText(row.setting);
+  const fields = reviewRequestDetails(row.reviewType, row.setting, row.requestNote);
 
   return (
     <div className="space-y-1.5">
@@ -815,11 +981,7 @@ function RequestSummary({ row }: { row: ReviewCampaignRow }) {
         <Badge tone={TYPE_TONE[row.reviewType] ?? "gray"}>
           {reviewTypeLabel[row.reviewType] ?? row.reviewType}
         </Badge>
-        <span className="text-brand-text tabular-nums">
-          {schedule.issueDays > 0
-            ? `${schedule.issueDays}일 × ${formatNumber(schedule.dailyVolume)}건`
-            : "스케줄 미입력"}
-        </span>
+        <span className="text-brand-text tabular-nums">{schedule ?? "스케줄 미입력"}</span>
       </div>
       {fields.map((f) => (
         <div key={f.label} className="flex gap-2 text-[13px]">
