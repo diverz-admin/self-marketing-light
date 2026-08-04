@@ -49,6 +49,8 @@ export type ReviewCampaignRow = {
   guide: string;
   mission: string;
   provideDetail: string;
+  /** 신청 폼이 저장한 원본 값 — 플레이스 리뷰 관리에서 유형별 항목을 그대로 보여준다 */
+  setting: Record<string, unknown>;
   requestNote: string | null;
   adminMemo: string | null;
   createdAt: string;

@@ -160,6 +160,7 @@ export async function loadReviewAdminData(
       guide: typeof setting.guide === "string" ? setting.guide : "",
       mission: typeof setting.mission === "string" ? setting.mission : "",
       provideDetail: typeof setting.provideDetail === "string" ? setting.provideDetail : "",
+      setting,
       requestNote: c.requestNote,
       adminMemo: c.adminMemo,
       createdAt: c.createdAt.toISOString(),
