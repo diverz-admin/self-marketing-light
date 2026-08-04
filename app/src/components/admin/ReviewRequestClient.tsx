@@ -205,7 +205,7 @@ export function ReviewRequestClient({
       ) : (
         <>
           {/* 오늘 손이 필요한 양을 먼저 보여준다 */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <StatCard label="전체 신청" value={formatNumber(rows.length)} sub={config.types.map((t) => t.label).join(" · ")} />
             <StatCard
               label="처리 필요"
@@ -218,12 +218,6 @@ export function ReviewRequestClient({
               value={formatNumber(rows.filter((r) => r.stage === "running").length)}
               sub="구동 중인 캠페인"
               tone="green"
-            />
-            <StatCard
-              label="작성 URL"
-              value={formatNumber(tasks.filter((t) => !!t.postUrl).length)}
-              sub={`총 ${formatNumber(rows.reduce((sum, r) => sum + r.totalQty, 0))}건 중 등록`}
-              tone="blue"
             />
           </div>
 
