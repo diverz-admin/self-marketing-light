@@ -12,7 +12,7 @@ import type { PeriodParams } from "@/lib/period-filter";
 import { exportToExcel } from "@/lib/excel-export";
 import {
   formatKRW, formatDate, formatNumber, byStagePriority,
-  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel, reviewTaskStatusMeta, reviewPlatformMeta,
+  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel, reviewPlatformMeta,
 } from "@/lib/admin-format";
 import { reviewRequestDetails, reviewScheduleText, reviewScheduleDetail } from "@/lib/review-request-setting";
 import type { ReviewCampaignRow, ReviewTaskRow } from "@/components/admin/ReviewCampaignsClient";
@@ -60,8 +60,8 @@ const URL_LABEL: Record<string, string> = {
   product_not_provided: "리뷰 URL",
 };
 
-/** 작성 URL 이 들어오면 승인으로 올려 완료 건수에 반영한다 */
-const TASK_STATUSES = ["waiting", "assigned", "writing", "submitted", "approved", "rejected"];
+/** URL 을 넣는 시점이 곧 완료라 진행 상태는 승인으로 고정한다 (완료 건수에 반영된다) */
+const TASK_STATUS_DONE = "approved";
 
 /** 오늘 (YYYY-MM-DD) — 새 URL 줄의 작성일 기본값 */
 function todayYMD() {
@@ -719,9 +719,6 @@ function TaskUrlRow({
 }) {
   const [postUrl, setPostUrl] = useState(task?.postUrl ?? "");
   const [receiptUrl, setReceiptUrl] = useState(task?.receiptUrl ?? "");
-  // 새 줄은 URL 을 넣는 순간 완료로 보는 게 자연스럽다
-  const [status, setStatus] = useState(task?.status ?? "approved");
-  const [reviewerName, setReviewerName] = useState(task?.reviewerName ?? "");
   // 작성일이 연/월 조회의 기준이라 새 줄은 오늘로 채워 둔다
   const [writtenDate, setWrittenDate] = useState(task?.scheduledDate ?? (task ? "" : todayYMD()));
   const [error, setError] = useState<string | null>(null);
@@ -730,8 +727,6 @@ function TaskUrlRow({
   const dirty =
     postUrl !== (task?.postUrl ?? "") ||
     receiptUrl !== (task?.receiptUrl ?? "") ||
-    status !== (task?.status ?? "approved") ||
-    reviewerName !== (task?.reviewerName ?? "") ||
     writtenDate !== (task?.scheduledDate ?? "");
 
   const save = () => {
@@ -744,8 +739,9 @@ function TaskUrlRow({
       const res = await upsertReviewTask({
         id: task?.id,
         reviewCampaignId: campaignId,
-        reviewerName,
-        status,
+        // 작성자를 따로 받지 않으므로 기존 값을 그대로 유지한다
+        reviewerName: task?.reviewerName ?? "",
+        status: TASK_STATUS_DONE,
         postUrl,
         receiptUrl,
         scheduledDate: writtenDate,
@@ -796,27 +792,6 @@ function TaskUrlRow({
           aria-label="작성일"
           className="w-[132px] shrink-0 rounded-lg border border-brand-border bg-white px-2 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
         />
-
-        <input
-          value={reviewerName}
-          onChange={(e) => setReviewerName(e.target.value)}
-          placeholder="작성자"
-          aria-label="작성자"
-          className="w-24 shrink-0 rounded-lg border border-brand-border bg-white px-2.5 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
-        />
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          aria-label="진행 상태"
-          className="w-[86px] shrink-0 rounded-lg border border-brand-border bg-white px-2 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
-        >
-          {TASK_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {reviewTaskStatusMeta[s]?.label ?? s}
-            </option>
-          ))}
-        </select>
 
         <Button size="sm" variant={dirty ? "primary" : "secondary"} disabled={pending} onClick={save}>
           {pending ? "저장 중..." : "저장"}
