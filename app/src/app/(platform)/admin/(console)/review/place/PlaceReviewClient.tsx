@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo, useState, useTransition } from "react";
 import {
-  Card, TableShell, Th, Td, EmptyState, Badge, Tabs, SearchInput,
+  Card, TableShell, Th, Td, EmptyState, Badge, Tabs, SearchInput, InlineSelect,
   Button, Modal, ModalFooter, Field, Input, Textarea, Notice,
 } from "@/components/admin/ui";
 import { ExtensionsPanel, type ExtensionRow } from "@/components/admin/ExtensionsPanel";
@@ -12,11 +12,14 @@ import type { PeriodParams } from "@/lib/period-filter";
 import { exportToExcel } from "@/lib/excel-export";
 import {
   formatKRW, formatDate, formatNumber, byStagePriority,
-  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel,
+  reviewStageMeta, REVIEW_STAGES, reviewTypeLabel, reviewTaskStatusMeta,
 } from "@/lib/admin-format";
 import { placeReviewDetails, placeReviewSchedule } from "@/lib/place-review-setting";
-import type { ReviewCampaignRow } from "@/components/admin/ReviewCampaignsClient";
-import { setReviewCampaignStatus, upsertReviewCampaign, type ReviewCampaignInput } from "../../actions";
+import type { ReviewCampaignRow, ReviewTaskRow } from "@/components/admin/ReviewCampaignsClient";
+import {
+  setReviewCampaignStatus, upsertReviewCampaign, upsertReviewTask, deleteReviewTask,
+  type ReviewCampaignInput,
+} from "../../actions";
 
 /**
  * 플레이스 리뷰 관리 — 고객 신청 화면(/marketing/review/place/*)과 짝을 이룬다.
@@ -40,13 +43,26 @@ const TYPE_TONE: Record<string, "blue" | "green"> = {
   receipt: "green",
 };
 
+/** 작성 URL 이 들어오면 승인으로 올려 완료 건수에 반영한다 */
+const TASK_STATUSES = ["waiting", "assigned", "writing", "submitted", "approved", "rejected"];
+
+/** 오늘 (YYYY-MM-DD) — 새 URL 줄의 작성일 기본값 */
+function todayYMD() {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export function PlaceReviewClient({
   rows,
+  tasks,
   extensions,
   years,
   period,
 }: {
   rows: ReviewCampaignRow[];
+  /** 캠페인별 개별 리뷰 건 — 실제 작성 URL 이 여기 쌓인다 */
+  tasks: ReviewTaskRow[];
   extensions: ExtensionRow[];
   /** 완료 데이터가 있는 연도 (서버 집계) */
   years: number[];
@@ -84,6 +100,9 @@ export function PlaceReviewClient({
   }, [byType, stage, query]);
 
   const pendingExtensions = extensions.filter((e) => e.status === "requested").length;
+
+  const tasksOf = (campaignId: string) => tasks.filter((t) => t.reviewCampaignId === campaignId);
+  const urlCountOf = (campaignId: string) => tasksOf(campaignId).filter((t) => !!t.postUrl).length;
 
   /** 신청 내용까지 담아 내려받는다 — 셋팅 담당자가 이 파일만 보고 작업할 수 있게 */
   const exportRows = () => {
@@ -257,6 +276,16 @@ export function PlaceReviewClient({
                           <div className="text-[12px] text-brand-muted tabular-nums">
                             총 {formatNumber(r.totalQty)}건
                           </div>
+                          {/* 실제 작성 URL 이 몇 건 들어왔는지 목록에서 바로 보이게 한다 */}
+                          <div className="text-[12px] tabular-nums">
+                            {urlCountOf(r.id) > 0 ? (
+                              <span className="text-brand-primary font-semibold">
+                                URL {formatNumber(urlCountOf(r.id))}건
+                              </span>
+                            ) : (
+                              <span className="text-brand-muted">URL 미등록</span>
+                            )}
+                          </div>
                         </Td>
                         <Td className="text-[12.5px] whitespace-nowrap">
                           <div className={r.periodProvisional ? "text-brand-muted" : "text-brand-sub"}>
@@ -292,7 +321,7 @@ export function PlaceReviewClient({
                       {isOpen && (
                         <tr>
                           <td colSpan={11} className="p-0 bg-brand-light/40 border-t border-brand-border">
-                            <RequestDetail row={r} />
+                            <RequestDetail row={r} tasks={tasksOf(r.id)} />
                           </td>
                         </tr>
                       )}
@@ -318,12 +347,12 @@ export function PlaceReviewClient({
 }
 
 /** 고객이 신청 폼에 채운 값 — 유형에 따라 항목이 달라진다 */
-function RequestDetail({ row }: { row: ReviewCampaignRow }) {
+function RequestDetail({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTaskRow[] }) {
   const fields = placeReviewDetails(row.reviewType, row.setting);
   const schedule = placeReviewSchedule(row.setting);
 
   return (
-    <div className="px-5 py-4 space-y-3">
+    <div className="px-5 py-4 space-y-4">
       <div className="flex items-center gap-2">
         <p className="text-[13px] font-bold text-brand-dark">신청 내용</p>
         <Badge tone={TYPE_TONE[row.reviewType] ?? "gray"}>
@@ -376,6 +405,278 @@ function RequestDetail({ row }: { row: ReviewCampaignRow }) {
           </DetailItem>
         )}
       </div>
+
+      <TaskUrlPanel row={row} tasks={tasks} />
+    </div>
+  );
+}
+
+/**
+ * 실제 작성 URL 등록.
+ * 리뷰 한 건이 review_tasks 한 줄이고, 여기 넣은 URL 이 고객의 리뷰 관리 화면에 그대로 보인다.
+ *   · 블로그배포 : 블로그 작성 URL
+ *   · 영수증리뷰 : 리뷰 URL + 영수증 이미지 URL
+ * 승인으로 두면 캠페인 완료 건수에 반영된다.
+ */
+function TaskUrlPanel({ row, tasks }: { row: ReviewCampaignRow; tasks: ReviewTaskRow[] }) {
+  const isReceipt = row.reviewType === "receipt";
+  const [adding, setAdding] = useState(false);
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+
+  // 작성일이 있는 건에서 연/월 선택지를 뽑는다 (작성일이 없으면 "미입력"으로 따로 모은다)
+  const years = useMemo(() => {
+    const set = new Set<string>();
+    for (const t of tasks) if (t.scheduledDate) set.add(t.scheduledDate.slice(0, 4));
+    return [...set].sort((a, b) => b.localeCompare(a));
+  }, [tasks]);
+
+  const months = useMemo(() => {
+    const set = new Set<string>();
+    for (const t of tasks) {
+      if (!t.scheduledDate) continue;
+      if (year && t.scheduledDate.slice(0, 4) !== year) continue;
+      set.add(t.scheduledDate.slice(5, 7));
+    }
+    return [...set].sort((a, b) => b.localeCompare(a));
+  }, [tasks, year]);
+
+  const visible = useMemo(
+    () =>
+      tasks.filter((t) => {
+        if (!year && !month) return true;
+        if (!t.scheduledDate) return false;
+        if (year && t.scheduledDate.slice(0, 4) !== year) return false;
+        if (month && t.scheduledDate.slice(5, 7) !== month) return false;
+        return true;
+      }),
+    [tasks, year, month],
+  );
+
+  const registered = tasks.filter((t) => !!t.postUrl).length;
+  const filtering = !!year || !!month;
+
+  return (
+    <div className="rounded-xl border border-brand-border bg-white p-4">
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-[13px] font-bold text-brand-dark">작성 URL</p>
+          <span className="text-[12px] text-brand-muted tabular-nums">
+            등록 {formatNumber(registered)} / 총 {formatNumber(row.totalQty)}건
+          </span>
+
+          {/* 완료 건은 계속 쌓이므로 연/월로 좁혀 본다 */}
+          {years.length > 0 && (
+            <div className="flex items-center gap-1.5 ml-1">
+              <InlineSelect
+                value={year}
+                aria-label="작성 연도"
+                onChange={(e) => {
+                  setYear(e.target.value);
+                  setMonth("");
+                }}
+              >
+                <option value="">전체 연도</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}년
+                  </option>
+                ))}
+              </InlineSelect>
+              <InlineSelect value={month} aria-label="작성 월" onChange={(e) => setMonth(e.target.value)}>
+                <option value="">전체 월</option>
+                {months.map((m) => (
+                  <option key={m} value={m}>
+                    {Number(m)}월
+                  </option>
+                ))}
+              </InlineSelect>
+              {filtering && (
+                <span className="text-[12px] text-brand-sub tabular-nums">
+                  {formatNumber(visible.length)}건
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {!adding && (
+          <Button size="sm" onClick={() => setAdding(true)}>
+            URL 추가
+          </Button>
+        )}
+      </div>
+
+      {visible.length === 0 && !adding ? (
+        <p className="text-[12.5px] text-brand-muted py-2">
+          {filtering ? "해당 기간에 등록된 작성 URL 이 없습니다." : "아직 등록된 작성 URL 이 없습니다."}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {visible.map((t, i) => (
+            <TaskUrlRow key={t.id} index={i + 1} campaignId={row.id} task={t} isReceipt={isReceipt} />
+          ))}
+        </div>
+      )}
+
+      {adding && (
+        <div className="mt-2">
+          <TaskUrlRow
+            index={visible.length + 1}
+            campaignId={row.id}
+            task={null}
+            isReceipt={isReceipt}
+            onDone={() => setAdding(false)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TaskUrlRow({
+  index,
+  campaignId,
+  task,
+  isReceipt,
+  onDone,
+}: {
+  index: number;
+  campaignId: string;
+  /** null 이면 새로 추가하는 줄 */
+  task: ReviewTaskRow | null;
+  isReceipt: boolean;
+  onDone?: () => void;
+}) {
+  const [postUrl, setPostUrl] = useState(task?.postUrl ?? "");
+  const [receiptUrl, setReceiptUrl] = useState(task?.receiptUrl ?? "");
+  // 새 줄은 URL 을 넣는 순간 완료로 보는 게 자연스럽다
+  const [status, setStatus] = useState(task?.status ?? "approved");
+  const [reviewerName, setReviewerName] = useState(task?.reviewerName ?? "");
+  // 작성일이 연/월 조회의 기준이라 새 줄은 오늘로 채워 둔다
+  const [writtenDate, setWrittenDate] = useState(task?.scheduledDate ?? (task ? "" : todayYMD()));
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const dirty =
+    postUrl !== (task?.postUrl ?? "") ||
+    receiptUrl !== (task?.receiptUrl ?? "") ||
+    status !== (task?.status ?? "approved") ||
+    reviewerName !== (task?.reviewerName ?? "") ||
+    writtenDate !== (task?.scheduledDate ?? "");
+
+  const save = () => {
+    setError(null);
+    if (!postUrl.trim() && !receiptUrl.trim()) {
+      setError("URL 을 입력하세요.");
+      return;
+    }
+    startTransition(async () => {
+      const res = await upsertReviewTask({
+        id: task?.id,
+        reviewCampaignId: campaignId,
+        reviewerName,
+        status,
+        postUrl,
+        receiptUrl,
+        scheduledDate: writtenDate,
+      });
+      if ("error" in res) {
+        setError(res.error);
+        return;
+      }
+      onDone?.();
+    });
+  };
+
+  const remove = () => {
+    setError(null);
+    startTransition(async () => {
+      const res = await deleteReviewTask(task!.id, campaignId);
+      if ("error" in res) setError(res.error);
+    });
+  };
+
+  return (
+    <div className="rounded-lg border border-brand-border bg-brand-light/40 p-2.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="w-6 shrink-0 text-center text-[12px] font-bold text-brand-muted tabular-nums">{index}</span>
+
+        <input
+          value={postUrl}
+          onChange={(e) => setPostUrl(e.target.value)}
+          placeholder={isReceipt ? "리뷰 URL (https://)" : "블로그 작성 URL (https://)"}
+          aria-label={isReceipt ? "리뷰 URL" : "블로그 작성 URL"}
+          className="min-w-0 flex-1 rounded-lg border border-brand-border bg-white px-2.5 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
+        />
+
+        {isReceipt && (
+          <input
+            value={receiptUrl}
+            onChange={(e) => setReceiptUrl(e.target.value)}
+            placeholder="영수증 이미지 URL"
+            aria-label="영수증 이미지 URL"
+            className="min-w-0 flex-1 rounded-lg border border-brand-border bg-white px-2.5 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
+          />
+        )}
+
+        <input
+          type="date"
+          value={writtenDate}
+          onChange={(e) => setWrittenDate(e.target.value)}
+          aria-label="작성일"
+          className="w-[132px] shrink-0 rounded-lg border border-brand-border bg-white px-2 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
+        />
+
+        <input
+          value={reviewerName}
+          onChange={(e) => setReviewerName(e.target.value)}
+          placeholder="작성자"
+          aria-label="작성자"
+          className="w-24 shrink-0 rounded-lg border border-brand-border bg-white px-2.5 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
+        />
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          aria-label="진행 상태"
+          className="w-[86px] shrink-0 rounded-lg border border-brand-border bg-white px-2 py-1.5 text-[13px] text-brand-dark focus:outline-none focus:border-brand-primary"
+        >
+          {TASK_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {reviewTaskStatusMeta[s]?.label ?? s}
+            </option>
+          ))}
+        </select>
+
+        <Button size="sm" variant={dirty ? "primary" : "secondary"} disabled={pending} onClick={save}>
+          {pending ? "저장 중..." : "저장"}
+        </Button>
+
+        {task ? (
+          <Button size="sm" variant="danger" disabled={pending} onClick={remove}>
+            삭제
+          </Button>
+        ) : (
+          <Button size="sm" variant="ghost" disabled={pending} onClick={onDone}>
+            취소
+          </Button>
+        )}
+      </div>
+
+      {/* 저장된 URL 은 바로 열어볼 수 있게 링크로도 남긴다 */}
+      {task?.postUrl && (
+        <a
+          href={task.postUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1.5 ml-8 inline-block text-[12px] text-brand-primary hover:underline break-all"
+        >
+          {task.postUrl}
+        </a>
+      )}
+
+      {error && <p className="mt-1.5 ml-8 text-[12px] font-semibold text-red-500">{error}</p>}
     </div>
   );
 }
