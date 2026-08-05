@@ -13,6 +13,12 @@ import {
 import { ThumbnailUploader } from "@/components/admin/ThumbnailUploader";
 import { upsertProduct, toggleProductActive, deleteProduct, type ProductInput } from "../../actions";
 
+/** 판매가 대비 마진율 (%) — 판매가가 0이면 계산하지 않는다 */
+function marginRate(unitPrice: number, costPrice: number) {
+  if (!unitPrice) return 0;
+  return Math.round(((unitPrice - costPrice) / unitPrice) * 100);
+}
+
 export type AdminProductRow = {
   id: string;
   productType: string;
@@ -21,6 +27,8 @@ export type AdminProductRow = {
   description: string;
   unit: string;
   unitPrice: number;
+  /** 매입 원가 — 관리자만 본다 */
+  costPrice: number | null;
   minQty: number;
   maxQty: number | null;
   estDurationDays: number | null;
@@ -221,6 +229,15 @@ export function ProductsClient({ rows }: { rows: AdminProductRow[] }) {
                 <Td className="text-right tabular-nums">
                   <div className="font-semibold text-brand-dark">{formatKRW(p.unitPrice)}</div>
                   <div className="text-[12px] text-brand-muted">{productUnitLabel[p.unit] ?? p.unit}</div>
+                  {/* 원가는 관리자만 보는 값이라 판매가 아래 작게 붙인다 */}
+                  {p.costPrice != null && (
+                    <div className="text-[12px] text-brand-muted">
+                      원가 {formatKRW(p.costPrice)}
+                      <span className={marginRate(p.unitPrice, p.costPrice) < 0 ? "text-red-500 ml-1" : "text-brand-sub ml-1"}>
+                        ({marginRate(p.unitPrice, p.costPrice)}%)
+                      </span>
+                    </div>
+                  )}
                 </Td>
                 <Td className="text-center">
                   {p.efficiency != null ? (
@@ -350,6 +367,7 @@ function ProductModal({ product, onClose }: { product: AdminProductRow | null; o
     description: product?.description ?? "",
     unit: product?.unit ?? "per_visit_day",
     unitPrice: product ? String(product.unitPrice) : "",
+    costPrice: product?.costPrice != null ? String(product.costPrice) : "",
     minQty: product ? String(product.minQty) : "1",
     maxQty: product?.maxQty != null ? String(product.maxQty) : "",
     channel: product?.channel ?? "",
@@ -453,9 +471,20 @@ function ProductModal({ product, onClose }: { product: AdminProductRow | null; o
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="금액 (원)">
+      <div className="grid grid-cols-3 gap-3">
+        <Field label="판매가 (원)">
           <Input value={form.unitPrice} onChange={(e) => set("unitPrice", e.target.value)} inputMode="numeric" placeholder="1500" />
+        </Field>
+        {/* 고객 화면에는 노출하지 않는 매입가 — 마진을 바로 확인할 수 있게 옆에 둔다 */}
+        <Field
+          label="원가 (원)"
+          hint={
+            form.costPrice && form.unitPrice
+              ? `마진 ${marginRate(Number(form.unitPrice || 0), Number(form.costPrice || 0))}%`
+              : "선택 · 관리자만 봅니다"
+          }
+        >
+          <Input value={form.costPrice} onChange={(e) => set("costPrice", e.target.value)} inputMode="numeric" placeholder="1000" />
         </Field>
         <Field label="판매 단위">
           <Select value={form.unit} onChange={(e) => set("unit", e.target.value)}>

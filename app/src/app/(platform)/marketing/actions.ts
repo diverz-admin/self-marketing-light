@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { db } from "@/db";
 import {
   campaigns, campaignExtensions, credits, orders, pointCharges, products, rankKeywords, reviewCampaigns,
+  adminCartItems,
 } from "@/db/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -464,7 +465,7 @@ export async function checkoutCart(
     });
 
     revalidatePath("/marketing/cart");
-    revalidatePath("/admin/orders");
+    revalidatePath("/admin/purchases");
     return { success: true, total };
   } catch (err) {
     console.error("checkoutCart error:", err);
@@ -472,5 +473,76 @@ export async function checkoutCart(
       ? err.message
       : "주문 처리 중 오류가 발생했습니다.";
     return { error: message };
+  }
+}
+
+/**
+ * 관리자가 담아준 건 결제.
+ * 단가표가 없는 문의 상품이라 금액은 담을 때 확정된 값을 그대로 쓴다.
+ * (클라이언트가 보낸 금액은 믿지 않고 서버에 저장된 값으로만 계산한다)
+ */
+export async function checkoutAdminCartItems(
+  ids: string[],
+): Promise<{ error: string } | { success: true; total: number }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+  if (!ids.length) return { error: "결제할 항목이 없습니다." };
+
+  try {
+    // 본인 것 + 아직 결제 전인 건만 집는다
+    const rows = await db
+      .select()
+      .from(adminCartItems)
+      .where(
+        and(
+          inArray(adminCartItems.id, ids),
+          eq(adminCartItems.userId, user.id),
+          eq(adminCartItems.status, "pending"),
+        ),
+      );
+
+    if (rows.length !== ids.length) {
+      return { error: "장바구니가 변경되었습니다. 새로고침 후 다시 시도해주세요." };
+    }
+
+    const total = rows.reduce((sum, r) => sum + Number(r.amount), 0);
+
+    const [balanceRow] = await db
+      .select({ balance: sql<number>`coalesce(sum(${credits.delta}), 0)::float` })
+      .from(credits)
+      .where(eq(credits.userId, user.id));
+
+    if ((balanceRow?.balance ?? 0) < total) return { error: "보유 포인트가 부족합니다." };
+
+    await db.transaction(async (tx) => {
+      for (const r of rows) {
+        await tx.insert(orders).values({
+          userId: user.id,
+          amount: String(Number(r.amount)),
+          method: "credit",
+          status: "paid",
+        });
+        await tx
+          .update(adminCartItems)
+          .set({ status: "ordered", orderedAt: new Date(), updatedAt: new Date() })
+          .where(eq(adminCartItems.id, r.id));
+      }
+      await tx.insert(credits).values({
+        userId: user.id,
+        delta: String(-total),
+        reason: "장바구니 주문 (상담 상품)",
+      });
+    });
+
+    revalidatePath("/marketing/cart");
+    revalidatePath("/admin/cart");
+    revalidatePath("/admin/purchases");
+    return { success: true, total };
+  } catch (err) {
+    console.error("checkoutAdminCartItems error:", err);
+    return { error: "주문 처리 중 오류가 발생했습니다." };
   }
 }

@@ -6,7 +6,6 @@ import {
   campaigns,
   products,
   orders,
-  settlements,
   credits,
   pointCharges,
   coupons,
@@ -20,13 +19,17 @@ import {
   reviewTasks,
   serviceRequests,
   memberProfiles,
+  adminCartItems,
+  purchaseOrders,
+  rankMemberships,
 } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createClient } from "@/utils/supabase/server";
 import { BIZ_DOC_BUCKET } from "@/lib/storage";
 import { parseAttachments, type Attachment } from "@/lib/attachments";
+import { ADMIN_CART_PRODUCTS } from "@/lib/admin-cart";
 import { REVIEW_TYPES_BY_CHANNEL, reviewProductDefaults, reviewPriceRowLabel } from "@/lib/admin-format";
 
 type Result = { success: true } | { error: string };
@@ -41,8 +44,6 @@ const ROLES = ["advertiser", "supplier", "admin"] as const;
 const CAMPAIGN_STATUSES = [
   "draft", "submitted", "reviewing", "scheduled", "running", "paused", "completed", "canceled", "refunded",
 ] as const;
-const PAYMENT_STATUSES = ["paid", "refunded", "partial_refund"] as const;
-const SETTLEMENT_STATUSES = ["pending", "processing", "completed"] as const;
 // 반려는 사용하지 않는다 — 입금이 확인되지 않은 건은 "취소"로 처리한다.
 // (enum 값 자체는 과거 데이터 호환을 위해 DB에 남겨 둔다)
 const POINT_CHARGE_STATUSES = ["requested", "approved", "canceled"] as const;
@@ -775,6 +776,8 @@ export type ProductInput = {
   description?: string;
   unit: string;
   unitPrice: string;
+  /** 매입 원가 (선택) — 마진 계산용 */
+  costPrice?: string;
   minQty?: string;
   maxQty?: string;
   estDurationDays?: string;
@@ -839,6 +842,7 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
       description: orNull(input.description),
       unit,
       unitPrice: num(input.unitPrice),
+      costPrice: input.costPrice ? num(input.costPrice) : null,
       minQty: int(input.minQty, 1) ?? 1,
       maxQty: int(input.maxQty),
       estDurationDays: int(input.estDurationDays),
@@ -915,6 +919,8 @@ export type ReviewPriceInput = {
   channel: string;
   reviewType: string;
   unitPrice: string;
+  /** 매입 원가 (선택) */
+  costPrice?: string;
   isActive: boolean;
 };
 
@@ -949,6 +955,7 @@ export async function saveReviewPrice(input: ReviewPriceInput): Promise<Result> 
           reviewType,
           category,
           unitPrice: String(price),
+          costPrice: input.costPrice ? num(input.costPrice) : null,
           isActive: input.isActive,
           updatedAt: new Date(),
         })
@@ -962,6 +969,7 @@ export async function saveReviewPrice(input: ReviewPriceInput): Promise<Result> 
         title: reviewPriceRowLabel(channel, reviewType),
         unit: "per_item",
         unitPrice: String(price),
+        costPrice: input.costPrice ? num(input.costPrice) : null,
         isActive: input.isActive,
       });
     }
@@ -1435,28 +1443,282 @@ export async function updateServiceRequest(
 // 주문 / 정산
 // ============================================================
 
-export async function setOrderStatus(orderId: string, status: string): Promise<Result> {
+// ============================================================
+// 관리자가 담아주는 장바구니
+// ============================================================
+
+export type AdminCartItemInput = {
+  userId: string;
+  productKey: string;
+  target?: string;
+  note?: string;
+  quantity?: string;
+  amount?: string;
+};
+
+/**
+ * 회원 장바구니에 상품을 담아 준다.
+ * 문의로 들어온 건이라 단가표가 없어 관리자가 정한 금액을 그대로 저장한다.
+ */
+export async function addAdminCartItem(input: AdminCartItemInput): Promise<Result> {
   try {
-    await requireAdmin();
-    const next = pick(PAYMENT_STATUSES, status);
-    if (!next) return { error: "잘못된 결제 상태입니다." };
-    await db.update(orders).set({ status: next }).where(eq(orders.id, orderId));
-    revalidatePath("/admin/orders");
+    const admin = await requireAdmin();
+    if (!input.userId) return { error: "회원을 선택하세요." };
+
+    const product = ADMIN_CART_PRODUCTS.find((p) => p.key === input.productKey);
+    if (!product) return { error: "잘못된 상품입니다." };
+
+    const quantity = Math.max(1, int(input.quantity, 1) ?? 1);
+    const amount = Number(num(input.amount));
+    if (!Number.isFinite(amount) || amount <= 0) return { error: "금액을 입력하세요." };
+
+    await db.insert(adminCartItems).values({
+      userId: input.userId,
+      productKey: product.key,
+      // 카탈로그가 바뀌어도 고객이 본 이름은 그대로 남기려고 담을 때 값을 박아 둔다
+      title: product.label,
+      target: orNull(input.target),
+      note: orNull(input.note),
+      quantity,
+      amount: String(amount),
+      createdByAdminId: admin.id,
+    });
+
+    revalidatePath("/admin/cart");
+    revalidatePath("/marketing/cart");
     return ok();
   } catch (e) {
-    return fail(e, "주문 상태 변경 실패");
+    return fail(e, "장바구니 담기 실패");
   }
 }
 
-export async function setSettlementStatus(settlementId: string, status: string): Promise<Result> {
+/** 담아준 건 회수 — 결제 전(pending)에만 지운다 */
+export async function deleteAdminCartItem(id: string): Promise<Result> {
   try {
     await requireAdmin();
-    const next = pick(SETTLEMENT_STATUSES, status);
-    if (!next) return { error: "잘못된 정산 상태입니다." };
-    await db.update(settlements).set({ status: next }).where(eq(settlements.id, settlementId));
-    revalidatePath("/admin/settlements");
+    const [row] = await db.select().from(adminCartItems).where(eq(adminCartItems.id, id)).limit(1);
+    if (!row) return { error: "이미 삭제된 건입니다." };
+    if (row.status === "ordered") return { error: "이미 결제된 건은 삭제할 수 없습니다." };
+
+    await db.delete(adminCartItems).where(eq(adminCartItems.id, id));
+    revalidatePath("/admin/cart");
+    revalidatePath("/marketing/cart");
     return ok();
   } catch (e) {
-    return fail(e, "정산 상태 변경 실패");
+    return fail(e, "장바구니 회수 실패");
+  }
+}
+
+// ============================================================
+// 정산 관리 > 매입(발주)
+// ============================================================
+
+const PURCHASE_STATUSES = ["draft", "ordered", "running", "done", "canceled"] as const;
+const PURCHASE_SETTLE_STATUSES = ["unpaid", "scheduled", "paid"] as const;
+
+const PURCHASE_SOURCE_TYPES = [
+  "reward_place", "reward_shopping", "reward_coupang",
+  "guaranteed", "review_place", "review_shopping", "etc",
+] as const;
+
+export type PurchaseOrderInput = {
+  id?: string;
+  /** 어느 신청 건에 대한 발주인지 */
+  sourceType?: string;
+  sourceId?: string;
+  /** 결제 기록과의 연결 (선택) */
+  orderId?: string;
+  vendorName: string;
+  vendorContact?: string;
+  title: string;
+  quantity?: string;
+  purchaseAmount?: string;
+  status?: string;
+  settleStatus?: string;
+  orderedAt?: string;
+  settledAt?: string;
+  memo?: string;
+};
+
+/** 발주 등록·수정 */
+export async function upsertPurchaseOrder(input: PurchaseOrderInput): Promise<Result> {
+  try {
+    const admin = await requireAdmin();
+    if (!input.vendorName.trim()) return { error: "발주처를 입력하세요." };
+    if (!input.title.trim()) return { error: "발주 내용을 입력하세요." };
+
+    const status = pick(PURCHASE_STATUSES, input.status ?? "draft");
+    const settleStatus = pick(PURCHASE_SETTLE_STATUSES, input.settleStatus ?? "unpaid");
+    if (!status) return { error: "잘못된 발주 상태입니다." };
+    if (!settleStatus) return { error: "잘못된 정산 상태입니다." };
+
+    const values = {
+      sourceType: pick(PURCHASE_SOURCE_TYPES, input.sourceType ?? "etc") ?? "etc",
+      sourceId: orNull(input.sourceId),
+      orderId: orNull(input.orderId),
+      vendorName: input.vendorName.trim(),
+      vendorContact: orNull(input.vendorContact),
+      title: input.title.trim(),
+      quantity: Math.max(1, int(input.quantity, 1) ?? 1),
+      purchaseAmount: num(input.purchaseAmount),
+      status,
+      settleStatus,
+      orderedAt: orNull(input.orderedAt),
+      // 지급 완료로 두면 지급일을 비워둘 수 없다 — 비어 있으면 오늘로 채운다
+      settledAt: settleStatus === "paid" ? (orNull(input.settledAt) ?? todayYMD()) : orNull(input.settledAt),
+      memo: orNull(input.memo),
+      updatedAt: new Date(),
+    };
+
+    if (input.id) {
+      await db.update(purchaseOrders).set(values).where(eq(purchaseOrders.id, input.id));
+    } else {
+      await db.insert(purchaseOrders).values({ ...values, createdByAdminId: admin.id });
+    }
+    revalidatePath("/admin/purchases");
+    return ok();
+  } catch (e) {
+    return fail(e, "발주 저장 실패");
+  }
+}
+
+/**
+ * 원클릭 발주 완료.
+ *
+ * 엑셀을 뽑아 업체에 넘긴 뒤 "보냈다"는 사실만 빠르게 남기는 용도다.
+ * 발주처·매입가는 이 시점에 모르는 경우가 많아 비워 두고, 나중에 수정에서 채운다.
+ * (매입가가 0이라 원가·마진 집계에는 잡히지 않는다)
+ */
+export async function completePurchaseOrder(input: {
+  sourceType: string;
+  sourceId: string;
+  title: string;
+  quantity?: number;
+}): Promise<Result> {
+  try {
+    const admin = await requireAdmin();
+    const sourceType = pick(PURCHASE_SOURCE_TYPES, input.sourceType) ?? "etc";
+    if (!input.sourceId) return { error: "대상을 찾을 수 없습니다." };
+
+    await db.insert(purchaseOrders).values({
+      sourceType,
+      sourceId: input.sourceId,
+      vendorName: "미지정",
+      title: input.title.trim() || "발주",
+      quantity: Math.max(1, input.quantity ?? 1),
+      purchaseAmount: "0",
+      status: "ordered",
+      orderedAt: todayYMD(),
+      createdByAdminId: admin.id,
+    });
+
+    revalidatePath("/admin/purchases");
+    return ok();
+  } catch (e) {
+    return fail(e, "발주 완료 처리 실패");
+  }
+}
+
+export async function deletePurchaseOrder(id: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    await db.delete(purchaseOrders).where(eq(purchaseOrders.id, id));
+    revalidatePath("/admin/purchases");
+    return ok();
+  } catch (e) {
+    return fail(e, "발주 삭제 실패");
+  }
+}
+
+/** 오늘 (YYYY-MM-DD) — 지급일 기본값 */
+function todayYMD() {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// ============================================================
+// 통합순위관리 > 멤버십
+// ============================================================
+
+const MEMBERSHIP_STATUSES = ["active", "expired", "canceled"] as const;
+
+export type MembershipInput = {
+  id?: string;
+  userId: string;
+  /** 사용자가 결제한 날 — 이용 기간의 기준 */
+  paidAt?: string;
+  startDate?: string;
+  /** 비우면 무기한 */
+  endDate?: string;
+  monthlyFee?: string;
+  memo?: string;
+};
+
+/**
+ * 멤버십 부여·수정.
+ * 회원당 살아 있는 멤버십은 하나여야 하므로, 새로 부여하면 기존 이용중 건은 해지 처리한다.
+ */
+export async function upsertRankMembership(input: MembershipInput): Promise<Result> {
+  try {
+    const admin = await requireAdmin();
+    if (!input.userId) return { error: "회원을 선택하세요." };
+
+    const values = {
+      paidAt: orNull(input.paidAt),
+      // 시작일을 안 주면 결제일부터 이용하는 것으로 본다
+      startDate: orNull(input.startDate) ?? orNull(input.paidAt) ?? todayYMD(),
+      endDate: orNull(input.endDate),
+      monthlyFee: num(input.monthlyFee),
+      memo: orNull(input.memo),
+      status: "active" as const,
+      updatedAt: new Date(),
+    };
+
+    if (input.id) {
+      await db.update(rankMemberships).set(values).where(eq(rankMemberships.id, input.id));
+    } else {
+      await db.transaction(async (tx) => {
+        // 같은 회원의 이용중 건을 먼저 접는다 (중복 멤버십 방지)
+        await tx
+          .update(rankMemberships)
+          .set({ status: "canceled", canceledAt: new Date(), updatedAt: new Date() })
+          .where(and(eq(rankMemberships.userId, input.userId), eq(rankMemberships.status, "active")));
+
+        await tx.insert(rankMemberships).values({
+          ...values,
+          userId: input.userId,
+          grantedByAdminId: admin.id,
+        });
+      });
+    }
+
+    revalidatePath("/admin/rank");
+    return ok();
+  } catch (e) {
+    return fail(e, "멤버십 저장 실패");
+  }
+}
+
+/** 멤버십 상태 변경 (해지·복구) */
+export async function setRankMembershipStatus(id: string, status: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    const next = pick(MEMBERSHIP_STATUSES, status);
+    if (!next) return { error: "잘못된 상태입니다." };
+
+    await db
+      .update(rankMemberships)
+      .set({
+        status: next,
+        canceledAt: next === "canceled" ? new Date() : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(rankMemberships.id, id));
+
+    revalidatePath("/admin/rank");
+    return ok();
+  } catch (e) {
+    return fail(e, "멤버십 상태 변경 실패");
   }
 }

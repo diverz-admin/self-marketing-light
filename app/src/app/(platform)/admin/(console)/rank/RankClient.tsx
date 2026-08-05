@@ -6,10 +6,15 @@ import {
   Button, Modal, ModalFooter, Field, Input, Select, Notice,
 } from "@/components/admin/ui";
 import { PricingPanel, type PricingRuleRow } from "@/components/admin/PricingPanel";
-import { formatKRW, formatDateTime, rankPlatformMeta, rankDelta } from "@/lib/admin-format";
+import { formatKRW, formatDate, formatDateTime, rankPlatformMeta, rankDelta } from "@/lib/admin-format";
+import {
+  FREE_KEYWORD_LIMIT, MEMBERSHIP_STATUS_META, RENEWAL_NOTICE_DAYS, nextExpiry,
+  type MembershipView,
+} from "@/lib/rank-membership";
 import {
   upsertRankKeyword, setKeywordBilling, updateKeywordRank, toggleKeywordActive, deleteRankKeyword,
-  type RankKeywordInput,
+  upsertRankMembership, setRankMembershipStatus,
+  type RankKeywordInput, type MembershipInput,
 } from "../actions";
 
 export type RankKeywordRow = {
@@ -27,13 +32,43 @@ export type RankKeywordRow = {
   previousRank: number | null;
   lastCheckedAt: string | null;
   isActive: boolean;
+  /** 멤버십이 없어 추적이 잠긴 키워드 (처음 등록한 1개만 무료) */
+  locked: boolean;
 };
 
 export type UserOption = { id: string; name: string; email: string };
 
+/** 회원 한 줄 — 멤버십과 키워드 사용량을 함께 본다 */
+export type MemberRow = {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  orgName: string | null;
+  phone: string | null;
+  keywordCount: number;
+  /** 지금 멤버십이 살아 있는지 (상태 + 만료일 반영) */
+  live: boolean;
+  /** 무료 한도를 넘겨 추적이 멈춘 키워드 수 */
+  overLimit: number;
+  /** 만료 3일 전 — 연장 안내 대상 */
+  renewalDue: boolean;
+  /** 만료까지 남은 일수 (무기한이면 null) */
+  daysLeft: number | null;
+  membership: MembershipView | null;
+};
+
 const VIEW_TABS = [
+  { key: "members", label: "멤버십" },
   { key: "keywords", label: "키워드 현황" },
   { key: "pricing", label: "과금 설정" },
+];
+
+/** 멤버십 여부로 거르는 필터 */
+const MEMBER_FILTERS = [
+  { key: "all", label: "전체" },
+  { key: "renewal", label: `연장 안내 (D-${RENEWAL_NOTICE_DAYS})` },
+  { key: "live", label: "멤버십" },
+  { key: "free", label: "무료" },
 ];
 
 const PLATFORM_TABS = [
@@ -45,16 +80,22 @@ const PLATFORM_TABS = [
 
 export function RankClient({
   rows,
+  members,
   users,
   rules,
   presets,
 }: {
   rows: RankKeywordRow[];
+  members: MemberRow[];
   users: UserOption[];
   rules: PricingRuleRow[];
   presets: { key: string; label: string; unit?: string }[];
 }) {
-  const [view, setView] = useState("keywords");
+  // 멤버십 관리가 이 화면의 주 업무라 기본 탭으로 둔다
+  const [view, setView] = useState("members");
+  const [memberFilter, setMemberFilter] = useState("all");
+  const [memberQuery, setMemberQuery] = useState("");
+  const [membershipTarget, setMembershipTarget] = useState<MemberRow | null>(null);
   const [platform, setPlatform] = useState("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<RankKeywordRow | "new" | null>(null);
@@ -79,6 +120,42 @@ export function RankClient({
     for (const r of rows) c[r.platform] = (c[r.platform] ?? 0) + 1;
     return c;
   }, [rows]);
+
+  const memberCounts = useMemo(
+    () => ({
+      all: members.length,
+      renewal: members.filter((m) => m.renewalDue).length,
+      live: members.filter((m) => m.live).length,
+      free: members.filter((m) => !m.live).length,
+    }),
+    [members],
+  );
+
+  const visibleMembers = useMemo(() => {
+    const q = memberQuery.trim().toLowerCase();
+    return members
+      .filter((m) => {
+        if (memberFilter === "renewal" && !m.renewalDue) return false;
+        if (memberFilter === "live" && !m.live) return false;
+        if (memberFilter === "free" && m.live) return false;
+        if (!q) return true;
+        return (
+          m.userName.toLowerCase().includes(q) ||
+          m.userEmail.toLowerCase().includes(q) ||
+          (m.orgName ?? "").toLowerCase().includes(q) ||
+          (m.phone ?? "").includes(q)
+        );
+      })
+      // 손이 필요한 순서: 연장 임박 → 잠긴 키워드 → 멤버십 → 키워드 많은 순
+      .sort((a, b) => {
+        const renewal = (b.renewalDue ? 1 : 0) - (a.renewalDue ? 1 : 0);
+        if (renewal !== 0) return renewal;
+        const over = (b.overLimit > 0 ? 1 : 0) - (a.overLimit > 0 ? 1 : 0);
+        if (over !== 0) return over;
+        if (a.live !== b.live) return a.live ? -1 : 1;
+        return b.keywordCount - a.keywordCount;
+      });
+  }, [members, memberFilter, memberQuery]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -110,9 +187,27 @@ export function RankClient({
             <Button onClick={() => setEditing("new")}>키워드 등록</Button>
           </div>
         )}
+        {view === "members" && (
+          <div className="md:ml-auto flex gap-2">
+            <SearchInput
+              value={memberQuery}
+              onChange={setMemberQuery}
+              placeholder="회원 · 회사명 · 연락처 검색"
+              className="md:w-64"
+            />
+          </div>
+        )}
       </div>
 
-      {view === "pricing" ? (
+      {view === "members" ? (
+        <MembersPanel
+          members={visibleMembers}
+          filter={memberFilter}
+          onFilter={setMemberFilter}
+          counts={memberCounts}
+          onGrant={(m) => setMembershipTarget(m)}
+        />
+      ) : view === "pricing" ? (
         <PricingPanel
           title="키워드 과금 설정"
           description="키워드 1개는 무료로 제공하고, 2개째부터 아래 금액으로 과금합니다."
@@ -147,9 +242,18 @@ export function RankClient({
                   const delta = rankDelta(r.currentRank, r.previousRank);
                   const seq = keywordIndexByUser[r.id];
                   return (
-                    <tr key={r.id} className="hover:bg-brand-light/50 transition-colors">
+                    <tr
+                      key={r.id}
+                      className={`hover:bg-brand-light/50 transition-colors ${
+                        r.locked
+                          ? "bg-red-50/40 [&>td:first-child]:border-l-[3px] [&>td:first-child]:border-red-400"
+                          : ""
+                      }`}
+                    >
                       <Td>
-                        <div className="font-semibold text-brand-dark">{r.keyword}</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-brand-dark">{r.keyword}</span>
+                        </div>
                         {r.targetName && <div className="text-[12.5px] text-brand-muted">{r.targetName}</div>}
                         {msg?.id === r.id && <Notice ok={msg.ok}>{msg.text}</Notice>}
                       </Td>
@@ -158,11 +262,14 @@ export function RankClient({
                         <div className="text-[12px] text-brand-muted">
                           {seq === 1 ? "1번째 (무료 대상)" : `${seq}번째`}
                         </div>
+                        {r.locked && (
+                          <div className="text-[11.5px] font-semibold text-red-500">멤버십 없음 · 추적 중지</div>
+                        )}
                         {/* 정책(1개 무료 / 2개째부터 유료)과 실제 과금이 어긋나면 표시 */}
-                        {seq === 1 && r.isPaid && (
+                        {!r.locked && seq === 1 && r.isPaid && (
                           <div className="text-[11.5px] text-brand-warning font-semibold">무료 대상인데 과금 중</div>
                         )}
-                        {seq > 1 && !r.isPaid && (
+                        {!r.locked && seq > 1 && !r.isPaid && (
                           <div className="text-[11.5px] text-brand-warning font-semibold">과금 대상인데 무료</div>
                         )}
                       </Td>
@@ -186,7 +293,9 @@ export function RankClient({
                         )}
                       </Td>
                       <Td>
-                        <Badge tone={r.isActive ? "green" : "gray"}>{r.isActive ? "추적중" : "중지"}</Badge>
+                        <Badge tone={r.locked ? "red" : r.isActive ? "green" : "gray"}>
+                          {r.locked ? "잠김" : r.isActive ? "추적중" : "중지"}
+                        </Badge>
                       </Td>
                       <Td className="text-right">
                         <div className="flex gap-1.5 justify-end">
@@ -219,6 +328,9 @@ export function RankClient({
         <KeywordModal keyword={editing === "new" ? null : editing} users={users} onClose={() => setEditing(null)} />
       )}
       {billingTarget && <BillingModal keyword={billingTarget} onClose={() => setBillingTarget(null)} />}
+      {membershipTarget && (
+        <MembershipModal member={membershipTarget} onClose={() => setMembershipTarget(null)} />
+      )}
     </div>
   );
 }
@@ -355,4 +467,281 @@ function BillingModal({ keyword, onClose }: { keyword: RankKeywordRow; onClose: 
       {error && <Notice ok={false}>{error}</Notice>}
     </Modal>
   );
+}
+
+/**
+ * 멤버십 현황 — 회원 한 명이 한 줄.
+ * 무료 한도(1개)를 넘겼는데 멤버십이 없는 회원이 곧 처리 대상이라 맨 위로 올린다.
+ */
+function MembersPanel({
+  members,
+  filter,
+  onFilter,
+  counts,
+  onGrant,
+}: {
+  members: MemberRow[];
+  filter: string;
+  onFilter: (key: string) => void;
+  counts: Record<string, number>;
+  onGrant: (m: MemberRow) => void;
+}) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-brand-border flex-wrap">
+        {MEMBER_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => onFilter(f.key)}
+            className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
+              filter === f.key
+                ? "bg-brand-primary text-white"
+                : "bg-brand-light text-brand-sub hover:bg-brand-border"
+            }`}
+          >
+            {f.label}
+            <span className="ml-1.5 tabular-nums opacity-70">{counts[f.key] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* 만료 3일 전 회원 — 연장 안내를 보내야 하는 대상 */}
+      {(counts.renewal ?? 0) > 0 && filter !== "renewal" && (
+        <button
+          onClick={() => onFilter("renewal")}
+          className="w-full flex items-center gap-2 px-5 py-3 bg-amber-50 border-b border-amber-200 text-left hover:bg-amber-100 transition-colors"
+        >
+          <span className="text-[13px] font-bold text-amber-700">
+            연장 안내 대상 {counts.renewal}명
+          </span>
+          <span className="text-[12.5px] text-amber-600">
+            멤버십 만료 {RENEWAL_NOTICE_DAYS}일 전입니다. 연장하지 않으면 처음 등록한 키워드 1개만 남고 나머지는 잠깁니다.
+          </span>
+          <span className="ml-auto text-[12.5px] font-bold text-amber-700">보기 →</span>
+        </button>
+      )}
+
+      {members.length ? (
+        <>
+          <TableShell
+            head={
+              <>
+                <Th>회원</Th>
+                <Th>연락처</Th>
+                <Th className="text-center">키워드</Th>
+                <Th>멤버십</Th>
+                <Th>결제일</Th>
+                <Th>이용 기간</Th>
+                <Th className="text-right">월 요금</Th>
+                <Th className="text-center">처리</Th>
+              </>
+            }
+          >
+            {members.map((m) => (
+              <MemberRowView key={m.userId} member={m} onGrant={() => onGrant(m)} />
+            ))}
+          </TableShell>
+          <div className="px-5 py-3 border-t border-brand-border text-[12.5px] text-brand-muted">
+            총 <span className="font-bold text-brand-dark">{members.length}</span>명
+          </div>
+        </>
+      ) : (
+        <EmptyState message="해당 조건의 회원이 없습니다." />
+      )}
+    </Card>
+  );
+}
+
+function MemberRowView({ member, onGrant }: { member: MemberRow; onGrant: () => void }) {
+  const m = member.membership;
+  const meta = m ? MEMBERSHIP_STATUS_META[m.status] : null;
+  const [pending, startTransition] = useTransition();
+
+  const cancel = () => {
+    if (!m) return;
+    startTransition(async () => {
+      await setRankMembershipStatus(m.id, "canceled");
+    });
+  };
+
+  return (
+    <tr
+      className={`hover:bg-brand-light/50 transition-colors align-top ${
+        member.renewalDue
+          ? "[&>td:first-child]:border-l-[3px] [&>td:first-child]:border-amber-400"
+          : member.overLimit > 0
+            ? "[&>td:first-child]:border-l-[3px] [&>td:first-child]:border-red-400"
+            : ""
+      }`}
+    >
+      <Td>
+        <div className="font-semibold text-brand-dark">{member.orgName ?? member.userName}</div>
+        <div className="text-[12px] text-brand-muted">{member.userEmail}</div>
+      </Td>
+      <Td className="text-[13px] text-brand-text tabular-nums">
+        {member.phone || <span className="text-brand-muted">미등록</span>}
+      </Td>
+      <Td className="text-center">
+        <div className="tabular-nums font-semibold text-brand-dark">
+          {member.keywordCount}
+          <span className="text-[12px] font-medium text-brand-muted">
+            {member.live ? " / 무제한" : ` / ${FREE_KEYWORD_LIMIT}`}
+          </span>
+        </div>
+        {/* 멤버십이 없는데 무료 한도를 넘긴 건 — 추적이 멈춘 상태라 눈에 띄어야 한다 */}
+        {member.overLimit > 0 && (
+          <div className="text-[12px] font-semibold text-red-500">{member.overLimit}개 잠김</div>
+        )}
+      </Td>
+      <Td>
+        {member.live && meta ? (
+          <Badge tone={meta.tone}>{meta.label}</Badge>
+        ) : m ? (
+          <Badge tone={MEMBERSHIP_STATUS_META[m.status]?.tone ?? "gray"}>
+            {m.status === "active" ? "만료" : (MEMBERSHIP_STATUS_META[m.status]?.label ?? m.status)}
+          </Badge>
+        ) : (
+          <Badge tone="gray">무료</Badge>
+        )}
+      </Td>
+      {/* 사용자가 직접 결제하므로 언제 냈는지가 갱신 판단의 기준이 된다 */}
+      <Td className="text-[12.5px] whitespace-nowrap">
+        {m?.paidAt ? (
+          <span className="font-semibold text-brand-dark">{formatDate(m.paidAt)}</span>
+        ) : (
+          <span className="text-brand-muted">{m ? "미기록" : "-"}</span>
+        )}
+      </Td>
+      <Td className="text-[12.5px] text-brand-sub whitespace-nowrap">
+        {m ? (
+          <>
+            {formatDate(m.startDate)}
+            <br />~ {m.endDate ? formatDate(m.endDate) : "무기한"}
+            {/* 만료 3일 전부터 연장 안내가 나간다 */}
+            {member.renewalDue && member.daysLeft != null && (
+              <div className="mt-0.5 text-[12px] font-bold text-amber-600">
+                {member.daysLeft === 0 ? "오늘 만료" : `D-${member.daysLeft} 연장 안내`}
+              </div>
+            )}
+          </>
+        ) : (
+          <span className="text-brand-muted">-</span>
+        )}
+      </Td>
+      <Td className="text-right tabular-nums text-brand-dark">
+        {m ? formatKRW(m.monthlyFee) : <span className="text-brand-muted">-</span>}
+      </Td>
+      <Td className="text-center">
+        <div className="flex items-center justify-center gap-1.5">
+          <Button size="sm" variant={member.live ? "secondary" : "primary"} onClick={onGrant}>
+            {member.live ? "수정" : "멤버십 부여"}
+          </Button>
+          {member.live && (
+            <Button size="sm" variant="danger" disabled={pending} onClick={cancel}>
+              해지
+            </Button>
+          )}
+        </div>
+      </Td>
+    </tr>
+  );
+}
+
+/** 멤버십 부여·수정 — 이용중인 동안 키워드 개수 제한이 없어진다 */
+function MembershipModal({ member, onClose }: { member: MemberRow; onClose: () => void }) {
+  const m = member.membership;
+  const [form, setForm] = useState<MembershipInput>({
+    id: member.live && m ? m.id : undefined,
+    userId: member.userId,
+    paidAt: member.live && m ? (m.paidAt ?? "") : todayInput(),
+    startDate: member.live && m ? m.startDate : todayInput(),
+    // 새로 부여할 때는 오늘 결제 + 한 달 뒤 만료가 기본값
+    endDate: member.live && m ? (m.endDate ?? "") : nextExpiry(todayInput()),
+    monthlyFee: member.live && m ? String(m.monthlyFee) : "",
+    memo: member.live && m ? (m.memo ?? "") : "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const set = <K extends keyof MembershipInput>(key: K, value: MembershipInput[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  /** 결제일을 바꾸면 이용 기간(결제일 ~ 한 달 뒤)을 같이 채운다 */
+  const setPaidAt = (value: string) =>
+    setForm((f) => ({
+      ...f,
+      paidAt: value,
+      startDate: value || f.startDate,
+      endDate: value ? nextExpiry(value) : f.endDate,
+    }));
+
+  const submit = () => {
+    setError(null);
+    startTransition(async () => {
+      const res = await upsertRankMembership(form);
+      if ("error" in res) {
+        setError(res.error);
+        return;
+      }
+      onClose();
+    });
+  };
+
+  return (
+    <Modal
+      title={member.live ? "멤버십 수정" : "멤버십 부여"}
+      description={`${member.orgName ?? member.userName} — 이용중인 동안 키워드를 제한 없이 등록할 수 있습니다`}
+      onClose={onClose}
+      width="max-w-[520px]"
+      footer={<ModalFooter onClose={onClose} onSubmit={submit} pending={pending} />}
+    >
+      <div className="rounded-xl border border-brand-border bg-brand-light/60 p-4 text-[13px]">
+        <div className="flex justify-between">
+          <span className="text-brand-muted">현재 키워드</span>
+          <span className="font-semibold text-brand-dark tabular-nums">
+            {member.keywordCount}개
+            {member.overLimit > 0 && (
+              <span className="ml-1 text-red-500">({member.overLimit}개 추적 중지)</span>
+            )}
+          </span>
+        </div>
+      </div>
+
+      {/* 결제일을 넣으면 이용 기간을 결제일 기준 한 달로 채워 준다 (이후 직접 수정 가능) */}
+      <Field label="결제일" hint="한 달 단위 결제 — 이용 기간이 자동으로 채워집니다">
+        <Input type="date" value={form.paidAt} onChange={(e) => setPaidAt(e.target.value)} />
+      </Field>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="이용 시작일">
+          <Input type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
+        </Field>
+        <Field label="이용 종료일" hint="비우면 무기한">
+          <Input type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
+        </Field>
+      </div>
+
+      <Field label="월 요금 (원)">
+        <Input
+          value={form.monthlyFee}
+          onChange={(e) => set("monthlyFee", e.target.value)}
+          inputMode="numeric"
+          placeholder="0"
+        />
+      </Field>
+
+      <Field label="메모">
+        <Input value={form.memo} onChange={(e) => set("memo", e.target.value)} placeholder="결제 방식 · 특이사항" />
+      </Field>
+
+      {error && <Notice ok={false}>{error}</Notice>}
+    </Modal>
+  );
+}
+
+/** 오늘 (YYYY-MM-DD) — 결제일 기본값 */
+function todayInput() {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }

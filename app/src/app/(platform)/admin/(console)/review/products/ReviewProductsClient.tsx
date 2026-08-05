@@ -20,10 +20,12 @@ export type ReviewPriceRow = {
   productId: string | null;
   title: string;
   unitPrice: number;
+  /** 매입 원가 — 고객에게 보이지 않는 관리자 전용 값 */
+  costPrice: number | null;
   isActive: boolean;
 };
 
-type Draft = { price: string; isActive: boolean };
+type Draft = { price: string; cost: string; isActive: boolean };
 
 const keyOf = (r: { channel: string; reviewType: string }) => `${r.channel}:${r.reviewType}`;
 
@@ -37,7 +39,14 @@ const CHANNEL_ACCENT: Record<string, string> = {
 export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
   const [draft, setDraft] = useState<Record<string, Draft>>(() =>
     Object.fromEntries(
-      rows.map((r) => [keyOf(r), { price: r.unitPrice ? String(r.unitPrice) : "", isActive: r.isActive }]),
+      rows.map((r) => [
+        keyOf(r),
+        {
+          price: r.unitPrice ? String(r.unitPrice) : "",
+          cost: r.costPrice != null ? String(r.costPrice) : "",
+          isActive: r.isActive,
+        },
+      ]),
     ),
   );
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -51,7 +60,9 @@ export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
     () =>
       rows.filter((r) => {
         const d = draft[keyOf(r)];
-        return d && (Number(d.price || 0) !== r.unitPrice || d.isActive !== r.isActive);
+        if (!d) return false;
+        const costChanged = d.cost === "" ? r.costPrice != null : Number(d.cost) !== r.costPrice;
+        return Number(d.price || 0) !== r.unitPrice || costChanged || d.isActive !== r.isActive;
       }),
     [rows, draft],
   );
@@ -71,6 +82,7 @@ export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
           channel: r.channel,
           reviewType: r.reviewType,
           unitPrice: d.price || "0",
+          costPrice: d.cost,
           isActive: d.isActive,
         });
         if ("error" in res) {
@@ -103,10 +115,13 @@ export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
               <div className="divide-y divide-brand-border">
                 {c.items.map((r) => {
                   const key = keyOf(r);
-                  const d = draft[key] ?? { price: "", isActive: false };
+                  const d = draft[key] ?? { price: "", cost: "", isActive: false };
                   const amount = Number(d.price || 0);
-                  const isDirty =
-                    amount !== r.unitPrice || d.isActive !== r.isActive;
+                  const costChanged = d.cost === "" ? r.costPrice != null : Number(d.cost) !== r.costPrice;
+                  const isDirty = amount !== r.unitPrice || costChanged || d.isActive !== r.isActive;
+                  // 원가를 넣으면 마진이 바로 보이게 한다
+                  const margin =
+                    amount > 0 && d.cost !== "" ? Math.round(((amount - Number(d.cost)) / amount) * 100) : null;
                   return (
                     <div key={key} className="px-5 py-4">
                       <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -168,6 +183,29 @@ export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
                       <p className="mt-1 text-right text-[12px] text-brand-muted tabular-nums">
                         {amount > 0 ? `${formatNumber(amount)}원` : "가격 미등록"}
                       </p>
+
+                      {/* 원가 — 고객에게 노출되지 않는 관리자 전용 값 */}
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="w-8 shrink-0 text-[12px] font-bold text-brand-muted">원가</span>
+                        <div className="flex flex-1 items-center rounded-lg border border-brand-border bg-white focus-within:border-brand-primary transition-colors">
+                          <span className="pl-2.5 text-[13px] font-bold text-brand-muted select-none">₩</span>
+                          <input
+                            value={d.cost}
+                            onChange={(e) => set(key, { cost: e.target.value.replace(/[^\d]/g, "") })}
+                            inputMode="numeric"
+                            placeholder="미입력"
+                            aria-label={`${c.label} ${reviewTypeLabel[r.reviewType] ?? r.reviewType} 원가`}
+                            className="w-full min-w-0 bg-transparent px-2 py-1.5 text-right text-[13px] font-semibold tabular-nums text-brand-dark focus:outline-none"
+                          />
+                        </div>
+                        <span
+                          className={`w-14 shrink-0 text-right text-[12px] font-bold tabular-nums ${
+                            margin == null ? "text-brand-muted" : margin < 0 ? "text-red-500" : "text-brand-sub"
+                          }`}
+                        >
+                          {margin == null ? "-" : `${margin}%`}
+                        </span>
+                      </div>
                     </div>
                   );
                 })}

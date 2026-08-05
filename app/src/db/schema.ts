@@ -174,6 +174,8 @@ export const products = pgTable("products", {
   description: text("description"),
   unit: productUnitEnum("unit").notNull(),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+  // 매입 원가 — 마진 확인용이라 관리자만 본다 (고객 화면에는 노출하지 않는다)
+  costPrice: numeric("cost_price", { precision: 12, scale: 2 }),
   minQty: integer("min_qty").notNull().default(1),
   maxQty: integer("max_qty"),
   estDurationDays: integer("est_duration_days"),
@@ -683,3 +685,128 @@ export const memberProfiles = pgTable("member_profiles", {
 
 export type MemberProfile = typeof memberProfiles.$inferSelect;
 export type NewMemberProfile = typeof memberProfiles.$inferInsert;
+
+// ── 관리자가 담아주는 장바구니 ──
+//
+// 보장형·콘텐츠처럼 "문의하기"로 들어오는 상품은 고객이 신청 화면에서 직접 담을 수 없다.
+// 상담 후 관리자가 회원의 장바구니에 바로 넣어 주고, 고객은 장바구니에서 결제만 한다.
+// (고객이 신청 화면에서 담는 리워드 장바구니는 브라우저에만 남는다 — 이건 서버에 남긴다)
+export const adminCartItemStatusEnum = pgEnum("admin_cart_item_status", [
+  "pending",   // 담아둠 (고객 장바구니에 보임)
+  "ordered",   // 고객이 결제함
+  "canceled",  // 관리자가 회수
+]);
+
+export const adminCartItems = pgTable("admin_cart_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  // 고정 카탈로그 키 (네이버 플레이스 보장형 · 고퀄리티 이미지 제작 등)
+  productKey: text("product_key").notNull(),
+  // 담을 때의 상품명 — 카탈로그가 바뀌어도 고객이 본 이름은 그대로 남는다
+  title: text("title").notNull(),
+  target: text("target"),              // 대상 (플레이스명 / 사이트 주소 등)
+  note: text("note"),                  // 고객에게 보이는 안내 메모
+  quantity: integer("quantity").notNull().default(1),
+  // 문의 기반 견적이라 단가표가 없다 — 담을 때 관리자가 정한 금액을 그대로 쓴다
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  status: adminCartItemStatusEnum("status").notNull().default("pending"),
+  createdByAdminId: uuid("created_by_admin_id").references(() => users.id, { onDelete: "set null" }),
+  orderedAt: timestamp("ordered_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type AdminCartItem = typeof adminCartItems.$inferSelect;
+export type NewAdminCartItem = typeof adminCartItems.$inferInsert;
+
+// ── 정산 관리 > 매입(발주) ──
+//
+// 주문(orders)은 우리가 받은 매출이고, 그 건을 실제로 돌리는 업체에 발주를 준다.
+// 주문 한 건에 발주가 여러 개 붙을 수 있어(매체를 나눠 돌리는 경우) 별도 테이블로 둔다.
+// 매출-매입 차이가 곧 마진이라, 두 금액을 같은 줄에서 보게 하는 것이 이 화면의 목적이다.
+export const purchaseOrderStatusEnum = pgEnum("purchase_order_status", [
+  "draft",     // 발주 전 (매입처 미정)
+  "ordered",   // 발주 완료
+  "running",   // 업체 작업중
+  "done",      // 작업 완료
+  "canceled",  // 취소
+]);
+
+/** 업체에 실제로 돈을 보냈는지 */
+export const purchaseSettleStatusEnum = pgEnum("purchase_settle_status", [
+  "unpaid",    // 미지급
+  "scheduled", // 지급 예정
+  "paid",      // 지급 완료
+]);
+
+/**
+ * 발주 대상 — 고객이 신청한 상품 종류.
+ * 신청 화면이 여러 개라 테이블도 나뉘어 있어, 종류 + id 로 어느 건인지 가리킨다.
+ */
+export const purchaseSourceTypeEnum = pgEnum("purchase_source_type", [
+  "reward_place",     // 플레이스 상위노출
+  "reward_shopping",  // 쇼핑 상위노출
+  "reward_coupang",   // 쿠팡 상위노출
+  "guaranteed",       // 보장형
+  "review_place",     // 플레이스 리뷰
+  "review_shopping",  // 쇼핑 리뷰
+  "etc",              // 상담 등 신청 화면을 거치지 않은 건
+]);
+
+export const purchaseOrders = pgTable("purchase_orders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // 어느 신청 건에 대한 발주인지 — 테이블이 나뉘어 있어 FK 대신 종류 + id 로 가리킨다
+  sourceType: purchaseSourceTypeEnum("source_type").notNull().default("etc"),
+  sourceId: uuid("source_id"),
+  // 결제 기록과도 연결해 둔다 (주문이 지워져도 발주 기록은 남는다)
+  orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+  vendorName: text("vendor_name").notNull(),          // 발주처 업체명
+  vendorContact: text("vendor_contact"),              // 담당자 · 연락처
+  title: text("title").notNull(),                     // 발주 내용 (상품·캠페인명)
+  quantity: integer("quantity").notNull().default(1),
+  // 매입가 — 업체에 지급할 금액. 매출은 orders.amount 를 그대로 본다.
+  purchaseAmount: numeric("purchase_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  status: purchaseOrderStatusEnum("status").notNull().default("draft"),
+  settleStatus: purchaseSettleStatusEnum("settle_status").notNull().default("unpaid"),
+  orderedAt: date("ordered_at"),                      // 발주일
+  settledAt: date("settled_at"),                      // 지급일
+  memo: text("memo"),
+  createdByAdminId: uuid("created_by_admin_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type NewPurchaseOrder = typeof purchaseOrders.$inferInsert;
+
+// ── 통합순위관리 멤버십 ──
+//
+// 회원가입만 하면 키워드 1개는 무료로 추적된다.
+// 2개째부터는 멤버십이 있어야 등록할 수 있고, 멤버십이 살아 있는 동안은 개수 제한이 없다.
+// 만료되면 무료 한도(1개)로 돌아가므로 초과분은 추적이 멈춘다.
+export const membershipStatusEnum = pgEnum("membership_status", [
+  "active",    // 이용중
+  "expired",   // 기간 만료
+  "canceled",  // 관리자 해지
+]);
+
+export const rankMemberships = pgTable("rank_memberships", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: membershipStatusEnum("status").notNull().default("active"),
+  // 사용자가 직접 결제한 날 — 이용 기간의 기준이 된다
+  paidAt: date("paid_at"),
+  startDate: date("start_date").notNull(),
+  // 만료일이 지나면 무료 한도로 돌아간다 (null = 무기한)
+  endDate: date("end_date"),
+  monthlyFee: numeric("monthly_fee", { precision: 12, scale: 2 }).notNull().default("0"),
+  memo: text("memo"),
+  // 부여·해지를 처리한 관리자
+  grantedByAdminId: uuid("granted_by_admin_id").references(() => users.id, { onDelete: "set null" }),
+  canceledAt: timestamp("canceled_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type RankMembership = typeof rankMemberships.$inferSelect;
+export type NewRankMembership = typeof rankMemberships.$inferInsert;

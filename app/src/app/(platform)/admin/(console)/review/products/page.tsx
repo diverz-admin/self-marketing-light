@@ -14,6 +14,7 @@ export default async function AdminReviewProductsPage() {
       channel: products.channel,
       reviewType: products.reviewType,
       unitPrice: products.unitPrice,
+      costPrice: products.costPrice,
       isActive: products.isActive,
     })
     .from(products)
@@ -29,6 +30,7 @@ export default async function AdminReviewProductsPage() {
       productId: found?.id ?? null,
       title: reviewPriceRowLabel(channel, reviewType),
       unitPrice: found ? Number(found.unitPrice) : 0,
+      costPrice: found?.costPrice != null ? Number(found.costPrice) : null,
       isActive: found?.isActive ?? false,
     };
   });
