@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { adminCartItems, users, memberProfiles } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { PageTitle } from "@/components/admin/ui";
+import { parsePeriod, periodRange } from "@/lib/period-filter";
 import { AdminCartClient, type AdminCartRow, type UserOption } from "./AdminCartClient";
 
 export const dynamic = "force-dynamic";
@@ -10,8 +11,23 @@ export const dynamic = "force-dynamic";
 // 담아준 회원과 담아준 관리자를 같은 쿼리에서 조인하려면 별칭이 필요하다
 const createdByAdmin = alias(users, "created_by_admin");
 
-export default async function AdminCartPage() {
-  const [rows, userRows] = await Promise.all([
+export default async function AdminCartPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const period = parsePeriod(await searchParams);
+  const range = periodRange(period);
+  /**
+   * 결제완료 건은 계속 쌓이므로 연/월/일을 고르면 결제일(KST) 기준으로 걸러 온다.
+   * 아직 담아둔 건은 결제일이 없으니 기간과 무관하게 그대로 둔다 — 담아둔 목록은 늘 전부 보여야 한다.
+   */
+  const orderedDate = sql`(${adminCartItems.orderedAt} at time zone 'Asia/Seoul')::date`;
+  const periodFilter = range
+    ? sql`${adminCartItems.status} <> 'ordered' or ${orderedDate} between ${range.start}::date and ${range.end}::date`
+    : undefined;
+
+  const [rows, userRows, yearRows] = await Promise.all([
     db
       .select({
         id: adminCartItems.id,
@@ -35,9 +51,29 @@ export default async function AdminCartPage() {
       .leftJoin(users, eq(adminCartItems.userId, users.id))
       .leftJoin(memberProfiles, eq(adminCartItems.userId, memberProfiles.userId))
       .leftJoin(createdByAdmin, eq(adminCartItems.createdByAdminId, createdByAdmin.id))
+      .where(periodFilter)
       .orderBy(desc(adminCartItems.createdAt))
       .limit(300),
-    db.select({ id: users.id, name: users.name, email: users.email }).from(users).orderBy(users.name).limit(500),
+    // 담을 회원은 업체명으로 찾는다 — 가입 정보(업체명·연락처)를 함께 가져온다
+    db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        orgName: memberProfiles.orgName,
+        phone: memberProfiles.phone,
+      })
+      .from(users)
+      .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+      .orderBy(users.name)
+      .limit(500),
+    // 기간 선택지는 화면에 로드된 행이 아니라 결제된 전체 건에서 뽑는다
+    db
+      .selectDistinct({
+        year: sql<number>`extract(year from (${adminCartItems.orderedAt} at time zone 'Asia/Seoul'))::int`,
+      })
+      .from(adminCartItems)
+      .where(isNotNull(adminCartItems.orderedAt)),
   ]);
 
   const data: AdminCartRow[] = rows.map((r) => ({
@@ -58,7 +94,15 @@ export default async function AdminCartPage() {
     createdAt: r.createdAt.toISOString(),
   }));
 
-  const userOptions: UserOption[] = userRows.map((u) => ({ id: u.id, name: u.name, email: u.email }));
+  const years = yearRows.map((r) => r.year).filter(Boolean).sort((a, b) => b - a);
+
+  const userOptions: UserOption[] = userRows.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    orgName: u.orgName ?? "",
+    phone: u.phone ?? "",
+  }));
 
   return (
     <div>
@@ -66,7 +110,7 @@ export default async function AdminCartPage() {
         title="장바구니 담아주기"
         description="문의로 들어온 보장형·콘텐츠 상품을 회원 장바구니에 바로 넣어 줍니다. 회원은 장바구니에서 결제만 하면 됩니다."
       />
-      <AdminCartClient rows={data} users={userOptions} />
+      <AdminCartClient rows={data} users={userOptions} years={years} period={period} />
     </div>
   );
 }

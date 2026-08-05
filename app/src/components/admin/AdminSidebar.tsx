@@ -33,10 +33,10 @@ const I = {
   back: "M11 16l-4-4m0 0l4-4m-4 4h14M3 12a9 9 0 1118 0 9 9 0 01-18 0z",
 };
 
-// 기획서 구조 그대로 반영
+// 실제로 운영에 쓰는 화면만 둔다 — 업무 단위로 묶어 위에서 아래로 처리 순서를 따른다
 export const NAV_GROUPS: NavGroup[] = [
   {
-    title: "기본",
+    title: "운영",
     items: [
       { href: "/admin", exact: true, label: "대시보드", icon: icon(I.dashboard) },
       { href: "/admin/users", label: "회원관리", icon: icon(I.users) },
@@ -47,37 +47,27 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    // 키워드 추적은 멤버십이 있어야 늘릴 수 있어, 이 화면의 주 업무는 멤버십 관리다
     title: "통합순위관리",
-    items: [{ href: "/admin/rank", label: "키워드 순위", icon: icon(I.rank) }],
+    items: [{ href: "/admin/rank", label: "멤버쉽관리", icon: icon(I.rank) }],
   },
   {
-    title: "리워드마케팅",
+    title: "상품등록",
     items: [
       { href: "/admin/reward/products", label: "리워드 상품등록", icon: icon(I.product) },
-      { href: "/admin/reward/campaigns/place", label: "플레이스 상위노출 관리", icon: icon(I.campaign) },
-      { href: "/admin/reward/campaigns/shopping", label: "쇼핑 상위노출 관리", icon: icon(I.campaign) },
-      { href: "/admin/reward/campaigns/coupang", label: "쿠팡 상위노출 관리", icon: icon(I.campaign) },
-      { href: "/admin/reward/guaranteed", label: "보장형 캠페인 관리", icon: icon(I.guaranteed) },
-    ],
-  },
-  {
-    title: "리뷰/체험단",
-    items: [
       { href: "/admin/review/products", label: "리뷰 상품등록", icon: icon(I.product) },
-      { href: "/admin/review/place", label: "플레이스 리뷰 관리", icon: icon(I.place) },
-      { href: "/admin/review/shopping", label: "쇼핑 리뷰 관리", icon: icon(I.shopping) },
     ],
   },
   {
-    title: "퍼포먼스·바이럴·콘텐츠",
+    title: "보장형/콘텐츠",
     items: [{ href: "/admin/requests", label: "서비스 신청내역", icon: icon(I.request) }],
   },
   {
-    title: "상담·문의",
+    title: "장바구니",
     items: [{ href: "/admin/cart", label: "장바구니 담아주기", icon: icon(I.cart) }],
   },
   {
-    title: "정산",
+    title: "발주",
     items: [{ href: "/admin/purchases", label: "발주 관리", icon: icon(I.settlement) }],
   },
 ];

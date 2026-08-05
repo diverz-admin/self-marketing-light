@@ -21,15 +21,14 @@ import {
   memberProfiles,
   adminCartItems,
   purchaseOrders,
-  rankMemberships,
 } from "@/db/schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createClient } from "@/utils/supabase/server";
 import { BIZ_DOC_BUCKET } from "@/lib/storage";
 import { parseAttachments, type Attachment } from "@/lib/attachments";
-import { ADMIN_CART_PRODUCTS } from "@/lib/admin-cart";
+import { ADMIN_CART_PRODUCTS, ADMIN_CART_TIERS } from "@/lib/admin-cart";
 import { REVIEW_TYPES_BY_CHANNEL, reviewProductDefaults, reviewPriceRowLabel } from "@/lib/admin-format";
 
 type Result = { success: true } | { error: string };
@@ -1450,8 +1449,8 @@ export async function updateServiceRequest(
 export type AdminCartItemInput = {
   userId: string;
   productKey: string;
-  target?: string;
-  note?: string;
+  /** 등급이 있는 상품(콘텐츠 — 이미지 제작 제외)에서만 쓴다 */
+  tier?: string;
   quantity?: string;
   amount?: string;
 };
@@ -1468,6 +1467,12 @@ export async function addAdminCartItem(input: AdminCartItemInput): Promise<Resul
     const product = ADMIN_CART_PRODUCTS.find((p) => p.key === input.productKey);
     if (!product) return { error: "잘못된 상품입니다." };
 
+    // 등급이 나뉘는 상품은 어느 등급인지 없으면 고객이 무엇을 결제하는지 알 수 없다
+    const tier = product.tiered ? input.tier : undefined;
+    if (product.tiered && !ADMIN_CART_TIERS.some((t) => t === tier)) {
+      return { error: "등급을 선택하세요." };
+    }
+
     const quantity = Math.max(1, int(input.quantity, 1) ?? 1);
     const amount = Number(num(input.amount));
     if (!Number.isFinite(amount) || amount <= 0) return { error: "금액을 입력하세요." };
@@ -1476,9 +1481,7 @@ export async function addAdminCartItem(input: AdminCartItemInput): Promise<Resul
       userId: input.userId,
       productKey: product.key,
       // 카탈로그가 바뀌어도 고객이 본 이름은 그대로 남기려고 담을 때 값을 박아 둔다
-      title: product.label,
-      target: orNull(input.target),
-      note: orNull(input.note),
+      title: tier ? `${product.label} ${tier}` : product.label,
       quantity,
       amount: String(amount),
       createdByAdminId: admin.id,
@@ -1641,84 +1644,7 @@ function todayYMD() {
 // 통합순위관리 > 멤버십
 // ============================================================
 
-const MEMBERSHIP_STATUSES = ["active", "expired", "canceled"] as const;
-
-export type MembershipInput = {
-  id?: string;
-  userId: string;
-  /** 사용자가 결제한 날 — 이용 기간의 기준 */
-  paidAt?: string;
-  startDate?: string;
-  /** 비우면 무기한 */
-  endDate?: string;
-  monthlyFee?: string;
-  memo?: string;
-};
-
-/**
- * 멤버십 부여·수정.
- * 회원당 살아 있는 멤버십은 하나여야 하므로, 새로 부여하면 기존 이용중 건은 해지 처리한다.
+/*
+ * 멤버십은 고객이 통합순위 화면에서 보유 포인트로 직접 결제한다 (marketing/actions.ts).
+ * 관리자가 부여·해지하던 기능은 없앴고, 어드민 화면은 현황 조회만 한다.
  */
-export async function upsertRankMembership(input: MembershipInput): Promise<Result> {
-  try {
-    const admin = await requireAdmin();
-    if (!input.userId) return { error: "회원을 선택하세요." };
-
-    const values = {
-      paidAt: orNull(input.paidAt),
-      // 시작일을 안 주면 결제일부터 이용하는 것으로 본다
-      startDate: orNull(input.startDate) ?? orNull(input.paidAt) ?? todayYMD(),
-      endDate: orNull(input.endDate),
-      monthlyFee: num(input.monthlyFee),
-      memo: orNull(input.memo),
-      status: "active" as const,
-      updatedAt: new Date(),
-    };
-
-    if (input.id) {
-      await db.update(rankMemberships).set(values).where(eq(rankMemberships.id, input.id));
-    } else {
-      await db.transaction(async (tx) => {
-        // 같은 회원의 이용중 건을 먼저 접는다 (중복 멤버십 방지)
-        await tx
-          .update(rankMemberships)
-          .set({ status: "canceled", canceledAt: new Date(), updatedAt: new Date() })
-          .where(and(eq(rankMemberships.userId, input.userId), eq(rankMemberships.status, "active")));
-
-        await tx.insert(rankMemberships).values({
-          ...values,
-          userId: input.userId,
-          grantedByAdminId: admin.id,
-        });
-      });
-    }
-
-    revalidatePath("/admin/rank");
-    return ok();
-  } catch (e) {
-    return fail(e, "멤버십 저장 실패");
-  }
-}
-
-/** 멤버십 상태 변경 (해지·복구) */
-export async function setRankMembershipStatus(id: string, status: string): Promise<Result> {
-  try {
-    await requireAdmin();
-    const next = pick(MEMBERSHIP_STATUSES, status);
-    if (!next) return { error: "잘못된 상태입니다." };
-
-    await db
-      .update(rankMemberships)
-      .set({
-        status: next,
-        canceledAt: next === "canceled" ? new Date() : null,
-        updatedAt: new Date(),
-      })
-      .where(eq(rankMemberships.id, id));
-
-    revalidatePath("/admin/rank");
-    return ok();
-  } catch (e) {
-    return fail(e, "멤버십 상태 변경 실패");
-  }
-}

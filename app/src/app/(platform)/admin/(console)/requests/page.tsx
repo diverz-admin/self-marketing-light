@@ -2,9 +2,8 @@ import { db } from "@/db";
 import { serviceRequests, users } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { PageTitle, StatCard } from "@/components/admin/ui";
-import { formatKRW } from "@/lib/admin-format";
-import { parsePeriod, periodRange, periodLabel } from "@/lib/period-filter";
+import { PageTitle } from "@/components/admin/ui";
+import { parsePeriod, periodRange } from "@/lib/period-filter";
 import { RequestsClient, type ServiceRequestRow } from "./RequestsClient";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +27,7 @@ export default async function AdminRequestsPage({
     ? sql`${requestedDate} between ${range.start}::date and ${range.end}::date`
     : undefined;
 
-  const [rows, summaryRow, yearRows] = await Promise.all([
+  const [rows, yearRows] = await Promise.all([
     db
       .select({
         id: serviceRequests.id,
@@ -52,15 +51,6 @@ export default async function AdminRequestsPage({
       .where(periodFilter)
       .orderBy(desc(serviceRequests.createdAt))
       .limit(300),
-    db
-      .select({
-        total: sql<number>`count(*)::int`,
-        requested: sql<number>`count(*) filter (where ${serviceRequests.status} = 'requested')::int`,
-        inProgress: sql<number>`count(*) filter (where ${serviceRequests.status} in ('reviewing','quoted','in_progress'))::int`,
-        quoted: sql<number>`coalesce(sum(${serviceRequests.quotedAmount}) filter (where ${serviceRequests.status} <> 'canceled'), 0)::float`,
-      })
-      .from(serviceRequests)
-      .where(periodFilter),
     // 기간 선택지는 화면에 로드된 행이 아니라 전체 데이터에서 뽑는다
     db
       .selectDistinct({
@@ -69,7 +59,6 @@ export default async function AdminRequestsPage({
       .from(serviceRequests),
   ]);
 
-  const summary = summaryRow[0];
   const years = yearRows.map((r) => r.year).filter(Boolean).sort((a, b) => b - a);
 
   const data: ServiceRequestRow[] = rows.map((r) => ({
@@ -94,15 +83,6 @@ export default async function AdminRequestsPage({
         title="서비스 신청내역"
         description="퍼포먼스 마케팅 · 바이럴 커뮤니티 · 콘텐츠 전 페이지의 신청 건을 한 곳에서 확인합니다."
       />
-
-      {/* 요약 카드도 아래 기간 필터를 따라간다 — 어떤 기간의 숫자인지 함께 적는다 */}
-      <p className="text-[13px] font-semibold text-brand-sub mb-2">{periodLabel(period)} 기준</p>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="전체 신청" value={`${summary?.total ?? 0}건`} tone="blue" />
-        <StatCard label="신규 접수" value={`${summary?.requested ?? 0}건`} tone="amber" />
-        <StatCard label="진행중" value={`${summary?.inProgress ?? 0}건`} tone="green" />
-        <StatCard label="견적 합계" value={formatKRW(summary?.quoted)} tone="purple" />
-      </div>
 
       <RequestsClient rows={data} years={years} period={period} />
     </div>

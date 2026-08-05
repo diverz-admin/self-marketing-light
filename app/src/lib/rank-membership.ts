@@ -11,6 +11,12 @@ export const FREE_KEYWORD_LIMIT = 1;
 /** 멤버십 기간 (개월) — 한 달 단위 결제 */
 export const MEMBERSHIP_MONTHS = 1;
 
+/**
+ * 월 이용료 — 고객이 보유 포인트로 직접 결제한다.
+ * 관리자가 건마다 정하던 값이 아니라 정가라, 서버·화면이 같은 상수를 본다.
+ */
+export const MEMBERSHIP_MONTHLY_FEE = 99_000;
+
 /** 만료 며칠 전부터 연장 안내를 보내는지 */
 export const RENEWAL_NOTICE_DAYS = 3;
 

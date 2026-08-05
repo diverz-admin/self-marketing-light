@@ -4,10 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 import { db } from "@/db";
 import {
   campaigns, campaignExtensions, credits, orders, pointCharges, products, rankKeywords, reviewCampaigns,
-  adminCartItems,
+  adminCartItems, rankMemberships,
 } from "@/db/schema";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import {
+  MEMBERSHIP_MONTHLY_FEE, isMembershipLive, nextExpiry,
+} from "@/lib/rank-membership";
 
 /**
  * 플레이스 상위노출 신청 — 어드민 "리워드 상품등록"의 상품을 그대로 캠페인에 연결한다.
@@ -405,6 +408,87 @@ export async function addRankKeyword(input: {
   } catch (err) {
     console.error("addRankKeyword error:", err);
     return { error: "키워드 등록 중 오류가 발생했습니다." };
+  }
+}
+
+/** 오늘 (KST) — 이용 기간은 날짜 단위라 한국 날짜로 끊는다 */
+const todayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+
+/**
+ * 통합순위관리 멤버십 결제 — 보유 포인트에서 월 이용료를 빼고 그 자리에서 이용을 시작한다.
+ *
+ * 관리자가 부여하던 것을 고객이 직접 결제하는 방식으로 바꿨다.
+ * 이미 이용중이면 새로 시작하지 않고 남은 기간 뒤로 한 달을 붙인다(연장).
+ */
+export async function purchaseRankMembership(): Promise<
+  { error: string } | { success: true; endDate: string; extended: boolean }
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const today = todayKST();
+
+  try {
+    const [current] = await db
+      .select()
+      .from(rankMemberships)
+      .where(eq(rankMemberships.userId, user.id))
+      .orderBy(desc(rankMemberships.createdAt))
+      .limit(1);
+
+    const live = isMembershipLive(
+      current ? { status: current.status, endDate: current.endDate } : null,
+      today,
+    );
+    // 무기한 건은 붙일 자리가 없다 (관리자가 예전에 넣어 둔 건)
+    if (live && !current.endDate) return { error: "이미 기간 제한 없이 이용 중입니다." };
+
+    const [balanceRow] = await db
+      .select({ balance: sql<number>`coalesce(sum(${credits.delta}), 0)::float` })
+      .from(credits)
+      .where(eq(credits.userId, user.id));
+
+    if ((balanceRow?.balance ?? 0) < MEMBERSHIP_MONTHLY_FEE) {
+      return { error: "보유 포인트가 부족합니다. 포인트를 충전해주세요." };
+    }
+
+    // 이용중이면 남은 기간이 끝난 다음부터, 아니면 오늘부터 한 달
+    const base = live ? current.endDate! : today;
+    const endDate = nextExpiry(base);
+
+    await db.transaction(async (tx) => {
+      await tx.insert(credits).values({
+        userId: user.id,
+        delta: String(-MEMBERSHIP_MONTHLY_FEE),
+        reason: live ? "통합순위관리 멤버십 연장" : "통합순위관리 멤버십",
+      });
+
+      if (live) {
+        await tx
+          .update(rankMemberships)
+          .set({ endDate, paidAt: today, updatedAt: new Date() })
+          .where(eq(rankMemberships.id, current.id));
+      } else {
+        await tx.insert(rankMemberships).values({
+          userId: user.id,
+          status: "active",
+          paidAt: today,
+          startDate: today,
+          endDate,
+          monthlyFee: String(MEMBERSHIP_MONTHLY_FEE),
+        });
+      }
+    });
+
+    revalidatePath("/marketing/rank");
+    revalidatePath("/admin/rank");
+    return { success: true, endDate, extended: live };
+  } catch (err) {
+    console.error("purchaseRankMembership error:", err);
+    return { error: "멤버십 결제 중 오류가 발생했습니다." };
   }
 }
 

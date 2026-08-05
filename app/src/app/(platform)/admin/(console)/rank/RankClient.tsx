@@ -8,13 +8,12 @@ import {
 import { PricingPanel, type PricingRuleRow } from "@/components/admin/PricingPanel";
 import { formatKRW, formatDate, formatDateTime, rankPlatformMeta, rankDelta } from "@/lib/admin-format";
 import {
-  FREE_KEYWORD_LIMIT, MEMBERSHIP_STATUS_META, RENEWAL_NOTICE_DAYS, nextExpiry,
+  FREE_KEYWORD_LIMIT, MEMBERSHIP_MONTHLY_FEE, MEMBERSHIP_STATUS_META, RENEWAL_NOTICE_DAYS,
   type MembershipView,
 } from "@/lib/rank-membership";
 import {
   upsertRankKeyword, setKeywordBilling, updateKeywordRank, toggleKeywordActive, deleteRankKeyword,
-  upsertRankMembership, setRankMembershipStatus,
-  type RankKeywordInput, type MembershipInput,
+  type RankKeywordInput,
 } from "../actions";
 
 export type RankKeywordRow = {
@@ -95,7 +94,6 @@ export function RankClient({
   const [view, setView] = useState("members");
   const [memberFilter, setMemberFilter] = useState("all");
   const [memberQuery, setMemberQuery] = useState("");
-  const [membershipTarget, setMembershipTarget] = useState<MemberRow | null>(null);
   const [platform, setPlatform] = useState("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<RankKeywordRow | "new" | null>(null);
@@ -205,7 +203,6 @@ export function RankClient({
           filter={memberFilter}
           onFilter={setMemberFilter}
           counts={memberCounts}
-          onGrant={(m) => setMembershipTarget(m)}
         />
       ) : view === "pricing" ? (
         <PricingPanel
@@ -328,9 +325,6 @@ export function RankClient({
         <KeywordModal keyword={editing === "new" ? null : editing} users={users} onClose={() => setEditing(null)} />
       )}
       {billingTarget && <BillingModal keyword={billingTarget} onClose={() => setBillingTarget(null)} />}
-      {membershipTarget && (
-        <MembershipModal member={membershipTarget} onClose={() => setMembershipTarget(null)} />
-      )}
     </div>
   );
 }
@@ -478,13 +472,11 @@ function MembersPanel({
   filter,
   onFilter,
   counts,
-  onGrant,
 }: {
   members: MemberRow[];
   filter: string;
   onFilter: (key: string) => void;
   counts: Record<string, number>;
-  onGrant: (m: MemberRow) => void;
 }) {
   return (
     <Card className="overflow-hidden p-0">
@@ -503,6 +495,11 @@ function MembersPanel({
             <span className="ml-1.5 tabular-nums opacity-70">{counts[f.key] ?? 0}</span>
           </button>
         ))}
+        {/* 부여 버튼이 없는 이유를 화면에 적어 둔다 — 결제는 고객이 직접 한다 */}
+        <span className="ml-auto text-[12.5px] text-brand-muted">
+          멤버십은 고객이 포인트로 직접 결제합니다 · 월{" "}
+          <span className="font-bold text-brand-dark">{formatKRW(MEMBERSHIP_MONTHLY_FEE)}</span>
+        </span>
       </div>
 
       {/* 만료 3일 전 회원 — 연장 안내를 보내야 하는 대상 */}
@@ -533,12 +530,11 @@ function MembersPanel({
                 <Th>결제일</Th>
                 <Th>이용 기간</Th>
                 <Th className="text-right">월 요금</Th>
-                <Th className="text-center">처리</Th>
               </>
             }
           >
             {members.map((m) => (
-              <MemberRowView key={m.userId} member={m} onGrant={() => onGrant(m)} />
+              <MemberRowView key={m.userId} member={m} />
             ))}
           </TableShell>
           <div className="px-5 py-3 border-t border-brand-border text-[12.5px] text-brand-muted">
@@ -552,17 +548,10 @@ function MembersPanel({
   );
 }
 
-function MemberRowView({ member, onGrant }: { member: MemberRow; onGrant: () => void }) {
+// 멤버십은 고객이 포인트로 직접 결제한다 — 어드민에서는 손대지 않고 현황만 본다
+function MemberRowView({ member }: { member: MemberRow }) {
   const m = member.membership;
   const meta = m ? MEMBERSHIP_STATUS_META[m.status] : null;
-  const [pending, startTransition] = useTransition();
-
-  const cancel = () => {
-    if (!m) return;
-    startTransition(async () => {
-      await setRankMembershipStatus(m.id, "canceled");
-    });
-  };
 
   return (
     <tr
@@ -631,117 +620,6 @@ function MemberRowView({ member, onGrant }: { member: MemberRow; onGrant: () => 
       <Td className="text-right tabular-nums text-brand-dark">
         {m ? formatKRW(m.monthlyFee) : <span className="text-brand-muted">-</span>}
       </Td>
-      <Td className="text-center">
-        <div className="flex items-center justify-center gap-1.5">
-          <Button size="sm" variant={member.live ? "secondary" : "primary"} onClick={onGrant}>
-            {member.live ? "수정" : "멤버십 부여"}
-          </Button>
-          {member.live && (
-            <Button size="sm" variant="danger" disabled={pending} onClick={cancel}>
-              해지
-            </Button>
-          )}
-        </div>
-      </Td>
     </tr>
   );
-}
-
-/** 멤버십 부여·수정 — 이용중인 동안 키워드 개수 제한이 없어진다 */
-function MembershipModal({ member, onClose }: { member: MemberRow; onClose: () => void }) {
-  const m = member.membership;
-  const [form, setForm] = useState<MembershipInput>({
-    id: member.live && m ? m.id : undefined,
-    userId: member.userId,
-    paidAt: member.live && m ? (m.paidAt ?? "") : todayInput(),
-    startDate: member.live && m ? m.startDate : todayInput(),
-    // 새로 부여할 때는 오늘 결제 + 한 달 뒤 만료가 기본값
-    endDate: member.live && m ? (m.endDate ?? "") : nextExpiry(todayInput()),
-    monthlyFee: member.live && m ? String(m.monthlyFee) : "",
-    memo: member.live && m ? (m.memo ?? "") : "",
-  });
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
-
-  const set = <K extends keyof MembershipInput>(key: K, value: MembershipInput[K]) =>
-    setForm((f) => ({ ...f, [key]: value }));
-
-  /** 결제일을 바꾸면 이용 기간(결제일 ~ 한 달 뒤)을 같이 채운다 */
-  const setPaidAt = (value: string) =>
-    setForm((f) => ({
-      ...f,
-      paidAt: value,
-      startDate: value || f.startDate,
-      endDate: value ? nextExpiry(value) : f.endDate,
-    }));
-
-  const submit = () => {
-    setError(null);
-    startTransition(async () => {
-      const res = await upsertRankMembership(form);
-      if ("error" in res) {
-        setError(res.error);
-        return;
-      }
-      onClose();
-    });
-  };
-
-  return (
-    <Modal
-      title={member.live ? "멤버십 수정" : "멤버십 부여"}
-      description={`${member.orgName ?? member.userName} — 이용중인 동안 키워드를 제한 없이 등록할 수 있습니다`}
-      onClose={onClose}
-      width="max-w-[520px]"
-      footer={<ModalFooter onClose={onClose} onSubmit={submit} pending={pending} />}
-    >
-      <div className="rounded-xl border border-brand-border bg-brand-light/60 p-4 text-[13px]">
-        <div className="flex justify-between">
-          <span className="text-brand-muted">현재 키워드</span>
-          <span className="font-semibold text-brand-dark tabular-nums">
-            {member.keywordCount}개
-            {member.overLimit > 0 && (
-              <span className="ml-1 text-red-500">({member.overLimit}개 추적 중지)</span>
-            )}
-          </span>
-        </div>
-      </div>
-
-      {/* 결제일을 넣으면 이용 기간을 결제일 기준 한 달로 채워 준다 (이후 직접 수정 가능) */}
-      <Field label="결제일" hint="한 달 단위 결제 — 이용 기간이 자동으로 채워집니다">
-        <Input type="date" value={form.paidAt} onChange={(e) => setPaidAt(e.target.value)} />
-      </Field>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="이용 시작일">
-          <Input type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
-        </Field>
-        <Field label="이용 종료일" hint="비우면 무기한">
-          <Input type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
-        </Field>
-      </div>
-
-      <Field label="월 요금 (원)">
-        <Input
-          value={form.monthlyFee}
-          onChange={(e) => set("monthlyFee", e.target.value)}
-          inputMode="numeric"
-          placeholder="0"
-        />
-      </Field>
-
-      <Field label="메모">
-        <Input value={form.memo} onChange={(e) => set("memo", e.target.value)} placeholder="결제 방식 · 특이사항" />
-      </Field>
-
-      {error && <Notice ok={false}>{error}</Notice>}
-    </Modal>
-  );
-}
-
-/** 오늘 (YYYY-MM-DD) — 결제일 기본값 */
-function todayInput() {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
