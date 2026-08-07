@@ -11,7 +11,7 @@ import {
   PURCHASE_SOURCES, purchaseSourceLabel, sourceBadgeLabel, matchesTab, type PurchaseTarget,
 } from "@/lib/purchase-source";
 import {
-  upsertPurchaseOrder, deletePurchaseOrder, completePurchaseOrder,
+  upsertPurchaseOrder, deletePurchaseOrder, completePurchaseOrder, completePurchaseOrders,
   type PurchaseOrderInput,
 } from "../actions";
 
@@ -263,6 +263,10 @@ export function PurchasesClient({
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [editing, setEditing] = useState<{ line: PurchaseLine; purchaseId?: string } | null>(null);
+  // 여러 건을 골라 한 번에 발주 완료 처리한다 (sourceId 로 담는다 — 신청 건마다 유일하다)
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkMsg, setBulkMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [bulking, startBulk] = useTransition();
 
   const linesOfTab = useCallback(
     (key: string) => {
@@ -346,22 +350,96 @@ export function PurchasesClient({
   // 전체 탭은 구분 열이 필요하지만 상품 탭에서는 뻔한 값이라 뺀다
   const columns = TAB_COLUMNS[source] ?? (source === "all" ? DEFAULT_COLUMNS : PRODUCT_TAB_COLUMNS);
 
-  /** 지금 보고 있는 목록을 그대로 엑셀로 — 업체에 넘길 발주 파일 */
+  // 이미 발주가 걸린 건은 고를 수 없다 — 원클릭 발주는 첫 발주를 남기는 용도다
+  const selectable = useMemo(() => filtered.filter((l) => l.purchases.length === 0), [filtered]);
+  /**
+   * 실제로 처리할 건 = 지금 화면에 보이는 것 중 고른 것.
+   *
+   * 검색어나 기간을 좁히면 골라 둔 건이 화면에서 사라질 수 있는데,
+   * 그때 안 보이는 건까지 같이 발주되면 곤란하다.
+   */
+  const pickedLines = useMemo(
+    () => selectable.filter((l) => selected.has(l.sourceId)),
+    [selectable, selected],
+  );
+  const allPicked = selectable.length > 0 && pickedLines.length === selectable.length;
+
+  const toggleOne = (sourceId: string) => {
+    setBulkMsg(null);
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(sourceId)) next.add(sourceId);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setBulkMsg(null);
+    setSelected(allPicked ? new Set() : new Set(selectable.map((l) => l.sourceId)));
+  };
+
+  /** 고른 건을 한 번에 발주 완료 — 발주처·매입가는 나중에 수정에서 채운다 */
+  const completeSelected = () => {
+    if (!pickedLines.length) return;
+    setBulkMsg(null);
+    startBulk(async () => {
+      const res = await completePurchaseOrders(
+        pickedLines.map((l) => ({
+          sourceType: l.sourceType,
+          sourceId: l.sourceId,
+          title: `${l.productName} · ${l.targetName}`,
+          quantity: l.quantity,
+        })),
+      );
+      if ("error" in res) {
+        setBulkMsg({ ok: false, text: res.error });
+        return;
+      }
+      setSelected(new Set());
+      setBulkMsg({
+        ok: true,
+        text:
+          res.skipped > 0
+            ? `${res.created}건 발주 완료 처리했습니다. (이미 발주된 ${res.skipped}건은 건너뜀)`
+            : `${res.created}건 발주 완료 처리했습니다.`,
+      });
+    });
+  };
+
+  /**
+   * 업체에 넘길 발주 파일.
+   *
+   * 고른 건이 있으면 그것만, 없으면 지금 보고 있는 목록을 그대로 담는다.
+   * 업체마다 나눠 넘기는 경우가 있어 목록 전체가 아니라 고른 건만 뽑을 수 있어야 한다.
+   */
   const exportRows = () => {
     const build = EXPORT_COLUMNS[source] ?? defaultExportRow;
     const name = source === "all" ? "전체" : (purchaseSourceLabel[source] ?? source);
-    exportToExcel({ fileName: `발주_${name}`, rows: filtered.map(build) });
+    const rows = pickedLines.length ? pickedLines : filtered;
+    const suffix = pickedLines.length ? `_선택${pickedLines.length}건` : "";
+    exportToExcel({ fileName: `발주_${name}${suffix}`, rows: rows.map(build) });
   };
 
   /** 탭·필터를 바꾸면 기간 조건은 초기화한다 (안 보이는 조건이 걸려 있으면 헷갈린다) */
   const changeProgress = (key: string) => {
     setProgress(key);
+    clearSelection();
     if (key !== "done") {
       setYear("");
       setMonth("");
       setDay("");
     }
   };
+
+  const changeSource = (key: string) => {
+    setSource(key);
+    clearSelection();
+  };
+
+  function clearSelection() {
+    setSelected(new Set());
+    setBulkMsg(null);
+  }
 
   return (
     <div className="space-y-4">
@@ -388,14 +466,14 @@ export function PurchasesClient({
         />
       </div>
 
-      {/* 상품마다 신청 데이터가 다르므로 탭으로 나눠 본다 */}
+      {/* 상품마다 신청 데이터가 다르므로 탭으로 나눠 본다 (전체는 관리용이라 맨 뒤) */}
       <Tabs
         tabs={[
-          { key: "all", label: "전체", count: sourceCount("all") },
           ...PURCHASE_SOURCES.map((s) => ({ key: s.key, label: s.label, count: sourceCount(s.key) })),
+          { key: "all", label: "전체", count: sourceCount("all") },
         ]}
         value={source}
-        onChange={setSource}
+        onChange={changeSource}
       />
 
       <Card className="overflow-hidden p-0">
@@ -423,6 +501,11 @@ export function PurchasesClient({
             ))}
           </div>
           <div className="flex items-center gap-2">
+            {pickedLines.length > 0 && (
+              <Button disabled={bulking} onClick={completeSelected}>
+                {bulking ? "처리 중..." : `선택한 ${pickedLines.length}건 발주 완료`}
+              </Button>
+            )}
             <SearchInput
               value={query}
               onChange={setQuery}
@@ -431,11 +514,17 @@ export function PurchasesClient({
             />
             {filtered.length > 0 && (
               <Button variant="secondary" onClick={exportRows}>
-                엑셀 내보내기
+                {pickedLines.length ? `선택한 ${pickedLines.length}건 엑셀 내보내기` : "엑셀 내보내기"}
               </Button>
             )}
           </div>
         </div>
+
+        {bulkMsg && (
+          <div className="px-5 py-3 border-b border-brand-border bg-brand-light/60">
+            <Notice ok={bulkMsg.ok}>{bulkMsg.text}</Notice>
+          </div>
+        )}
 
         {/* 발주 완료는 계속 쌓이므로 발주일로 좁혀 본다 */}
         {progress === "done" && (
@@ -503,6 +592,21 @@ export function PurchasesClient({
             <TableShell
               head={
                 <>
+                  <Th className="w-10">
+                    {/* 발주가 안 걸린 건이 있을 때만 전체 선택이 의미가 있다 */}
+                    {selectable.length > 0 && (
+                      <input
+                        type="checkbox"
+                        aria-label="발주 필요 건 전체 선택"
+                        className="size-4 align-middle accent-brand-primary cursor-pointer"
+                        checked={allPicked}
+                        ref={(el) => {
+                          if (el) el.indeterminate = pickedLines.length > 0 && !allPicked;
+                        }}
+                        onChange={toggleAll}
+                      />
+                    )}
+                  </Th>
                   {columns.map((c) => (
                     <Th key={c} className={COLUMN_HEAD[c].className}>
                       {c === "link" ? (LINK_LABEL[source] ?? COLUMN_HEAD[c].label) : COLUMN_HEAD[c].label}
@@ -518,6 +622,8 @@ export function PurchasesClient({
                   key={l.sourceId}
                   line={l}
                   columns={columns}
+                  picked={selected.has(l.sourceId)}
+                  onPick={() => toggleOne(l.sourceId)}
                   onEdit={(purchaseId) => setEditing({ line: l, purchaseId })}
                 />
               ))}
@@ -545,10 +651,14 @@ export function PurchasesClient({
 function LineRow({
   line,
   columns,
+  picked,
+  onPick,
   onEdit,
 }: {
   line: PurchaseLine;
   columns: ColumnKey[];
+  picked: boolean;
+  onPick: () => void;
   /** 발주가 있으면 그 건을 수정한다 */
   onEdit: (purchaseId?: string) => void;
 }) {
@@ -778,6 +888,19 @@ function LineRow({
         hasPurchase ? "" : "[&>td:first-child]:border-l-[3px] [&>td:first-child]:border-amber-400"
       }`}
     >
+      {/* 이미 발주가 걸린 줄은 고를 게 없어 칸만 비워 둔다 (헤더와 칸 수를 맞춘다) */}
+      <Td>
+        {!hasPurchase && (
+          <input
+            type="checkbox"
+            aria-label={`${line.advertiser} · ${line.targetName} 선택`}
+            className="size-4 align-middle accent-brand-primary cursor-pointer"
+            checked={picked}
+            onChange={onPick}
+          />
+        )}
+      </Td>
+
       {columns.map(cell)}
 
       <Td>

@@ -22,7 +22,7 @@ import {
   adminCartItems,
   purchaseOrders,
 } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createClient } from "@/utils/supabase/server";
@@ -1591,34 +1591,93 @@ export async function upsertPurchaseOrder(input: PurchaseOrderInput): Promise<Re
  * 엑셀을 뽑아 업체에 넘긴 뒤 "보냈다"는 사실만 빠르게 남기는 용도다.
  * 발주처·매입가는 이 시점에 모르는 경우가 많아 비워 두고, 나중에 수정에서 채운다.
  * (매입가가 0이라 원가·마진 집계에는 잡히지 않는다)
+ *
+ * 이미 발주가 걸린 건은 그냥 넘긴다. 화면에서는 발주가 생기면 버튼이 "수정"으로 바뀌지만,
+ * 오래 열어 둔 탭이나 뒤로가기로 돌아온 화면은 아직 옛 상태라 버튼이 한 번 더 눌릴 수 있다.
+ * 그때마다 행이 쌓이면 발주 현황에 같은 뱃지가 여러 개 붙는다.
+ * (업체를 나눠 발주하는 건 수정 모달의 upsertPurchaseOrder 쪽 몫이라 그대로 둔다)
  */
-export async function completePurchaseOrder(input: {
+export async function completePurchaseOrder(input: PurchaseCompleteInput): Promise<Result> {
+  const res = await completePurchaseOrders([input]);
+  return "error" in res ? res : ok();
+}
+
+export type PurchaseCompleteInput = {
   sourceType: string;
   sourceId: string;
   title: string;
   quantity?: number;
-}): Promise<Result> {
+};
+
+/** 몇 건을 넣었고 몇 건이 이미 발주된 건이라 넘어갔는지 화면에 알려 준다 */
+type BulkCompleteResult = { success: true; created: number; skipped: number } | { error: string };
+
+/**
+ * 여러 건을 한 번에 발주 완료 처리한다.
+ *
+ * 목록에서 체크한 건을 묶어 넘긴다. 건마다 서버 요청을 보내면 느린 데다,
+ * 중간에 실패하면 어디까지 처리됐는지 알 수 없어 한 번에 받는다.
+ */
+export async function completePurchaseOrders(
+  items: PurchaseCompleteInput[],
+): Promise<BulkCompleteResult> {
   try {
     const admin = await requireAdmin();
-    const sourceType = pick(PURCHASE_SOURCE_TYPES, input.sourceType) ?? "etc";
-    if (!input.sourceId) return { error: "대상을 찾을 수 없습니다." };
 
-    await db.insert(purchaseOrders).values({
-      sourceType,
-      sourceId: input.sourceId,
-      vendorName: "미지정",
-      title: input.title.trim() || "발주",
-      quantity: Math.max(1, input.quantity ?? 1),
-      purchaseAmount: "0",
-      status: "ordered",
-      orderedAt: todayYMD(),
-      createdByAdminId: admin.id,
-    });
+    const targets = items
+      .filter((i) => i.sourceId)
+      .map((i) => ({
+        sourceType: pick(PURCHASE_SOURCE_TYPES, i.sourceType) ?? "etc",
+        sourceId: i.sourceId,
+        title: i.title.trim() || "발주",
+        quantity: Math.max(1, i.quantity ?? 1),
+      }));
+    if (!targets.length) return { error: "대상을 찾을 수 없습니다." };
+
+    // 이미 걸린 발주를 한 번에 조회한다 — 건마다 조회하면 요청 수가 선택 건수만큼 늘어난다
+    const rows = await db
+      .select({ sourceType: purchaseOrders.sourceType, sourceId: purchaseOrders.sourceId })
+      .from(purchaseOrders)
+      .where(
+        and(
+          inArray(
+            purchaseOrders.sourceId,
+            targets.map((t) => t.sourceId),
+          ),
+          ne(purchaseOrders.status, "canceled"),
+        ),
+      );
+    // 발주 테이블은 종류 + id 로 대상을 가리키므로 둘을 붙여야 같은 건인지 알 수 있다
+    const taken = new Set(rows.map((r) => `${r.sourceType}:${r.sourceId}`));
+
+    const fresh: typeof targets = [];
+    for (const t of targets) {
+      const key = `${t.sourceType}:${t.sourceId}`;
+      if (taken.has(key)) continue;
+      taken.add(key); // 화면에서 같은 건이 두 번 넘어와도 한 번만 넣는다
+      fresh.push(t);
+    }
+
+    if (fresh.length) {
+      await db.insert(purchaseOrders).values(
+        fresh.map((t) => ({
+          sourceType: t.sourceType,
+          sourceId: t.sourceId,
+          vendorName: "미지정",
+          title: t.title,
+          quantity: t.quantity,
+          purchaseAmount: "0",
+          status: "ordered" as const,
+          orderedAt: todayYMD(),
+          createdByAdminId: admin.id,
+        })),
+      );
+    }
 
     revalidatePath("/admin/purchases");
-    return ok();
+    return { success: true, created: fresh.length, skipped: targets.length - fresh.length };
   } catch (e) {
-    return fail(e, "발주 완료 처리 실패");
+    return { error: e instanceof Error ? e.message : "발주 완료 처리 실패" };
   }
 }
 
