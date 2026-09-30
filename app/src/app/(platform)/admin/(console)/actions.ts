@@ -25,6 +25,7 @@ import {
 import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
+import { grantCredit, revokeCredit } from "@/lib/points";
 import { createClient } from "@/utils/supabase/server";
 import { BIZ_DOC_BUCKET } from "@/lib/storage";
 import { parseAttachments, type Attachment } from "@/lib/attachments";
@@ -102,16 +103,30 @@ export async function setUserRole(userId: string, role: string): Promise<Result>
   }
 }
 
-export async function adjustCredit(userId: string, delta: number, reason: string): Promise<Result> {
+/**
+ * 관리자 포인트 조정.
+ *
+ * kind — PT-01 무상/유상 구분. 보너스성 지급은 "free" 로 넣어야 환불 대상에서 빠진다.
+ * 입금 확인 누락분을 뒤늦게 채워 주는 경우처럼 실제로 돈을 받은 건만 "paid" 다.
+ * AU-04 재량 항목이므로 사유가 비어 있으면 저장하지 않는다.
+ */
+export async function adjustCredit(
+  userId: string,
+  delta: number,
+  reason: string,
+  kind: "paid" | "free" = "free",
+): Promise<Result> {
   try {
     await requireAdmin();
     if (!Number.isFinite(delta) || delta === 0) return { error: "0이 아닌 금액을 입력하세요." };
+    if (!reason?.trim()) return { error: "조정 사유를 입력하세요." };
     await db.transaction(async (tx) => {
-      await tx.insert(credits).values({ userId, delta: String(delta), reason: reason || "관리자 조정" });
-      await tx
-        .update(users)
-        .set({ creditBalance: sql`${users.creditBalance} + ${delta}`, updatedAt: new Date() })
-        .where(eq(users.id, userId));
+      if (delta > 0) {
+        await grantCredit(tx, kind, { userId, amount: delta, reason });
+      } else {
+        // 회수는 준 것과 같은 종류에서 뺀다 (고객이 쓴 차감이 아니다)
+        await revokeCredit(tx, kind, { userId, amount: -delta, reason });
+      }
     });
     revalidatePath("/admin/users");
     revalidatePath("/admin/points");
@@ -306,30 +321,38 @@ export async function setPointChargeStatus(
       const willApprove = next === "approved";
 
       // 승인 전환 → 지급 / 승인 취소 전환 → 회수
+      //
+      // PT-01 충전액(유상)과 보너스(무상)는 원장에서 분리한다. 한 줄로 합쳐 적으면
+      // 나중에 환불 가능액을 계산할 때 보너스까지 환불 대상으로 잡힌다.
+      const paid = Number(charge.amount);
+      const bonus = Number(charge.bonusAmount);
+
       if (willApprove && !wasApproved) {
-        const total = Number(charge.amount) + Number(charge.bonusAmount);
-        await tx.insert(credits).values({
+        await grantCredit(tx, "paid", {
           userId: charge.userId,
-          delta: String(total),
+          amount: paid,
           reason: "포인트 충전 승인",
           refId: charge.id,
         });
-        await tx
-          .update(users)
-          .set({ creditBalance: sql`${users.creditBalance} + ${total}`, updatedAt: new Date() })
-          .where(eq(users.id, charge.userId));
-      } else if (wasApproved && !willApprove) {
-        const total = Number(charge.amount) + Number(charge.bonusAmount);
-        await tx.insert(credits).values({
+        await grantCredit(tx, "free", {
           userId: charge.userId,
-          delta: String(-total),
+          amount: bonus,
+          reason: "포인트 충전 보너스",
+          refId: charge.id,
+        });
+      } else if (wasApproved && !willApprove) {
+        await revokeCredit(tx, "free", {
+          userId: charge.userId,
+          amount: bonus,
+          reason: "포인트 충전 보너스 회수",
+          refId: charge.id,
+        });
+        await revokeCredit(tx, "paid", {
+          userId: charge.userId,
+          amount: paid,
           reason: "포인트 충전 승인 취소",
           refId: charge.id,
         });
-        await tx
-          .update(users)
-          .set({ creditBalance: sql`${users.creditBalance} - ${total}`, updatedAt: new Date() })
-          .where(eq(users.id, charge.userId));
       }
 
       await tx
@@ -977,7 +1000,6 @@ export async function saveReviewPrice(input: ReviewPriceInput): Promise<Result> 
     // 고객 신청 화면은 이 가격을 그대로 보여준다
     revalidatePath("/marketing/review/place/blog-reporter");
     revalidatePath("/marketing/review/place/receipt");
-    revalidatePath("/marketing/review/shopping/product-experience");
     return ok();
   } catch (e) {
     return fail(e, "건별 가격 저장 실패");

@@ -1,16 +1,24 @@
 "use client";
 
 import React, { Fragment, useEffect, useRef, useState } from "react";
+import { useItemGroups, groupItems } from "@/lib/item-groups";
+import { ItemGroupBar, ItemGroupHeaderRow, ItemGroupPicker } from "@/components/marketing/ItemGroupBar";
 import Link from "next/link";
 import { PeriodRankChart } from "@/components/marketing/RankManagement";
 import PageHeader from "@/components/marketing/PageHeader";
+import {
+  StatusFilterCards, PeriodFilter, usePeriodFilter, ManageListHeader,
+  StatusDot, NameChip, type StatusKey, type StatusLabels,
+} from "@/components/marketing/manage-ui";
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  running: { label: "진행중", bg: "bg-green-50", text: "text-green-600" },
-  pending: { label: "대기중", bg: "bg-amber-50", text: "text-amber-600" },
-  done: { label: "보장완료", bg: "bg-blue-50", text: "text-blue-500" },
-};
+/** 이 화면에서 done 은 "보장완료"로 읽는다 */
+const GUAR_LABELS: StatusLabels = { all: "전체 보장 캠페인", done: "보장완료" };
+const GUAR_PILL_LABELS: StatusLabels = { done: "보장완료" };
 
+/*
+ * 예시 데이터라 기준 날짜를 new Date() 로 잡으면 서버·클라이언트 렌더가 갈리고,
+ * 날이 바뀔 때마다 기간 칩 결과도 달라진다. 자료에 있는 가장 늦은 날을 오늘로 본다.
+ */
 const GUARANTEED_TOTAL_DAYS = 25;
 const THRESHOLD = 5; // 보장 순위 (1~5위 유지 시 카운트)
 
@@ -83,6 +91,9 @@ const MOCK_CAMPAIGNS = [
   },
 ];
 
+/** 예시 자료의 가장 늦은 날 = 이 화면의 "오늘" */
+const TODAY = MOCK_CAMPAIGNS.map((c) => c.endDate).sort().slice(-1)[0];
+
 /* 보장형 순위 이력 생성
    - 초반 진입(startRank → top5) 후 1~5위 유지, 중간중간 5순위 이탈(정지)일 포함
    - 이탈일은 카운트되지 않으므로 총 일수(days)가 보장 카운트일(25)보다 길어짐 */
@@ -118,7 +129,7 @@ const GUARANTEED_RANK_HISTORY: Record<string, { date: string; rank: number }[]> 
   "6": makeGHistory(8, 30, 2026, 3, 30),  // 완료 · 04월
 };
 
-const CHART_COLORS = ["#0D3473", "#0D3473", "#8B5CF6", "#F97316"];
+const CHART_COLORS = ["#2452EB", "#2452EB", "#8B5CF6", "#F97316"];
 
 function countedDaysOf(id: string) {
   const h = GUARANTEED_RANK_HISTORY[id];
@@ -159,7 +170,7 @@ function GuaranteedRankChart({ campaign, color }: {
         <div>
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             <p className="text-[15px] font-extrabold text-brand-dark leading-tight">{campaign.placeName}</p>
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-brand-primary-50 text-brand-primary border border-[#C4CEE6] shrink-0">
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-brand-primary-50 text-brand-primary border border-[#BFCCFA] shrink-0">
               보장형
             </span>
           </div>
@@ -172,7 +183,7 @@ function GuaranteedRankChart({ campaign, color }: {
         </div>
 
         {/* 보장 카운트 */}
-        <div className="p-2.5 rounded-xl bg-brand-primary-50 border border-[#C4CEE6]">
+        <div className="p-2.5 rounded-xl bg-brand-primary-50 border border-[#BFCCFA]">
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1">
               <svg className="w-3 h-3 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -206,7 +217,7 @@ function GuaranteedRankChart({ campaign, color }: {
               <p className="text-[11px] font-bold text-brand-muted mb-0.5">최초 순위</p>
               <p className="text-[26px] font-extrabold text-brand-muted leading-none">{firstRank}<span className="text-[12px] font-medium ml-0.5">위</span></p>
             </div>
-            <svg className={`w-4 h-4 mb-1.5 shrink-0 ${improved ? "text-[#0D3473]" : "text-red-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className={`w-4 h-4 mb-1.5 shrink-0 ${improved ? "text-[#2452EB]" : "text-red-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m0 0l-6-6m6 6l-6 6" />
             </svg>
             <div>
@@ -214,7 +225,7 @@ function GuaranteedRankChart({ campaign, color }: {
               <p className="text-[30px] font-extrabold text-brand-dark leading-none">{latestRank}<span className="text-[12px] font-medium text-brand-muted ml-0.5">위</span></p>
             </div>
           </div>
-          <p className={`text-[12px] font-bold mt-2 flex items-center gap-0.5 ${improved ? "text-[#0D3473]" : "text-red-400"}`}>
+          <p className={`text-[12px] font-bold mt-2 flex items-center gap-0.5 ${improved ? "text-[#2452EB]" : "text-red-400"}`}>
             {improved
               ? <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
               : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
@@ -332,7 +343,7 @@ function ExtendModal({ campaign, onClose, onConfirm }: {
                 </p>
               </div>
 
-              <div className="rounded-xl bg-brand-primary-50 border border-[#C4CEE6] p-4">
+              <div className="rounded-xl bg-brand-primary-50 border border-[#BFCCFA] p-4">
                 <div className="flex items-center justify-between text-[13px] text-brand-sub mb-2">
                   <span>{dailyQty.toLocaleString()}건 × {days}일 × {unitPrice.toLocaleString()}원</span>
                 </div>
@@ -376,52 +387,32 @@ function ExtendModal({ campaign, onClose, onConfirm }: {
   );
 }
 
-const FILTER_OPTIONS = ["진행중", "대기중", "보장완료", "전체"];
-
-const STATUS_KEY: Record<string, string> = {
-  "전체": "all",
-  "진행중": "running",
-  "대기중": "pending",
-  "보장완료": "done",
-};
-
 export default function GuaranteedManagePage() {
-  const [filter, setFilter] = useState("진행중");
+  const grp = useItemGroups("reward-guaranteed");
+  const [pickGroupId, setPickGroupId] = useState<number | null>(null);
+  const [status, setStatus] = useState<StatusKey>("all");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
+  const [campaigns] = useState(MOCK_CAMPAIGNS);
   const [extendTarget, setExtendTarget] = useState<typeof MOCK_CAMPAIGNS[number] | null>(null);
 
-  // 보장완료 캠페인 연/월 조회
-  const doneDatesInit = MOCK_CAMPAIGNS.filter((c) => c.status === "done").map((c) => c.endDate).sort();
-  const latestDone = doneDatesInit[doneDatesInit.length - 1] ?? "2026-06-01";
-  const [doneYear, setDoneYear] = useState<number>(Number(latestDone.slice(0, 4)));
-  const [doneMonth, setDoneMonth] = useState<number>(Number(latestDone.slice(5, 7)));
+  const period = usePeriodFilter(TODAY, "3m");
 
-  const doneYears = Array.from(
-    new Set(campaigns.filter((c) => c.status === "done").map((c) => Number(c.endDate.slice(0, 4))))
-  ).sort((a, b) => b - a);
-  const doneMonthsForYear = Array.from(
-    new Set(campaigns.filter((c) => c.status === "done" && Number(c.endDate.slice(0, 4)) === doneYear).map((c) => Number(c.endDate.slice(5, 7))))
-  ).sort((a, b) => b - a);
-  const selectedYM = `${doneYear}-${String(doneMonth).padStart(2, "0")}`;
+  // 카드 건수는 기간만 적용한 모집단에서 센다
+  const inPeriod = campaigns.filter((c) => period.contains(c.startDate));
 
-  function handleExtend(id: string, payload: { dailyQty: number; days: number; amount: number; newEndDate: string }) {
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, dailyQty: payload.dailyQty, endDate: payload.newEndDate, status: "running" } : c))
-    );
-  }
+  const counts = {
+    all: inPeriod.length,
+    pending: inPeriod.filter((c) => c.status === "pending").length,
+    running: inPeriod.filter((c) => c.status === "running").length,
+    done: inPeriod.filter((c) => c.status === "done").length,
+  };
 
-  const filtered = campaigns.filter((c) => {
-    const statusMatch = filter === "전체" || c.status === STATUS_KEY[filter];
-    const monthMatch = filter !== "보장완료" || c.endDate.slice(0, 7) === selectedYM;
+  const filtered = inPeriod.filter((c) => {
+    const statusMatch = status === "all" || c.status === status;
     const searchMatch = !search || c.placeName.includes(search) || c.keyword.includes(search) || c.product.includes(search);
-    return statusMatch && monthMatch && searchMatch;
+    return statusMatch && searchMatch;
   });
-
-  const total = campaigns.length;
-  const running = campaigns.filter((c) => c.status === "running").length;
-  const doneCount = campaigns.filter((c) => c.status === "done").length;
 
   // 아코디언 차트를 가로 스크롤 테이블의 "보이는 폭"에 맞춰 고정
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -445,101 +436,94 @@ export default function GuaranteedManagePage() {
         iconPath={"M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"}
       />
 
-      {/* 상단 요약 배너 */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-        {/* 전체 보장 캠페인 (네이비) */}
-        <div className="rounded-2xl px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2 text-white"
-          style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-          <span className="text-[13px] font-bold text-white/60">전체 보장 캠페인</span>
-          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums">{total}<span className="text-[15px] font-medium text-white/55 ml-1">건</span></p>
-        </div>
+      {/* 상태별 건수 — 카드가 곧 필터다.
+          보장형은 개발본과 같이 대기중을 카드로 두지 않는다 (알약에는 있다). */}
+      <StatusFilterCards
+        counts={counts}
+        value={status}
+        onChange={setStatus}
+        keys={["all", "running", "done"]}
+        labels={GUAR_LABELS}
+      />
 
-        {/* 진행중 (블루) */}
-        <div className="rounded-2xl px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2 text-white"
-          style={{ background: "linear-gradient(135deg,#2E6BE0 0%,#1D4ED8 100%)" }}>
-          <span className="text-[13px] font-bold text-white/65">진행중</span>
-          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[15px] font-medium text-white/60 ml-1">건</span></p>
-        </div>
+      <PeriodFilter period={period} basisLabel="시작일" />
 
-        {/* 보장완료 (화이트) */}
-        <div className="rounded-2xl border border-brand-border bg-white px-3.5 sm:px-5 py-3.5 sm:py-5 min-h-[80px] sm:min-h-[112px] flex flex-col justify-between gap-2">
-          <span className="text-[13px] font-bold text-brand-muted">보장완료</span>
-          <p className="text-[21px] sm:text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{doneCount}<span className="text-[15px] font-medium text-brand-muted ml-1">건</span></p>
-        </div>
-      </div>
-
-      {/* 테이블 카드 */}
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-brand-border flex-wrap">
-          <div className="flex items-center gap-2">
-            {FILTER_OPTIONS.map((opt) => (
-              <button key={opt} onClick={() => setFilter(opt)}
-                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${filter === opt ? "bg-brand-primary text-white" : "bg-brand-lighter text-brand-sub hover:bg-brand-border"}`}>
-                {opt}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
+      {/* ── 목록 ──
+          상자를 두지 않는다. 위 요약 카드만 면을 가지므로 "지금 보는 범위"와
+          "목록"이 나뉜다. (다른 캠페인 관리 화면과 같은 규칙) */}
+      <div className="mt-6 md:mt-8">
+        <ManageListHeader
+          title="내 보장형 캠페인"
+          count={filtered.length}
+          value={status}
+          onChange={setStatus}
+          labels={GUAR_PILL_LABELS}
+          className="px-5 md:px-6 pt-4 pb-3 border-b border-brand-border"
+          action={
             <div className="relative">
               <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
               </svg>
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="플레이스명, 키워드 검색"
-                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48" />
+                className="pl-8 pr-3 py-2 border border-brand-border rounded-lg text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-all w-48" />
             </div>
-          </div>
-        </div>
+          }
+        />
 
-        {/* 보장완료 캠페인 연/월 조회 */}
-        {filter === "보장완료" && (
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-brand-border bg-brand-lighter/60 flex-wrap">
-            <svg className="w-4 h-4 text-brand-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-            </svg>
-            <span className="text-[13px] font-bold text-brand-dark mr-1">보장완료 캠페인 조회</span>
-            <select
-              value={doneYear}
-              onChange={(e) => {
-                const y = Number(e.target.value);
-                setDoneYear(y);
-                const months = Array.from(
-                  new Set(campaigns.filter((c) => c.status === "done" && Number(c.endDate.slice(0, 4)) === y).map((c) => Number(c.endDate.slice(5, 7))))
-                ).sort((a, b) => b - a);
-                if (months.length && !months.includes(doneMonth)) setDoneMonth(months[0]);
-              }}
-              className="pl-3 pr-8 py-1.5 border border-brand-border rounded-xl text-[13px] font-semibold text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-all cursor-pointer"
-            >
-              {doneYears.map((y) => (<option key={y} value={y}>{y}년</option>))}
-            </select>
-            <select
-              value={doneMonth}
-              onChange={(e) => setDoneMonth(Number(e.target.value))}
-              className="pl-3 pr-8 py-1.5 border border-brand-border rounded-xl text-[13px] font-semibold text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-all cursor-pointer"
-            >
-              {doneMonthsForYear.map((m) => (<option key={m} value={m}>{m}월</option>))}
-            </select>
-            <span className="text-[12px] text-brand-muted ml-1">해당 월 <span className="font-bold text-brand-dark">{filtered.length}</span>건</span>
-          </div>
-        )}
+        {/* ── 그룹 묶어보기 ── */}
+        <ItemGroupBar
+          groups={grp.groups}
+          onAdd={(name) => grp.addGroup(name)}
+          className="px-5 md:px-6 py-3 border-b border-brand-border"
+        />
 
         <div ref={scrollRef} className="overflow-x-auto">
           <table className="w-full min-w-max text-left">
             <thead>
-              <tr className="border-b border-brand-border bg-brand-lighter">
+              <tr className="border-b border-brand-border">
                 <th className="w-8" />
                 {["플레이스명", "플레이스 링크", "키워드", "현재 순위", "보장 카운트", "보장 카운트 시작일", "캠페인 시작일", "상태", "관리"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[12px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 pt-3 pb-2 text-[11.5px] font-semibold text-brand-muted whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-16 text-center text-[16px] text-brand-muted">조건에 맞는 캠페인이 없습니다.</td>
+                  <td colSpan={11} className="px-4 py-16 text-center text-[16px] text-brand-muted">조건에 맞는 캠페인이 없습니다.</td>
                 </tr>
               ) : (
-                filtered.map((c, idx) => {
-                  const st = STATUS_CONFIG[c.status];
+                groupItems(filtered, (c) => String(c.id), grp.groups, grp.assign).flatMap((g) => [
+                  ...(grp.groups.length
+                    ? [
+                        <ItemGroupHeaderRow
+                          key={`gh-${g.gid ?? "none"}`}
+                          colSpan={11}
+                          name={g.name}
+                          count={g.items.length}
+                          onPick={g.gid !== null ? () => setPickGroupId(g.gid!) : undefined}
+                          onRename={
+                            g.gid !== null
+                              ? () => {
+                                  const next = window.prompt("그룹 이름", g.name ?? "");
+                                  if (next) grp.renameGroup(g.gid!, next);
+                                }
+                              : undefined
+                          }
+                          onRemove={g.gid !== null ? () => grp.removeGroup(g.gid!) : undefined}
+                        />,
+                      ]
+                    : []),
+                  ...(g.empty && grp.groups.length
+                    ? [
+                        <tr key={`ge-${g.gid}`}>
+                          <td colSpan={11} className="px-5 md:px-6 py-4 text-[13px] text-brand-muted">
+                            「편성」을 눌러 이 그룹에 넣을 캠페인을 고르세요.
+                          </td>
+                        </tr>,
+                      ]
+                    : []),
+                  ...g.items.map((c, idx) => {
                   const canExpand = !!GUARANTEED_RANK_HISTORY[c.id];
                   const isOpen = expandedId === c.id;
                   const color = CHART_COLORS[idx % CHART_COLORS.length];
@@ -549,7 +533,7 @@ export default function GuaranteedManagePage() {
                   return (
                     <Fragment key={c.id}>
                       <tr onClick={() => canExpand && setExpandedId(isOpen ? null : c.id)}
-                        className={`border-b border-brand-border transition-colors ${canExpand ? "cursor-pointer" : ""} ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/40"}`}>
+                        className={`transition-colors ${canExpand ? "cursor-pointer" : ""} ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/50"}`}>
                         <td className="pl-3 py-3.5">
                           {canExpand && (
                             <svg className={`w-3.5 h-3.5 text-brand-muted transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -559,8 +543,9 @@ export default function GuaranteedManagePage() {
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-1.5">
+                            <NameChip name={c.placeName} />
                             <p className="text-[15px] font-semibold text-brand-dark truncate max-w-[120px]">{c.placeName}</p>
-                            <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-extrabold bg-brand-primary-50 text-brand-primary border border-[#C4CEE6]">보장형</span>
+                            <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-extrabold bg-brand-primary-50 text-brand-primary border border-[#BFCCFA]">보장형</span>
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
@@ -580,7 +565,7 @@ export default function GuaranteedManagePage() {
                             <div className="flex items-center gap-1.5">
                               <span className="text-[16px] font-extrabold text-brand-dark">{c.rank}위</span>
                               {c.rankDiff !== 0 && (
-                                <span className={`flex items-center gap-0.5 text-[12px] font-bold ${c.rankDiff < 0 ? "text-[#0D3473]" : "text-red-400"}`}>
+                                <span className={`flex items-center gap-0.5 text-[12px] font-bold ${c.rankDiff < 0 ? "text-[#2452EB]" : "text-red-400"}`}>
                                   {c.rankDiff < 0 ? (
                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                                   ) : (
@@ -616,7 +601,7 @@ export default function GuaranteedManagePage() {
                           <span className="text-[13px] text-brand-sub">{c.startDate}</span>
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
+                          <StatusDot status={c.status as "pending" | "running" | "done"} labels={GUAR_PILL_LABELS} />
                         </td>
                         <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                           <button onClick={() => setExtendTarget(c)}
@@ -632,7 +617,7 @@ export default function GuaranteedManagePage() {
                       {/* 아코디언 그래프 (해당 행 바로 아래 · 보이는 폭에 고정해 가로 스크롤 잘림 방지) */}
                       {isOpen && canExpand && (
                         <tr className="border-b border-brand-border">
-                          <td colSpan={10} className="p-0">
+                          <td colSpan={11} className="p-0">
                             <div className="sticky left-0" style={{ width: detailWidth }}>
                               <div className="bg-brand-lighter/50 px-5 py-4">
                                 <GuaranteedRankChart campaign={c} color={color} />
@@ -643,16 +628,34 @@ export default function GuaranteedManagePage() {
                       )}
                     </Fragment>
                   );
-                })
+                  }),
+                ])
               )}
             </tbody>
           </table>
         </div>
 
-        <div className="px-5 py-3 border-t border-brand-border">
+        <div className="px-5 md:px-6 py-3 border-t border-brand-border">
           <p className="text-[13px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
         </div>
       </div>
+
+      {pickGroupId !== null && (
+        <ItemGroupPicker
+          groupName={grp.groups.find((g) => g.id === pickGroupId)?.name ?? "그룹"}
+          groupId={pickGroupId}
+          items={MOCK_CAMPAIGNS}
+          idOf={(c) => String(c.id)}
+          labelOf={(c) => c.placeName}
+          subLabelOf={(c) => c.keyword}
+          assign={grp.assign}
+          onApply={(add, remove) => {
+            grp.assignMany(add, pickGroupId);
+            grp.assignMany(remove, null);
+          }}
+          onClose={() => setPickGroupId(null)}
+        />
+      )}
 
       {extendTarget && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40" onClick={() => setExtendTarget(null)}>

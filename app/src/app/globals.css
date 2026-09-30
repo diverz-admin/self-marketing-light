@@ -3,22 +3,34 @@
 
 /* =====================================================================
    BlueEgg biz — Design System tokens (Tailwind theme)
-   key: #111D37 / #0D3473 · 라이트그레이 배경 · 2번 레이아웃 유지
+   key: #111D37 / #2452EB · 라이트그레이 배경 · 2번 레이아웃 유지
    ===================================================================== */
-@theme inline {
+/* 다크 모드는 <html class="dark"> 로 켠다 (OS 설정이 아니라 헤더 토글 기준) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* inline 을 쓰지 않는다 — 유틸리티가 var(--color-…) 를 참조해야 다크 모드에서 값을 갈아 끼울 수 있다 */
+@theme {
+  /* === shadcn 호환 토큰 ===
+     외부에서 받아온 컴포넌트가 bg-background / text-foreground / text-muted-foreground 와
+     CSS 변수 --color-background, --color-foreground 를 기대한다.
+     값은 우리 브랜드 토큰에 맞춰 둔다. */
+  --color-background: #FFFFFF;
+  --color-foreground: #111D37;
+  --color-muted-foreground: #5B6472;
+
   /* === Brand Navy (key) === */
   --color-navy-900: #111D37;
-  --color-navy-800: #0D2148;
-  --color-navy-700: #0D3473;
-  --color-navy-600: #16345C;
-  --color-navy-500: #1D2F5F;
-  --color-navy-100: #E8ECF8;
+  --color-navy-800: #152C9E;
+  --color-navy-700: #2452EB;
+  --color-navy-600: #1B3AC4;
+  --color-navy-500: #2A5EFF;
+  --color-navy-100: #E7ECFF;
 
   /* === Brand primary aliases (backward-compat, remapped to spec) === */
-  --color-brand-primary: #0D3473;        /* navy-700 */
-  --color-brand-primary-hover: #0D2148;  /* navy-800 */
-  --color-brand-primary-50: #E8ECF8;     /* navy-100 */
-  --color-brand-primary-100: #C4CEE6;
+  --color-brand-primary: #2452EB;        /* navy-700 = point-500 */
+  --color-brand-primary-hover: #152C9E;  /* navy-800 = point-600 */
+  --color-brand-primary-50: #E7ECFF;     /* navy-100 */
+  --color-brand-primary-100: #BFCCFA;
 
   /* === Neutral / Surface === */
   --color-brand-dark: #111D37;    /* text-strong / navy-900 */
@@ -35,7 +47,7 @@
   /* === Secondary accents (조연) === */
   --color-accent-blue: #0187E6;
   --color-accent-cyan: #22C7E0;
-  --color-accent-amber: #EDA13F;
+  --color-accent-amber: #F5B72A;
 
   /* === Electric blue (랜딩 포인트 — 에이전시 무드) === */
   --color-electric: #1D3EFF;
@@ -48,13 +60,20 @@
   --color-brand-success-bg: #DFF5E6;
   --color-brand-error: #E5484D;
   --color-brand-error-bg: #FFE3E8;
-  --color-brand-warning: #EDA13F;
+  --color-brand-warning: #F5B72A;
   --color-brand-warning-bg: #FCEFD9;
   --color-brand-info: #0187E6;
   --color-brand-info-bg: #D4EEFF;
 
   /* === Font === */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  /*
+   * 수치·식별자 전용 모노스페이스.
+   * 시스템 폰트만 써서 네트워크를 타지 않는다 — 대시보드 첫 페인트에 숫자가
+   * 먼저 그려져야 하는데, 웹폰트를 기다리면 그 자리에서 폭이 한 번 튄다.
+   * 한글에는 쓰지 않는다(모노 폴백이 깨진다). 숫자·영문·기호에만 건다.
+   */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   /* === Radius — ncloud 벤치마크: 크리스한 소반경 (전역 cascade) === */
   --radius-lg: 0.625rem;    /* 10px (was 8) */
@@ -77,12 +96,12 @@
 
 :root {
   /* Brand Navy (key) */
-  --navy-900:#111D37; --navy-800:#0D2148; --navy-700:#0D3473;
-  --navy-600:#16345C; --navy-500:#1D2F5F; --navy-100:#E8ECF8;
+  --navy-900:#111D37; --navy-800:#152C9E; --navy-700:#2452EB;
+  --navy-600:#1B3AC4; --navy-500:#2A5EFF; --navy-100:#E7ECFF;
 
   /* Gradients */
   --gradient-brand:linear-gradient(135deg,#0E2E66 0%,#102A5A 45%,#111D37 100%);
-  --gradient-brand-2:linear-gradient(135deg,#0D3473 0%,#111D37 100%);
+  --gradient-brand-2:linear-gradient(135deg,#2452EB 0%,#111D37 100%);
   --gradient-highlight:radial-gradient(120% 120% at 85% 15%,rgba(255,255,255,.10),transparent 55%);
 
   /* Surface / Gray */
@@ -95,11 +114,24 @@
   --text-on-dark-sub:rgba(255,255,255,.72);
 
   /* Accents (secondary) */
-  --accent-blue:#0187E6; --accent-cyan:#22C7E0; --accent-amber:#EDA13F;
+  --accent-blue:#0187E6; --accent-cyan:#22C7E0; --accent-amber:#F5B72A;
+
+  /* 포인트 컬러 — 시안(포켓컴퍼니 히어로)에서 직접 샘플링.
+     활성 밑줄·로고 마크 #2452EB(밝은 끝 #2A5EFF), 배경 딥네이비 #070F49.
+     이전 램프(#1868F5 계열)보다 한 단계 진한 인디고다.
+     면(원형 배지·강조 카드)에는 --gradient-point, 글자·테두리에는 --point-500 을 쓴다. */
+  --point-400:#2A5EFF; --point-500:#2452EB; --point-600:#152C9E; --point-900:#070F49;
+  --gradient-point:linear-gradient(45deg,#152C9E 0%,#2452EB 55%,#2A5EFF 100%);
+  --gradient-point-soft:linear-gradient(45deg,rgba(21,44,158,.10) 0%,rgba(42,94,255,.10) 100%);
+  --shadow-point:0 6px 18px rgba(36,82,235,.28), 0 2px 6px rgba(21,44,158,.14);
+  /* 넓고 낮은 배너용 — 대시보드 순위 카드(--gradient-point)와 같은 블루 램프다.
+     색은 그대로 두고 각도만 눕힌다: 45deg 를 쓰면 밝은 끝이 우상단 모서리에만
+     몰려, 가로로 긴 배너에서는 램프가 거의 보이지 않는다. */
+  --gradient-point-wide:linear-gradient(100deg,#152C9E 0%,#2452EB 55%,#2A5EFF 100%);
 
   /* Semantic */
   --info-bg:#D4EEFF; --info-fg:#0187E6;
-  --progress-bg:#E8ECF8; --progress-fg:#16345C;
+  --progress-bg:#E7ECFF; --progress-fg:#2452EB;
   --done-bg:#EEF0F2; --done-fg:#6B7482;
   --danger-bg:#FFE3E8; --danger-fg:#E5484D;
   --success-bg:#DFF5E6; --success-fg:#1E9E54;
@@ -112,14 +144,23 @@
   --shadow-sm:0 1px 2px rgba(17,29,55,.06);
   --shadow-md:0 4px 16px rgba(17,29,55,.08);
   --shadow-lg:0 12px 32px rgba(17,29,55,.12);
-  --shadow-navy:0 16px 40px rgba(13,52,115,.28);
+  --shadow-navy:0 16px 40px rgba(36,82,235,.28);
 
   /* Layout */
   --sidebar-w:260px; --rail-w:320px; --content-max:1080px;
   --header-h:72px; --gutter:24px; --card-pad:24px;
 
   /* Legacy aliases */
-  --brand-primary:#0D3473; --brand-primary-hover:#0D2148;
+  --brand-primary:#2452EB; --brand-primary-hover:#152C9E;
+  /* 버튼·네비 — 토스페이먼츠 화면에서 직접 샘플링한 값. 그라디언트 없이 단색만 쓴다. */
+  --blue:#2452EB; --blue-ink:#152C9E; --blue-tint:#DDE4FF; --blue-wash:#E7ECFF;
+  --btn-primary-bg:#2452EB;   --btn-primary-fg:#FFFFFF;   --btn-primary-bg-hover:#152C9E;
+  --btn-secondary-bg:#DDE4FF; --btn-secondary-fg:#152C9E; --btn-secondary-bg-hover:#CBD6FF;
+  --nav-active-bg:#E7ECFF;    --nav-active-fg:#152C9E;
+  /* 히어로 그라디언트 — 시안 바에서 샘플링. 좌 #2452EB → 62% #152C9E → 우 #070F49.
+     밝은 모서리가 좌하단, 어두운 쪽이 우상단이라 100deg 로 살짝 기울인다. */
+  --blue-deep:#070F49;
+  --gradient-hero:linear-gradient(100deg,#2452EB 0%,#152C9E 62%,#070F49 100%);
   --brand-dark:#111D37; --brand-light:#F5F6F8; --brand-border:#E2E6ED;
   --brand-text:#2B3648; --brand-sub:#5B6472;
 }
@@ -129,6 +170,10 @@
    ============================ */
 *, *::before, *::after {
   letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
 body {
@@ -176,11 +221,27 @@ p {
   text-wrap: pretty;
 }
 
+/* 좁은 화면에서 가운데로 모이는 제목·문단은 줄 길이를 고르게 맞춘다.
+   한 줄만 꽉 차고 다음 줄에 두세 단어만 남는 모양을 막는다.
+   위 p·h2 규칙이 Tailwind 레이어 밖에 있어 text-balance 유틸리티가 안 먹는다.
+   같은 층위인 여기서 처리해야 덮인다. */
+@media (max-width: 767px) {
+  .balance-narrow {
+    text-wrap: balance;
+  }
+}
+
+/* 폭에 상관없이 줄 길이를 고르게 — 두세 줄짜리 보조문구가 마지막 줄에
+   단어 몇 개만 남기고 끊기는 걸 막는다. */
+.balance-lines {
+  text-wrap: balance;
+}
+
 /* ============================
    Focus
    ============================ */
 :focus-visible {
-  outline: 2px solid #0D3473;
+  outline: 2px solid #2452EB;
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -236,25 +297,25 @@ input[type="range"]::-webkit-slider-thumb {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #0D3473;
+  background: #2452EB;
   cursor: pointer;
   border: 3px solid #FFFFFF;
-  box-shadow: 0 0 0 1px #D1D6DB, 0 2px 6px rgba(13,52,115, 0.2);
+  box-shadow: 0 0 0 1px #D1D6DB, 0 2px 6px rgba(36,82,235, 0.2);
   transition: box-shadow 0.15s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 1px #0D3473, 0 2px 10px rgba(13,52,115, 0.3);
+  box-shadow: 0 0 0 1px #2452EB, 0 2px 10px rgba(36,82,235, 0.3);
 }
 
 input[type="range"]::-moz-range-thumb {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #0D3473;
+  background: #2452EB;
   cursor: pointer;
   border: 3px solid #FFFFFF;
-  box-shadow: 0 0 0 1px #D1D6DB, 0 2px 6px rgba(13,52,115, 0.2);
+  box-shadow: 0 0 0 1px #D1D6DB, 0 2px 6px rgba(36,82,235, 0.2);
 }
 
 input[type="range"]::-moz-range-track {
@@ -302,12 +363,46 @@ input[type="range"]::-moz-range-track {
   animation: marquee-x 32s linear infinite;
 }
 .marquee-track.reverse { animation-direction: reverse; }
+/* 읽는 중에 카드가 지나가 버리지 않도록, 마우스를 올리면 멈춘다 */
+.marquee-pausable:hover { animation-play-state: paused; }
 .marquee-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
+}
+
+/* ============================
+   shadcn 아코디언 — Tailwind v4 는 설정 파일이 없어 키프레임을 여기 둔다.
+   Radix 가 펼쳐진 높이를 --radix-accordion-content-height 로 넘겨준다.
+   ============================ */
+@keyframes accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+.animate-accordion-down { animation: accordion-down 0.25s ease-out; }
+.animate-accordion-up   { animation: accordion-up 0.25s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-accordion-down,
+  .animate-accordion-up { animation: none; }
+}
+
+/* ============================
+   About 패널의 점선 궤도 — 아주 느리게 한 바퀴
+   ============================ */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+.orbit-spin {
+  animation: orbit-spin 60s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin { animation: none; }
 }
 
 /* 히어로 모니터 목업 — 제자리에서 은은하게 둥둥 떠다니는 float */
@@ -352,18 +447,168 @@ input[type="range"]::-moz-range-track {
   .animate-float-a, .animate-float-b { animation: none; }
 }
 
+/* 목업 위 플로팅 카드가 제자리에서 천천히 오르내린다 — 회전·위치는 바깥 요소가 들고 이 클래스는 안쪽에만 붙인다 */
+@keyframes beBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+.animate-bob { animation: beBob 5s ease-in-out infinite; will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-bob { animation: none; }
+}
+
+/* 폰 안의 긴 상세페이지가 위로 천천히 흘러간다 — 내용을 두 번 이어 붙여 -50% 지점에서 이음매 없이 되돌아간다 */
+@keyframes beScrollY {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+.animate-scroll-y { animation: beScrollY 22s linear infinite; will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-y { animation: none; }
+}
+
 /* 랜딩 히어로 그라데이션/글로우 */
 .hero-electric {
   background:
     radial-gradient(120% 90% at 85% 0%, rgba(29,62,255,.38), transparent 55%),
     radial-gradient(90% 80% at 0% 100%, rgba(1,135,230,.22), transparent 55%),
-    linear-gradient(135deg, #0B1637 0%, #0D2148 45%, #111D37 100%);
+    linear-gradient(135deg, #0B1637 0%, #152C9E 45%, #111D37 100%);
 }
 .text-gradient-electric {
   background: linear-gradient(100deg, #9CD5FF 0%, #516BFF 45%, #1D3EFF 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* ============================
+   Ambient glow
+   ============================ */
+/* 배경에 떠다니는 파란 덩어리. 자리·크기만 다르고 움직이는 방식은 같다.
+   transform 만 건드려 합성 단계에서 처리되게 한다. */
+.glow-blob {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  will-change: transform;
+}
+.glow-blob-a {
+  top: -16%;
+  left: -12%;
+  width: 86vw;
+  height: 86vw;
+  background: radial-gradient(circle, rgba(36, 82, 235, 0.5), transparent 68%);
+  animation: glow-drift-a 34s ease-in-out infinite;
+}
+.glow-blob-b {
+  top: 24%;
+  right: -20%;
+  width: 76vw;
+  height: 76vw;
+  background: radial-gradient(circle, rgba(42, 94, 255, 0.36), transparent 66%);
+  animation: glow-drift-b 44s ease-in-out infinite;
+}
+.glow-blob-c {
+  top: 58%;
+  left: 6%;
+  width: 68vw;
+  height: 68vw;
+  background: radial-gradient(circle, rgba(21, 44, 158, 0.46), transparent 70%);
+  animation: glow-drift-c 38s ease-in-out infinite;
+}
+@keyframes glow-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(18vw, 12vh, 0) scale(1.35);
+  }
+}
+@keyframes glow-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.2);
+  }
+  50% {
+    transform: translate3d(-20vw, -14vh, 0) scale(0.85);
+  }
+}
+@keyframes glow-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.9);
+  }
+  50% {
+    transform: translate3d(16vw, -15vh, 0) scale(1.4);
+  }
+}
+/* 움직임을 줄여 달라고 설정했으면 제자리에 세워 둔다 */
+@media (prefers-reduced-motion: reduce) {
+  .glow-blob {
+    animation: none;
+  }
+}
+
+/* ============================
+   Slide-in
+   ============================ */
+/* 아래에서 위로 — 본문 기본값. 읽는 방향과 같아 시선을 끌지 않는다. */
+.rise-in {
+  transform: translateY(34px);
+  opacity: 0;
+  transition:
+    transform 720ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 640ms ease-out;
+}
+.rise-in[data-shown="true"] {
+  transform: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* 스크롤로 들어오면 왼쪽에서 오른쪽으로 미끄러져 들어온다.
+   순서(transition-delay)는 쓰는 쪽에서 인라인으로 준다. */
+.slide-in {
+  transform: translateX(-56px);
+  opacity: 0;
+  transition:
+    transform 720ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 640ms ease-out;
+}
+.slide-in[data-shown="true"] {
+  transform: none;
+  opacity: 1;
+}
+/* 움직임을 줄여 달라고 설정했으면 처음부터 제자리에 둔다 */
+@media (prefers-reduced-motion: reduce) {
+  .slide-in {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* ============================
+   Landing cursor
+   ============================ */
+/* 랜딩에서는 점 알(EggCursor)이 포인터를 대신한다. 알을 띄우는 동안에만
+   <html> 에 이 클래스가 붙는다 — 마우스가 없는 기기에서는 붙지 않는다. */
+.egg-cursor,
+.egg-cursor * {
+  cursor: none;
+}
+/* 글자를 넣는 칸은 예외 — 어디에 쓰는지(I-beam)가 보여야 한다 */
+.egg-cursor input,
+.egg-cursor textarea,
+.egg-cursor [contenteditable="true"] {
+  cursor: text;
 }
 
 /* ============================
@@ -388,3 +633,275 @@ select {
   background-position: right 14px center;
   background-size: 15px;
 }
+
+
+/* ============================
+   Buttons — 시안 규격
+   주: 꽉 찬 브랜드 블루 + 흰 글자 / 보조: 옅은 블루 틴트 + 브랜드 블루 글자
+   ============================ */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
+}
+.btn-primary:hover { background: var(--btn-primary-bg-hover); }
+
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-fg);
+}
+.btn-secondary:hover { background: var(--btn-secondary-bg-hover); }
+
+
+
+/* =====================================================================
+   .console — 운영 콘솔 다크 테마 (어드민 대시보드 전용)
+   ---------------------------------------------------------------------
+   대시보드 하나에만 입히는 테마 레이어다. 이 저장소가 목업 리테마
+   (docs/LIGHT-RETHEME.md · TOSS-RETHEME.md)에서 쓰는 방식과 같다 —
+   원래 마크업은 건드리지 않고, 토큰과 유틸리티만 뒤에서 덮어써 이긴다.
+   되돌리려면 페이지의 `console` 클래스만 떼면 된다.
+
+   공용 컴포넌트(RevenuePanel 은 회원관리에서도 쓴다)를 복제하지 않기 위한
+   선택이기도 하다. 컴포넌트는 그대로 두고, 놓인 자리가 색을 정한다.
+
+   유틸리티 클래스를 덮어쓰는 셀렉터(.console .bg-white)는 특정도가
+   0-2-0 이라 유틸리티(0-1-0)를 이긴다. 정공법은 아니지만, 방향을 확인하는
+   단계에서 마크업 전체를 갈아엎지 않고 되돌릴 수 있게 하는 값을 한다.
+   방향이 확정되면 클래스를 직접 고쳐 이 블록을 지우는 것이 맞다.
+   ===================================================================== */
+.console {
+  /* 표면 — 브랜드 네이비(#111D37)를 더 깊게 내린 계열 */
+  --c-bg: #0B1324;
+  --c-surface: #141D33;
+  --c-surface-2: #1B2540;
+  --c-border: #26314F;
+  --c-border-strong: #38456B;
+
+  /* 글자 — 대비는 surface(#141D33) 기준으로 잡았다 */
+  --c-text: #E8ECF5;     /* 강조 (약 14:1) */
+  --c-sub: #9AA6C0;      /* 보조 (약 7:1) */
+  --c-muted: #7D8AAB;    /* 흐림 (약 4.8:1 — 작은 글씨의 하한) */
+
+  /* 강조색 — 밝은 배경용 원색은 어두운 면에서 탁해져 한 단계씩 올렸다 */
+  --c-accent: #5B8CFF;   /* #2452EB */
+  --c-success: #3ECF8E;  /* #1E9E54 */
+  --c-warning: #FFC53D;  /* #F5B72A */
+  --c-error: #FF6B6B;    /* #E5484D */
+
+  /* 차트 — AdminCharts 가 var() 로 읽어 간다 */
+  --chart-grid: #1F2A47;
+  --chart-axis: #26314F;
+  --chart-tick: #7D8AAB;
+  --chart-tip-bg: #1B2540;
+  --chart-tip-border: #38456B;
+  --chart-tip-text: #E8ECF5;
+  --chart-tip-label: #9AA6C0;
+
+  color: var(--c-text);
+
+  /*
+   * 스태킹 컨텍스트를 만든다 — 아래 ::before 가 뜨기 위한 전제다.
+   * 이게 없으면 z-index:-1 인 ::before 가 루트 스태킹 컨텍스트에 속해
+   * 조상(레이아웃의 bg-[#EDEFF2])의 배경보다 먼저 칠해져 가려진다.
+   * position + z-index:0 으로 컨텍스트를 열면 ::before 는 이 안에서만
+   * 맨 뒤로 가므로, 조상 배경 위·내용 아래에 정확히 놓인다.
+   */
+  position: relative;
+  z-index: 0;
+}
+
+/*
+ * 바닥은 고정 레이어로 깐다.
+ * 레이아웃의 main 이 max-w + mx-auto 라 음수 마진으로는 화면 좌우 끝까지
+ * 닿지 않는다(가운데 정렬된 만큼 밝은 띠가 남는다). 뷰포트에 고정한 레이어를
+ * 내용 뒤에 두면 너비와 무관하게 전면을 덮는다. 사이드바는 자기 배경색이
+ * 있어 이 레이어를 가린다.
+ */
+.console::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--c-bg);
+  /* 미세한 격자 — 콘솔의 바닥. 카드 사이에서만 아주 옅게 보인다. */
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* 스파크라인의 "변화 없음" 점선 */
+.console .text-brand-border-strong { color: #33405F; }
+
+/* ── 표면 ── */
+.console .bg-white { background-color: var(--c-surface); }
+.console .bg-brand-light,
+.console .bg-brand-lighter { background-color: var(--c-surface-2); }
+.console .bg-brand-base { background-color: var(--c-bg); }
+
+/* ── 테두리 ── */
+.console .border-brand-border { border-color: var(--c-border); }
+.console .border-brand-border-strong,
+.console .hover\:border-brand-border-strong:hover { border-color: var(--c-border-strong); }
+.console .divide-brand-border > * { border-color: var(--c-border); }
+
+/* ── 글자 ── */
+.console .text-brand-dark { color: var(--c-text); }
+.console .text-brand-text { color: var(--c-sub); }
+.console .text-brand-sub { color: var(--c-sub); }
+.console .text-brand-muted { color: var(--c-muted); }
+.console .text-brand-primary { color: var(--c-accent); }
+.console .text-brand-success { color: var(--c-success); }
+.console .text-brand-warning { color: var(--c-warning); }
+.console .text-brand-error { color: var(--c-error); }
+/* 0건 칸의 죽은 숫자 — 밝은 테마의 border 색은 어두운 면에서 안 보인다 */
+.console .text-brand-border { color: #2F3B5C; }
+
+/* ── 상태 배지 배경 — 어두운 면에서는 파스텔이 뜨므로 투명 틴트로 바꾼다 ── */
+.console .bg-brand-success-bg { background-color: rgba(62, 207, 142, 0.14); }
+.console .bg-brand-warning-bg { background-color: rgba(255, 197, 61, 0.14); }
+.console .bg-brand-error-bg { background-color: rgba(255, 107, 107, 0.14); }
+.console .bg-brand-primary-50 { background-color: rgba(91, 140, 255, 0.14); }
+
+/* 공용 Badge 는 색을 인라인 헥스로 들고 있어 토큰을 안 탄다 — 여기서 되돌린다 */
+.console .bg-\[\#EEF1F5\] { background-color: var(--c-surface-2); }
+.console .text-\[\#5B6472\] { color: var(--c-sub); }
+.console .bg-\[\#E4EFFF\] { background-color: rgba(91, 140, 255, 0.14); }
+.console .text-\[\#2452EB\] { color: var(--c-accent); }
+.console .bg-\[\#DFF5E6\] { background-color: rgba(62, 207, 142, 0.14); }
+.console .text-\[\#1E7E43\] { color: var(--c-success); }
+.console .bg-\[\#FCEFD9\] { background-color: rgba(255, 197, 61, 0.14); }
+.console .text-\[\#B5751B\] { color: var(--c-warning); }
+.console .bg-\[\#FFE3E8\] { background-color: rgba(255, 107, 107, 0.14); }
+.console .text-\[\#C4363B\] { color: var(--c-error); }
+.console .bg-\[\#EBE6FB\] { background-color: rgba(154, 130, 255, 0.16); }
+.console .text-\[\#5B3FB0\] { color: #B9A8FF; }
+
+/* ── 표 — 로그처럼 읽히게 ── */
+.console table thead th {
+  background-color: transparent;
+  border-bottom-color: var(--c-border);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+.console table tbody tr { border-color: var(--c-border); }
+.console table tbody tr:hover { background-color: var(--c-surface-2); }
+
+/* 행 구분선이 도는 곳들 */
+.console .border-brand-border\/60 { border-color: var(--c-border); }
+.console .hover\:bg-brand-light:hover,
+.console .hover\:bg-brand-light\/60:hover { background-color: var(--c-surface-2); }
+.console .hover\:bg-brand-warning-bg\/50:hover { background-color: rgba(255, 197, 61, 0.1); }
+
+/* ── 입력·버튼 ── */
+.console input,
+.console select,
+.console textarea {
+  background-color: var(--c-surface-2);
+  border-color: var(--c-border);
+  color: var(--c-text);
+}
+.console .bg-brand-primary { background-color: var(--c-accent); color: #0B1324; }
+
+/* 흰 글자를 강제하던 그라디언트 헤더는 그대로 두되 테두리만 맞춘다 */
+.console .text-white { color: #FFFFFF; }
+
+/* 표 헤더 줄 — bg-brand-light/60 은 위 규칙과 클래스명이 달라 따로 잡는다 */
+.console .bg-brand-light\/60 { background-color: var(--c-surface-2); }
+.console .hover\:bg-brand-light\/50:hover { background-color: var(--c-surface-2); }
+.console .border-brand-border\/60 { border-color: rgba(38, 49, 79, 0.7); }
+
+
+/* =====================================================================
+   다크 모드 — 헤더 달 아이콘으로 켠다 (be.theme)
+   토큰(brand-*)을 쓰는 화면은 변수만 바꿔도 따라온다.
+   예전에 hex 로 박아 둔 자주 쓰는 클래스는 아래에서 한 번 더 덮는다.
+   ===================================================================== */
+:root {
+  --rail-bg: #ECEEF2;
+  --canvas: #F2F3F4;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  --color-background: #0F1420;
+  --color-foreground: #E8ECF4;
+  --color-muted-foreground: #9AA4B5;
+
+  --color-brand-primary: #4C74FF;
+  --color-brand-primary-hover: #3A62F0;
+  --color-brand-primary-50: rgba(76, 116, 255, .16);
+  --color-brand-primary-100: rgba(76, 116, 255, .28);
+  --color-navy-100: rgba(76, 116, 255, .16);
+
+  --color-brand-dark: #E8ECF4;
+  --color-brand-text: #C9D1DE;
+  --color-brand-sub: #9AA4B5;
+  --color-brand-muted: #6E7889;
+  --color-brand-border: #273044;
+  --color-brand-border-strong: #364056;
+  --color-brand-light: #1A2130;
+  --color-brand-lighter: #1A2130;
+  --color-brand-base: #0B1019;
+
+  --color-brand-success-bg: rgba(30, 158, 84, .18);
+  --color-brand-error-bg: rgba(229, 72, 77, .18);
+  --color-brand-warning-bg: rgba(245, 183, 42, .18);
+  --color-brand-info-bg: rgba(1, 135, 230, .18);
+
+  --bg-base: #0B1019; --surface: #141A26; --surface-alt: #1A2130;
+  --border: #273044; --border-strong: #364056;
+  --text-strong: #E8ECF4; --text-body: #C9D1DE; --text-sub: #9AA4B5; --text-muted: #6E7889;
+  --point-500: #4C74FF;
+  --info-bg: rgba(1, 135, 230, .18);
+  --progress-bg: rgba(76, 116, 255, .16); --progress-fg: #7C9BFF;
+  --done-bg: #1F2633; --done-fg: #8C95A6;
+  --danger-bg: rgba(229, 72, 77, .18);
+  --success-bg: rgba(30, 158, 84, .18); --success-fg: #3DCB7A;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .35);
+  --blue-tint: rgba(76, 116, 255, .22); --blue-wash: rgba(76, 116, 255, .14);
+  --nav-active-bg: rgba(76, 116, 255, .16); --nav-active-fg: #9DB4FF;
+
+  --rail-bg: #0B1019;
+  --canvas: #0B1019;
+}
+
+html.dark body { background-color: #0B1019; color: #C9D1DE; }
+html.dark ::selection { background: #2A3B6B; color: #FFFFFF; }
+
+/* 흰 면 → 카드 면 */
+html.dark .bg-white { background-color: #141A26; }
+html.dark .border-white { border-color: #141A26; }
+html.dark .bg-gray-50, html.dark .bg-gray-100 { background-color: #1A2130; }
+html.dark .border-gray-100, html.dark .border-gray-200 { border-color: #273044; }
+html.dark .text-gray-900, html.dark .text-gray-800 { color: #E8ECF4; }
+html.dark .text-gray-700, html.dark .text-gray-600 { color: #C9D1DE; }
+html.dark .text-gray-500, html.dark .text-gray-400 { color: #9AA4B5; }
+
+/* hex 로 박힌 자주 쓰는 색 */
+html.dark .text-\[\#111D37\], html.dark .text-\[\#1A237E\], html.dark .text-\[\#2D3137\] { color: #E8ECF4; }
+html.dark .text-\[\#2B3648\], html.dark .text-\[\#4E5560\] { color: #C9D1DE; }
+html.dark .text-\[\#5B6472\], html.dark .text-\[\#6B7280\], html.dark .text-\[\#8A90A0\] { color: #9AA4B5; }
+html.dark .text-\[\#99A0AC\], html.dark .text-\[\#B0B8C1\], html.dark .text-\[\#9AA1AC\] { color: #6E7889; }
+html.dark .text-\[\#152C9E\] { color: #9DB4FF; }
+html.dark .text-\[\#2452EB\] { color: #7C9BFF; }
+html.dark .border-\[\#E2E6ED\], html.dark .border-\[\#F2F4F6\], html.dark .border-\[\#E0E4EA\],
+html.dark .border-\[\#EDEFF2\], html.dark .border-\[\#e0e0e0\], html.dark .border-\[\#D7E3FA\] { border-color: #273044; }
+html.dark .bg-\[\#F5F6F8\], html.dark .bg-\[\#F2F4F6\], html.dark .bg-\[\#FAFBFC\],
+html.dark .bg-\[\#f8f8f8\], html.dark .bg-\[\#f5f5f5\] { background-color: #1A2130; }
+html.dark .bg-\[\#E2E6EC\], html.dark .bg-\[\#E2E6ED\] { background-color: #232B3B; }
+html.dark .bg-\[\#E7ECFF\], html.dark .bg-\[\#EAEFF9\], html.dark .bg-\[\#EFF4FD\],
+html.dark .bg-\[\#EEF3FC\], html.dark .bg-\[\#DCE7FB\] { background-color: rgba(76, 116, 255, .16); }
+html.dark .hover\:bg-\[\#E2E6EC\]:hover, html.dark .hover\:bg-\[\#F2F4F6\]:hover,
+html.dark .hover\:bg-\[\#F5F6F8\]:hover { background-color: #232B3B; }
+html.dark .hover\:bg-brand-lighter:hover { background-color: #232B3B; }
+
+/* 로고 글자가 네이비라 어두운 면에서 묻힌다 — 흰색으로 뒤집는다 */
+html.dark .be-logo { filter: brightness(0) invert(1); }
+html.dark .bg-\[\#E0E4EA\] { background-color: #273044; }
+html.dark .bg-\[\#E7ECFF\].text-\[\#152C9E\] { color: #9DB4FF; }

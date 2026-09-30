@@ -15,16 +15,16 @@ export type Icon3DName =
   | "search"     // 광고/검색
   | "chat";      // 커뮤니티
 
-const NAVY_A = "#1D3E7E";
-const NAVY_B = "#0D3473";
+const NAVY_A = "#152C9E";
+const NAVY_B = "#2452EB";
 const NAVY_C = "#0C285A";
 const BLUE = "#2E7BE6";
 const CYAN = "#22C7E0";
-const AMBER = "#EDA13F";
+const AMBER = "#F5B72A";
 const AMBER_D = "#C97E23";
 
 function Shadow() {
-  return <ellipse cx="28" cy="50" rx="14" ry="3" fill="#0D2148" opacity="0.16" />;
+  return <ellipse cx="28" cy="50" rx="14" ry="3" fill="#152C9E" opacity="0.16" />;
 }
 function Gloss({ d }: { d: string }) {
   return <path d={d} fill="#FFFFFF" opacity="0.22" />;
@@ -47,7 +47,7 @@ export default function Icon3D({
           <stop stopColor={CYAN} /><stop offset="1" stopColor={BLUE} />
         </linearGradient>
         <linearGradient id={`i3d-amber-${name}`} x1="14" y1="8" x2="42" y2="46" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#F6C36B" /><stop offset="0.55" stopColor={AMBER} /><stop offset="1" stopColor={AMBER_D} />
+          <stop stopColor="#F9C254" /><stop offset="0.55" stopColor={AMBER} /><stop offset="1" stopColor={AMBER_D} />
         </linearGradient>
       </defs>
 
@@ -92,7 +92,7 @@ export default function Icon3D({
         <>
           <Shadow />
           <circle cx="28" cy="26" r="16.5" fill={`url(#i3d-accent-${name})`} />
-          <circle cx="28" cy="26" r="16.5" stroke="#0D3473" strokeOpacity="0.18" strokeWidth="1.4" />
+          <circle cx="28" cy="26" r="16.5" stroke="#2452EB" strokeOpacity="0.18" strokeWidth="1.4" />
           <circle cx="28" cy="26" r="12.5" stroke="#FFFFFF" strokeOpacity="0.35" strokeWidth="1.4" />
           <text x="28" y="33" textAnchor="middle" fontSize="18" fontWeight="900" fill="#0C285A" fillOpacity="0.85" fontFamily="system-ui,sans-serif">P</text>
           <ellipse cx="21.5" cy="17.5" rx="7.5" ry="4.5" fill="#FFFFFF" opacity="0.35" transform="rotate(-30 21.5 17.5)" />

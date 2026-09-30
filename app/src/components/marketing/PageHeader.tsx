@@ -8,7 +8,7 @@ export default function PageHeader({
   title,
   subtitle,
   iconPath,
-  gradient = "linear-gradient(135deg,#1D3E7E,#0D3473)",
+  gradient = "linear-gradient(135deg,#152C9E,#2452EB)",
   className = "",
 }: {
   title: string;

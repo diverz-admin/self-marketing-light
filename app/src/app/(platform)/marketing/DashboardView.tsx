@@ -2,89 +2,67 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Icon3D from "@/components/marketing/Icon3D";
 import type { DashboardNotice } from "@/lib/dashboard-notices";
+import type { RecentOrder } from "@/lib/recent-orders";
+import type { CampaignCounts, DashboardCampaign } from "@/lib/dashboard-campaigns";
+import { useFavorites } from "@/lib/favorites";
+import type { RankBoardItem, RankPoint } from "@/lib/rank-board";
 
-/* ── 고객사 인터뷰 (익명 · 자동 롤링) ── */
-const HL = "text-[#93B4E8]";
-const INTERVIEWS: {
-  emoji: string;
-  role: string;
-  line1: React.ReactNode;
-  line2: string;
-  metrics: { label: string; value: string }[];
-}[] = [
-  {
-    emoji: "🍖", role: "외식업 대표님",
-    line1: <>2주 만에 <span className={HL}>&lsquo;○○ 갈비&rsquo; 32위 → 3위</span>.</>,
-    line2: "예약 문의가 확 늘었어요.",
-    metrics: [{ label: "키워드 순위", value: "32→3위" }, { label: "예약 문의", value: "+180%" }, { label: "방문 리뷰", value: "+45건" }],
-  },
-  {
-    emoji: "💅", role: "뷰티샵 대표님",
-    line1: <><span className={HL}>&lsquo;○○ 왁싱&rsquo;</span> 검색하면 맨 위에 떠요.</>,
-    line2: "신규 예약이 2배 됐어요.",
-    metrics: [{ label: "키워드 순위", value: "21→2위" }, { label: "신규 예약", value: "+120%" }, { label: "방문 리뷰", value: "+38건" }],
-  },
-  {
-    emoji: "🛍️", role: "쇼핑몰 대표님",
-    line1: <><span className={HL}>&lsquo;○○ 원피스&rsquo;</span> 상위노출 이후</>,
-    line2: "전환 매출이 눈에 띄게 올랐어요.",
-    metrics: [{ label: "상품 순위", value: "40→5위" }, { label: "전환 매출", value: "+95%" }, { label: "구매 리뷰", value: "+210건" }],
-  },
-  {
-    emoji: "☕", role: "카페 대표님",
-    line1: <><span className={HL}>&lsquo;○○ 감성카페&rsquo;</span> 검색 유입이 급증해</>,
-    line2: "주말 웨이팅이 생겼어요.",
-    metrics: [{ label: "키워드 순위", value: "28→4위" }, { label: "방문자 수", value: "+160%" }, { label: "저장 수", value: "+320" }],
-  },
-];
+const CARD = "bg-white rounded-2xl";
 
-const CARD = "bg-white rounded-2xl border border-[#E2E6ED]";
-const SHADOW = { boxShadow: "0 1px 3px rgba(17,29,55,0.05), 0 1px 2px rgba(17,29,55,0.03)" };
+/**
+ * 종료일까지 남은 일수 — 진행 중 캠페인 줄에 D-n 으로 붙인다.
+ * 기간만 적혀 있으면 "언제 끝나지?"를 매번 암산해야 한다. 이미 지난 건은
+ * 표시하지 않는다(샘플 데이터처럼 과거 날짜면 D-음수가 나와 더 헷갈린다).
+ */
+function remainingDays(endDate: string): number | null {
+  const end = new Date(`${endDate}T23:59:59+09:00`).getTime();
+  if (Number.isNaN(end)) return null;
+  const days = Math.ceil((end - Date.now()) / 86_400_000);
+  return days >= 0 ? days : null;
+}
 
-/* ── 캠페인 데이터 ── */
-const CAMPAIGNS = [
-  { id: 1, status: "반려", statusColor: "bg-red-50 text-red-500", channel: "네이버 플레이스", channelColor: "bg-emerald-50 text-emerald-700", product: "블루에그 방향제", reviewer: "앤드류", count: "1건", dateFrom: "2025-07-02", dateTo: "2025-07-11", progress: 0, avatarColor: "#0D3473" },
-  { id: 2, status: "진행중", statusColor: "bg-blue-50 text-blue-600", channel: "네이버 쇼핑", channelColor: "bg-blue-50 text-blue-700", product: "버터플라이 자켓", reviewer: "김소현", count: "3건", dateFrom: "2025-07-10", dateTo: "2025-07-20", progress: 45, avatarColor: "#00B493" },
-  { id: 3, status: "완료", statusColor: "bg-gray-100 text-gray-500", channel: "쿠팡", channelColor: "bg-orange-50 text-orange-700", product: "블루에그 패딩", reviewer: "이준혁", count: "2건", dateFrom: "2025-06-20", dateTo: "2025-06-30", progress: 100, avatarColor: "#8B5CF6" },
-];
 
-/* ── Rank Chart ── */
-const RANK_DATA = [
-  { date: "10-29", rank: 74 }, { date: "10-30", rank: 53 },
-  { date: "10-31", rank: 36 }, { date: "11-01", rank: 34 },
-  { date: "11-02", rank: 19 }, { date: "11-03", rank: 18 },
-  { date: "11-04", rank: 16 }, { date: "11-05", rank: 8 },
-];
-const RANK_STORES = ["블루에그 패딩 | 블루에그 패딩", "버터플라이 | 여성 자켓"];
 
-function RankLineChart() {
+/* ── Rank Chart — 통합순위관리의 최근 7회 측정 ── */
+function RankLineChart({ data }: { data: RankPoint[] }) {
+  const pts0 = data.filter((d) => d.rank != null) as { date: string; rank: number }[];
+  if (pts0.length === 0) {
+    return <p className="py-16 text-center text-[13.5px] text-brand-sub">아직 측정된 순위가 없습니다</p>;
+  }
   const W = 560, H = 200, pL = 24, pR = 24, pT = 36, pB = 40;
-  const iW = W - pL - pR, iH = H - pT - pB, n = RANK_DATA.length;
-  const maxR = Math.max(...RANK_DATA.map(d => d.rank));
-  const step = iW / (n - 1);
-  const pts = RANK_DATA.map((d, i) => ({ x: pL + i * step, y: pT + (d.rank / maxR) * iH, ...d }));
+  const iW = W - pL - pR, iH = H - pT - pB, n = pts0.length;
+  const minR = Math.min(...pts0.map(d => d.rank));
+  const maxR = Math.max(...pts0.map(d => d.rank));
+  const span = Math.max(1, maxR - minR);
+  const step = n > 1 ? iW / (n - 1) : 0;
+  const pts = pts0.map((d, i) => ({ x: n > 1 ? pL + i * step : W / 2, y: pT + ((d.rank - minR) / span) * iH, ...d }));
   const polyline = pts.map(p => `${p.x},${p.y}`).join(" ");
   const area = `${pts[0].x},${pT + iH} ${polyline} ${pts[n - 1].x},${pT + iH}`;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 200 }}>
       <defs>
         <linearGradient id="rankFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0D3473" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#0D3473" stopOpacity="0.01" />
+          <stop offset="0%" stopColor="#2452EB" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#2452EB" stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
-        <line key={i} x1={pL} y1={pT + iH * f} x2={W - pR} y2={pT + iH * f} stroke="#F2F4F6" strokeWidth={1} />
+      {[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1].map((f, i) => (
+        <line key={i} x1={pL} y1={pT + iH * f} x2={W - pR} y2={pT + iH * f}
+          stroke="#EAEEF5" strokeWidth={i % 2 === 0 ? 1 : 0.5} />
       ))}
-      <polygon points={area} fill="url(#rankFill)" />
-      <polyline points={polyline} fill="none" stroke="#0D3473" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      {pts.map((p, i) => (
+        <line key={`v${i}`} x1={p.x} y1={pT} x2={p.x} y2={pT + iH} stroke="#F2F5FA" strokeWidth={1} />
+      ))}
+      {n > 1 && <polygon points={area} fill="url(#rankFill)" />}
+      <polyline points={polyline} fill="none" stroke="#2452EB" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((p, i) => (
         <g key={i}>
-          <circle cx={p.x} cy={p.y} r={4.5} fill="white" stroke="#0D3473" strokeWidth={2} />
-          <text x={p.x} y={p.y - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill="#0D3473">{p.rank}</text>
-          <text x={p.x} y={H - 4} textAnchor="middle" fontSize={9.5} fill="#B0B8C1">{p.date}</text>
+          <circle cx={p.x} cy={p.y} r={4.5} fill="#FFFFFF" stroke="#2452EB" strokeWidth={2} />
+          <text x={p.x} y={p.y - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill="#152C9E">{p.rank}</text>
+          <text x={p.x} y={H - 4} textAnchor="middle" fontSize={9.5} fill="#8C97AC">{p.date.slice(5)}</text>
         </g>
       ))}
     </svg>
@@ -92,32 +70,103 @@ function RankLineChart() {
 }
 
 /* ── Page ── */
-export default function DashboardView({ notices }: { notices: DashboardNotice[] }) {
-  const [rankChannel, setRankChannel] = useState<"네이버 플레이스" | "네이버 쇼핑">("네이버 쇼핑");
-  const [rankStore, setRankStore] = useState(RANK_STORES[0]);
+export default function DashboardView(
+  { notices, userName, balance, recentOrders, myCampaigns, campaignCounts, rankItems }:
+  { notices: DashboardNotice[]; userName: string | null; balance: number;
+    recentOrders: RecentOrder[]; myCampaigns: DashboardCampaign[]; campaignCounts: CampaignCounts;
+    rankItems: RankBoardItem[] },
+) {
+  const router = useRouter();
+  const [rankChannel, setRankChannel] = useState<"place" | "shopping">("place");
+  const channelItems = rankItems.filter((r) => r.platform === rankChannel);
+  const [rankId, setRankId] = useState<string | null>(null);
+  const rankItem = channelItems.find((r) => r.id === rankId) ?? channelItems[0] ?? null;
+  const rankPts = (rankItem?.history ?? []).filter((p) => p.date).slice(-7);
+  const rankVals = rankPts.map((p) => p.rank).filter((r): r is number => r != null);
+  const rankFrom = rankVals[0];
+  const rankTo = rankVals[rankVals.length - 1];
 
-  // 고객 인터뷰 자동 롤링
-  const [interviewIdx, setInterviewIdx] = useState(0);
+  // 실시간 주문 현황은 30초마다 새로 받는다
   useEffect(() => {
-    const t = setInterval(() => setInterviewIdx((i) => (i + 1) % INTERVIEWS.length), 4500);
+    const t = setInterval(() => router.refresh(), 30_000);
     return () => clearInterval(t);
-  }, []);
-  const interview = INTERVIEWS[interviewIdx];
+  }, [router]);
+
+  const shown = myCampaigns;
+
+  // 즐겨찾기 — 사이드바 ★ 로 담은 바로가기 (브라우저 localStorage)
+  const favorites = useFavorites();
+
+  // KPI — 목록은 3건만 보여주지만 개수는 서버에서 전체를 센 값을 쓴다.
+  const KPIS = [
+    { label: "보유 포인트", value: balance.toLocaleString(), unit: "P", action: "충전", href: "/marketing/my/charge" },
+    { label: "진행중 캠페인", value: String(campaignCounts.running), unit: "건", action: null, href: null },
+    { label: "완료 캠페인", value: String(campaignCounts.done), unit: "건", action: null, href: null },
+    { label: "전체 캠페인", value: String(campaignCounts.total), unit: "건", action: "전체보기", href: "/marketing/my/campaigns" },
+  ];
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    // 우측 레일을 걷어낸 뒤 본문이 화면 끝까지 늘어났다.
+    // 폭 제한 + 가운데 정렬.
+    <div className="w-full mx-auto flex flex-col gap-6 max-w-[1500px]">
 
-      {/* 모바일 전용 인사말 (최상단) */}
-      <div className="lg:hidden order-1 px-0.5">
-        <p className="text-[22px] font-extrabold text-[#111D37] leading-tight">반갑습니다, 사용자님 👋</p>
-        <p className="text-[14px] text-[#5B6472] mt-1">오늘도 블루에그와 함께 성장해요.</p>
-      </div>
+      {/* ── Welcome 배너 + KPI 스트립 ──
+          시안: 네이비 배너 아래쪽에 KPI 4칸이 걸쳐 올라온다.
+          값은 전부 실데이터다 — 포인트는 크레딧 원장 합계, 캠페인 수는 CAMPAIGNS 집계. */}
+      <section className="order-0">
+        <div
+          className="rounded-2xl px-7 md:px-12 pt-11 md:pt-14 pb-20 md:pb-24"
+          style={{ background: "var(--gradient-point-wide)" }}
+        >
+          <p className="text-[27px] md:text-[36px] font-bold text-white leading-tight break-keep">
+            {userName ? `${userName}님, 오늘도 좋은 하루 되세요` : "오늘도 좋은 하루 되세요"}
+          </p>
+
+          {/* 즐겨찾기 — 사이드바 메뉴의 ★ 로 담는다. localStorage 라 브라우저별로 따로 남는다. */}
+          {favorites.length === 0 ? (
+            <p className="mt-5 text-[13.5px] text-white/60">
+              자주 쓰는 메뉴의 <b className="font-bold text-[#F5B72A]">★</b> 을 누르면 여기에 바로가기가 생깁니다.
+            </p>
+          ) : (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {favorites.map((f) => (
+                <Link key={f.href} href={f.href}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13.5px] font-semibold text-white bg-white/12 border border-white/16 hover:bg-white/20 transition-colors">
+                  <span className="text-[#F5B72A]">★</span>
+                  {f.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="-mt-14 md:-mt-16 mx-3 md:mx-5 rounded-2xl bg-white p-2.5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {KPIS.map((k) => (
+              <div key={k.label} className="rounded-lg bg-white border border-[#E2E6ED] px-5 py-4 transition-colors hover:border-[#C9D2E0]">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[12px] font-semibold text-[#5B6472]">{k.label}</p>
+                  {k.action && (
+                    <Link href={k.href!} className="text-[12px] font-bold text-[color:var(--point-500)] hover:underline shrink-0">
+                      {k.action}
+                    </Link>
+                  )}
+                </div>
+                <p className="mt-2.5 text-[24px] font-extrabold text-[#111D37] leading-none tabular-nums">
+                  {k.value}
+                  <span className="ml-1 text-[13px] font-bold text-[#99A0AC]">{k.unit}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── 공지사항(좌) + 고객 인터뷰(우) · 모바일에선 하단 배치 ── */}
-      <section className="order-3 lg:order-1 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+      <section className="order-2 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
         {/* 공지사항 */}
-        <div className={`${CARD} overflow-hidden flex flex-col`} style={SHADOW}>
+        <div className={`${CARD} overflow-hidden flex flex-col`}>
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2F4F6] shrink-0">
             <div className="flex items-center gap-3">
               <Icon3D name="bell" className="w-11 h-11 shrink-0 -ml-1" />
@@ -126,7 +175,7 @@ export default function DashboardView({ notices }: { notices: DashboardNotice[] 
                 <p className="text-[13px] text-[#99A0AC] mt-0.5">BlueEgg 새소식</p>
               </div>
             </div>
-            <Link href="/marketing/notices" className="flex items-center gap-1 text-[13px] font-semibold text-[#5B6472] hover:text-[#0D3473] transition-colors">
+            <Link href="/marketing/notices" className="flex items-center gap-1 text-[13px] font-semibold text-[#5B6472] hover:text-[color:var(--point-500)] transition-colors">
               더보기
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
             </Link>
@@ -136,79 +185,62 @@ export default function DashboardView({ notices }: { notices: DashboardNotice[] 
               <p className="px-4 py-8 text-center text-[14px] text-[#B0B8C1]">등록된 공지사항이 없습니다.</p>
             )}
             {notices.map((item) => (
-              <Link key={item.id} href="/marketing/notices" className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl hover:bg-[#F5F6F8] transition-colors cursor-pointer group">
+              <Link key={item.id} href={`/marketing/notices?post=${item.id}`} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl hover:bg-[#F5F6F8] transition-colors cursor-pointer group">
                 {item.isNew
-                  ? <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#0D3473] text-white shrink-0">NEW</span>
+                  ? <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md text-white shrink-0" style={{ background: "var(--gradient-point)" }}>NEW</span>
                   : <span className="w-[28px] shrink-0" />}
-                <p className="flex-1 text-[15px] text-[#2B3648] truncate group-hover:text-[#0D3473] transition-colors">{item.title}</p>
+                <p className="flex-1 text-[15px] text-[#2B3648] truncate group-hover:text-[color:var(--point-500)] transition-colors">{item.title}</p>
                 <span className="text-[12px] text-[#B0B8C1] shrink-0 tabular-nums">{item.date}</span>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* 고객사 인터뷰 배너 */}
-        <div className="relative rounded-2xl overflow-hidden flex flex-col justify-between p-6"
-          style={{ background: "radial-gradient(135% 120% at 74% -8%, #2A4C86 0%, #17335F 42%, #0B1A38 100%)", boxShadow: "0 6px 18px rgba(13,52,115,0.18), 0 2px 6px rgba(17,29,55,0.08)" }}>
+        {/* ── 실시간 주문 현황 (목업 기준 블록) ──
+            다른 회원의 활동이 섞이는 피드라 이름은 서버에서 이미 가려서 내려온다. */}
+        <div className={`${CARD} overflow-hidden flex flex-col p-6`}>
 
-          {/* 상단: 뱃지 + 후기 더보기 */}
-          <div className="relative z-10 flex items-start justify-between">
-            <span className="text-[11px] font-extrabold px-3 py-1.5 rounded-full text-white tracking-widest uppercase" style={{ background: "rgba(255,255,255,0.16)" }}>고객 인터뷰</span>
-            <Link href="/marketing/community/board"
-              className="flex items-center gap-1 text-[12px] font-bold text-white/60 hover:text-white transition-colors">
-              후기 더보기
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </Link>
+          <div className="flex items-center justify-between gap-2 shrink-0">
+            <span className="inline-flex items-center gap-2 text-[19px] font-bold text-[#111D37]">
+              <span className="relative flex w-[7px] h-[7px]">
+                <span className="absolute inline-flex w-full h-full rounded-full bg-[#1E9E54] opacity-60 animate-ping" />
+                <span className="relative inline-flex w-[7px] h-[7px] rounded-full bg-[#1E9E54]" />
+              </span>
+              실시간 주문 현황
+            </span>
+            <span className="text-[13px] text-[#99A0AC]">최근 {recentOrders.length}건</span>
           </div>
 
-          {/* 중단: 인용문 + 고객 정보 (익명) */}
-          <div className="relative z-10 my-4">
-            <svg className="w-8 h-8 mb-2 text-white/25" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <path d="M7.5 6C5 6 3 8 3 10.5S5 15 7.5 15c.3 0 .6 0 .9-.1C7.8 16.7 6.3 18 4.5 18.4c-.4.1-.6.5-.5.9.1.4.5.7.9.6C8.6 19 11 15.9 11 12v-1.5C11 8 9 6 7.5 6zm10 0C15 6 13 8 13 10.5S15 15 17.5 15c.3 0 .6 0 .9-.1-.6 1.8-2.1 3.1-3.9 3.5-.4.1-.6.5-.5.9.1.4.5.7.9.6 3.7-.9 6.1-4 6.1-7.9v-1.5C21 8 19 6 17.5 6z" />
-            </svg>
-            <p key={`q-${interviewIdx}`} className="animate-be-fade min-h-[76px] text-[27px] font-extrabold text-white leading-[1.35] tracking-[-0.01em] break-keep">
-              &ldquo;{interview.line1}<br />{interview.line2}&rdquo;
-            </p>
-            <div className="flex items-center justify-between gap-2.5 mt-4">
-              <div key={`c-${interviewIdx}`} className="animate-be-fade flex items-center gap-2.5 min-w-0">
-                <span className="h-9 w-9 rounded-full flex items-center justify-center text-[18px] shrink-0"
-                  style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)" }}>{interview.emoji}</span>
-                <p className="text-[14px] font-bold text-white leading-tight truncate">{interview.role}</p>
-              </div>
-              {/* 롤링 인디케이터 */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                {INTERVIEWS.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setInterviewIdx(i)}
-                    aria-label={`인터뷰 ${i + 1}`}
-                    className="h-1.5 rounded-full transition-all"
-                    style={{ width: i === interviewIdx ? 16 : 6, background: i === interviewIdx ? "#93B4E8" : "rgba(255,255,255,0.28)" }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* 하단: 성과 지표 3개 (전체 너비) */}
-          <div key={`m-${interviewIdx}`} className="animate-be-fade relative z-10 grid grid-cols-3 gap-2.5">
-            {interview.metrics.map((s) => (
-              <div key={s.label} className="flex flex-col items-center justify-center gap-1 py-3.5 rounded-2xl"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
-                <span className="text-[16px] font-extrabold text-white tabular-nums">{s.value}</span>
-                <span className="text-[11px] font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
-              </div>
-            ))}
+          <div className="mt-4 flex-1 flex flex-col justify-center">
+            {recentOrders.length === 0 ? (
+              <p className="py-10 text-center text-[14px] text-[#99A0AC]">아직 접수된 주문이 없습니다</p>
+            ) : (
+              recentOrders.map((o) => (
+                <div key={o.id}
+                  className="flex items-center gap-3 py-3 border-t border-[#F2F4F6] first:border-t-0">
+                  <span className="h-9 w-9 rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0"
+                    style={{ background: "var(--gradient-point)", boxShadow: "var(--shadow-point)" }}>
+                    {o.tile}
+                  </span>
+                  <p className="flex-1 min-w-0 text-[14px] text-[#2B3648] truncate">
+                    <b className="font-bold text-[#111D37]">{o.maskedName}</b> 님이{" "}
+                    <span className="font-semibold text-[color:var(--point-500)]">{o.service}</span>
+                  </p>
+                  <span className="shrink-0 text-[13px] font-bold text-[#2B3648] tabular-nums">{o.qty}건</span>
+                  <span className="shrink-0 w-[56px] text-right text-[12px] text-[#B0B8C1] tabular-nums">{o.ago}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
 
       {/* ── 4. 현재 운영중인 캠페인 ── */}
       {/* ── 4. 현재 운영중인 캠페인(좌) + 내 캠페인 순위 추적하기(우) ── */}
-      <section className="order-2 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+      <section className="order-1 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
         {/* 현재 운영중인 캠페인 */}
-        <div className={`${CARD} overflow-hidden flex flex-col`} style={SHADOW}>
+        <div className={`${CARD} overflow-hidden flex flex-col`}>
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2F4F6] shrink-0">
             <div className="flex items-center gap-3">
               <Icon3D name="clipboard" className="w-11 h-11 shrink-0 -ml-1" />
@@ -217,92 +249,121 @@ export default function DashboardView({ notices }: { notices: DashboardNotice[] 
                 <p className="text-[13px] text-[#99A0AC] mt-0.5">진행 중인 캠페인 현황</p>
               </div>
             </div>
-            <Link href="/marketing/my/campaigns" className="flex items-center gap-1 text-[13px] font-semibold text-[#5B6472] hover:text-[#0D3473] transition-colors">
+            <Link href="/marketing/my/campaigns" className="flex items-center gap-1 text-[13px] font-semibold text-[#5B6472] hover:text-[color:var(--point-500)] transition-colors">
               전체보기
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
             </Link>
           </div>
           <div className="flex-1 px-4 py-3 space-y-2">
-            {CAMPAIGNS.map((c) => (
+            {shown.length === 0 && (
+              <p className="py-12 text-center text-[14px] text-[#99A0AC]">진행중인 캠페인이 없습니다</p>
+            )}
+            {shown.map((c) => (
               <div key={c.id}
                 className="flex items-center gap-3.5 px-3 py-3 rounded-xl hover:bg-[#F5F6F8] transition-colors group cursor-pointer border border-transparent hover:border-[#E2E6ED]">
                 <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-[15px] font-bold shrink-0"
-                  style={{ background: c.avatarColor, boxShadow: `0 2px 8px ${c.avatarColor}55` }}>
-                  {c.reviewer.charAt(0)}
+                  style={{ background: "var(--gradient-point)", boxShadow: "var(--shadow-point)" }}>
+                  {c.targetName.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
+                  {/* 상태 · 채널 */}
+                  {/* 카드 자체가 "진행 중"만 담으므로 상태 칩은 두지 않는다 — 채널만 표시 */}
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className={`text-[12px] font-bold px-2 py-0.5 rounded-md ${c.statusColor}`}>{c.status}</span>
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${c.channelColor}`}>{c.channel}</span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">{c.channel}</span>
                   </div>
-                  <p className="text-[15px] font-semibold text-[#2B3648] truncate group-hover:text-[#0D3473] transition-colors">{c.product}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    {c.status === "진행중" && (
-                      <div className="w-24 h-1.5 bg-[#F2F4F6] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#0D3473] rounded-full" style={{ width: `${c.progress}%` }} />
-                      </div>
+
+                  {/* 신청 대상 */}
+                  <p className="text-[15px] font-semibold text-[#2B3648] truncate group-hover:text-[color:var(--point-500)] transition-colors">{c.targetName}</p>
+
+                  {/* 상품 · 키워드 */}
+                  <div className="flex items-center gap-1.5 mt-1 text-[12.5px] text-[#5B6472] min-w-0">
+                    {c.productTitle && (
+                      <>
+                        <span className="truncate">{c.productTitle}</span>
+                        <span className="text-[#D2D8E2]">·</span>
+                      </>
                     )}
-                    <span className="text-[12px] text-[#B0B8C1] whitespace-nowrap tabular-nums">{c.dateFrom} ~ {c.dateTo}</span>
+                    <span className="truncate text-[color:var(--point-500)] font-medium">{c.keyword}</span>
                   </div>
+
+                  {c.startDate && c.endDate && (
+                    <span className="block mt-1 text-[12px] text-[#B0B8C1] whitespace-nowrap tabular-nums">
+                      {c.startDate} ~ {c.endDate}
+                      {remainingDays(c.endDate) !== null && (
+                        <span className="ml-2 text-[#5B6472] font-medium">D-{remainingDays(c.endDate)}</span>
+                      )}
+                    </span>
+                  )}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-[13px] font-bold text-[#2B3648]">{c.reviewer}</p>
-                  <p className="text-[12px] text-[#99A0AC]">{c.count}</p>
+                  <p className="text-[13px] font-bold text-[#2B3648] tabular-nums">{c.qty}건</p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-[#1E9E54]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#1E9E54]" />
+                    {c.statusLabel}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* 내 캠페인 순위 추적하기 */}
-        <div className={`${CARD} p-6 flex flex-col`} style={SHADOW}>
+        {/* 내 캠페인 순위 추적하기 — 파란 면. 위의 대비를 위해 안쪽 요소를 전부 밝은 톤으로 뒤집는다. */}
+        <div className="rounded-2xl p-6 flex flex-col"
+          style={{ background: "var(--gradient-point)", boxShadow: "var(--shadow-point)" }}>
           <div className="flex items-center justify-between mb-4 shrink-0">
             <div className="flex items-center gap-3">
               <Icon3D name="chart" className="w-11 h-11 shrink-0 -ml-1" />
               <div>
-                <p className="text-[19px] font-bold text-[#111D37]">내 캠페인 순위 추적하기</p>
-                <p className="text-[13px] text-[#99A0AC] mt-0.5">채널별 순위 변동 확인</p>
+                <p className="text-[19px] font-bold text-white">내 캠페인 순위 추적하기</p>
+                <p className="text-[13px] text-white/60 mt-0.5">채널별 순위 변동 확인</p>
               </div>
             </div>
-            <Link href="/marketing/rank" className="flex items-center gap-1 text-[13px] font-semibold text-[#0D3473] hover:underline">
+            <Link href="/marketing/rank" className="flex items-center gap-1 text-[13px] font-semibold text-white/75 hover:text-white transition-colors">
               등록하기
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
             </Link>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mb-4 shrink-0">
-            {(["네이버 플레이스", "네이버 쇼핑"] as const).map((ch) => {
-              const active = rankChannel === ch;
-              const cfg: Record<string, { on: string; off: string }> = {
-                "네이버 플레이스": { on: "bg-emerald-500 text-white", off: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" },
-                "네이버 쇼핑": { on: "bg-[#0D3473] text-white", off: "bg-blue-50 text-blue-700 hover:bg-blue-100" },
-              };
+            {([["place", "네이버 플레이스"], ["shopping", "네이버 쇼핑"]] as const).map(([key, label]) => {
+              const active = rankChannel === key;
               return (
-                <button key={ch} type="button" onClick={() => setRankChannel(ch)}
-                  className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${active ? cfg[ch].on : cfg[ch].off}`}>
-                  {ch}
+                <button key={key} type="button" onClick={() => { setRankChannel(key); setRankId(null); }}
+                  className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${active ? "bg-white text-[color:var(--point-600)]" : "bg-white/12 text-white/75 hover:bg-white/20"}`}>
+                  {label}
                 </button>
               );
             })}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-xl border border-emerald-100 ml-auto">
-              <span className="text-[13px] font-bold text-emerald-600">74위 → 8위</span>
-              <span className="text-[12px] text-emerald-500 font-semibold">↑66</span>
-            </div>
+            {rankFrom != null && rankTo != null && rankVals.length > 1 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl ml-auto"
+                style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.16)" }}>
+                <span className="text-[13px] font-bold text-white">{rankFrom}위 → {rankTo}위</span>
+                {rankFrom !== rankTo && (
+                  <span className={`text-[12px] font-semibold ${rankFrom > rankTo ? "text-[#7DE8AC]" : "text-[#FFB4B8]"}`}>
+                    {rankFrom > rankTo ? "↑" : "↓"}{Math.abs(rankFrom - rankTo)}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="shrink-0 mb-3">
-            <select value={rankStore} onChange={(e) => setRankStore(e.target.value)}
-              className="w-full border border-[#E2E6ED] rounded-xl px-4 py-2.5 text-[15px] text-[#2B3648] bg-white focus:outline-none focus:border-[#0D3473] focus:ring-2 focus:ring-[#0D3473]/10 transition-all">
-              {RANK_STORES.map(s => <option key={s} value={s}>{s}</option>)}
+            <select value={rankItem?.id ?? ""} onChange={(e) => setRankId(e.target.value)} disabled={channelItems.length === 0}
+              className="w-full rounded-xl px-4 py-2.5 text-[15px] text-white bg-white/12 border border-white/16 focus:outline-none focus:border-white/40 transition-all [&>option]:text-[#2B3648]">
+              {channelItems.length === 0 && <option value="">추적 중인 키워드가 없습니다</option>}
+              {channelItems.map(r => <option key={r.id} value={r.id}>{r.keyword} | {r.name ?? "확인 중"}</option>)}
             </select>
           </div>
 
-          <div className="flex-1 bg-[#FAFBFC] rounded-2xl border border-[#F2F4F6] px-3 py-2">
-            <RankLineChart />
+          <div className="flex-1 rounded-2xl px-3 py-2" style={{ background: "#FFFFFF", border: "1px solid rgba(255,255,255,0.6)" }}>
+            {channelItems.length === 0 ? (
+              <p className="py-16 text-center text-[13.5px] text-brand-sub">추적 중인 캠페인이 없습니다 — 신청하면 자동으로 순위가 기록됩니다</p>
+            ) : (
+              <RankLineChart data={rankPts} />
+            )}
           </div>
         </div>
       </section>
-
 
     </div>
   );

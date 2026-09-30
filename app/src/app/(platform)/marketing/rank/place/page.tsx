@@ -1,14 +1,6 @@
-import RankManagement from "@/components/marketing/RankManagement";
-import { RankMembershipBar } from "@/components/marketing/RankMembershipBar";
+import { redirect } from "next/navigation";
 
-// 멤버십 현황은 로그인 상태를 봐야 해서 서버에서 그린다
-export const dynamic = "force-dynamic";
-
-export default function RankPlacePage() {
-  return (
-    <div className="min-h-full bg-white">
-      <RankMembershipBar />
-      <RankManagement initialPlatform="naver_place" />
-    </div>
-  );
+/* 개발본은 통합순위관리를 한 화면(채널 탭)으로 둔다 — 예전 채널별 주소는 탭으로 보낸다 */
+export default function Page() {
+  redirect("/marketing/rank?p=place");
 }

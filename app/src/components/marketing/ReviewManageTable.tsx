@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useItemGroups, groupItems } from "@/lib/item-groups";
+import { ItemGroupBar, ItemGroupHeaderRow, ItemGroupPicker } from "@/components/marketing/ItemGroupBar";
 import { usePathname } from "next/navigation";
+import {
+  StatusFilterCards, PeriodFilter, usePeriodFilter, ManageListHeader,
+  StatusDot, NameChip, type StatusKey,
+} from "@/components/marketing/manage-ui";
 import { Fragment, useState } from "react";
 
 export type Applicant = {
@@ -37,13 +43,6 @@ export type Campaign = {
   postUrls?: PostUrl[];
 };
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  running: { label: "진행중",   bg: "bg-green-50", text: "text-green-600" },
-  pending: { label: "대기중",   bg: "bg-amber-50", text: "text-amber-600" },
-  paused:  { label: "일시정지", bg: "bg-gray-100", text: "text-gray-500" },
-  done:    { label: "완료",     bg: "bg-blue-50",  text: "text-blue-500" },
-};
-
 const REVIEW_STATUS_CONFIG: Record<string, { bg: string; text: string }> = {
   "제출완료": { bg: "bg-blue-50",  text: "text-blue-600"  },
   "검토중":   { bg: "bg-amber-50", text: "text-amber-600" },
@@ -51,15 +50,18 @@ const REVIEW_STATUS_CONFIG: Record<string, { bg: string; text: string }> = {
   "반려":     { bg: "bg-red-50",   text: "text-red-500"   },
 };
 
+/** 리뷰·체험단만 쓰는 상태 묶음 — 일시정지가 들어간다 */
+const REVIEW_STATUS_KEYS: StatusKey[] = ["all", "pending", "running", "done", "paused"];
+/** 카드는 개발본과 같이 셋만 둔다 (일시정지는 알약에만) */
+const REVIEW_CARD_KEYS: StatusKey[] = ["all", "running", "pending"];
+/* 카드는 "전체 캠페인", 알약은 그냥 "전체" — 알약 줄에서는 긴 이름이 자리만 먹는다 */
+const REVIEW_CARD_LABELS = { all: "전체 캠페인", pending: "대기중" };
+const REVIEW_LABELS = { pending: "대기중" };
+
 const DEFAULT_TABS = [
   { label: "블로그배포", href: "/marketing/review/place/manage" },
   { label: "영수증리뷰", href: "/marketing/review/place/manage/receipt" },
 ];
-
-const FILTER_OPTIONS = ["진행중", "대기중", "일시정지", "완료", "전체"];
-const STATUS_KEY: Record<string, string> = {
-  "전체": "all", "진행중": "running", "대기중": "pending", "일시정지": "paused", "완료": "done",
-};
 
 type AccordionDetailProps = {
   campaign: Campaign;
@@ -243,8 +245,8 @@ type TabItem = { label: string; href: string };
 
 type Props = {
   campaigns: Campaign[];
-  breadcrumbLabel: string;
-  breadcrumbPlatform?: string;
+  /** 기간 필터의 기준 날짜 — 서버에서 넘겨 하이드레이션을 맞춘다 */
+  today: string;
   createHref: string;
   tabs?: TabItem[];
   applicantSectionLabel?: string;
@@ -257,8 +259,7 @@ type Props = {
 
 export default function ReviewManageTable({
   campaigns,
-  breadcrumbLabel,
-  breadcrumbPlatform = "네이버 플레이스",
+  today,
   createHref,
   tabs = DEFAULT_TABS,
   applicantSectionLabel = "신청자 목록",
@@ -269,7 +270,10 @@ export default function ReviewManageTable({
   showChannel = false,
 }: Props) {
   const pathname = usePathname();
-  const [filter, setFilter] = useState("진행중");
+  // 그룹 보관함은 화면(경로)마다 나눈다 — 플레이스 리뷰 그룹이 쇼핑 리뷰에 나오면 안 된다
+  const grp = useItemGroups(`review${pathname}`);
+  const [pickGroupId, setPickGroupId] = useState<number | null>(null);
+  const [status, setStatus] = useState<StatusKey>("all");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -297,14 +301,25 @@ export default function ReviewManageTable({
     setEditDone(true);
   };
 
-  const filtered = campaigns.filter((c) => {
-    const statusMatch = filter === "전체" || c.status === STATUS_KEY[filter];
+  const period = usePeriodFilter(today, "3m");
+
+  // 표의 "캠페인 요청일" 칸과 같은 값으로 거른다. 거르는 기준과 보이는 날짜가
+  // 다르면 3개월 밖 날짜가 목록에 남아 필터가 고장 난 것처럼 보인다.
+  const inPeriod = campaigns.filter((c) => period.contains(c.requestDate ?? c.startDate ?? ""));
+
+  const counts = {
+    all: inPeriod.length,
+    pending: inPeriod.filter((c) => c.status === "pending").length,
+    running: inPeriod.filter((c) => c.status === "running").length,
+    paused: inPeriod.filter((c) => c.status === "paused").length,
+    done: inPeriod.filter((c) => c.status === "done").length,
+  };
+
+  const filtered = inPeriod.filter((c) => {
+    const statusMatch = status === "all" || c.status === status;
     const searchMatch = !search || c.campaignName.includes(search) || c.keyword.includes(search);
     return statusMatch && searchMatch;
   });
-
-  const running = campaigns.filter((c) => c.status === "running").length;
-  const pending = campaigns.filter((c) => c.status === "pending").length;
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -312,15 +327,6 @@ export default function ReviewManageTable({
 
   return (
     <div className="w-full space-y-5">
-      {/* 브레드크럼 */}
-      <nav className="flex items-center gap-1.5 text-[15px] text-brand-sub">
-        <Link href="/marketing" className="hover:text-brand-text">대시보드</Link>
-        <span>›</span>
-        <span className="text-brand-muted">{breadcrumbPlatform}</span>
-        <span>›</span>
-        <span className="text-brand-text font-medium">[리뷰] 캠페인 관리 · {breadcrumbLabel}</span>
-      </nav>
-
       {/* 탭 */}
       <div className="bg-white rounded-2xl border border-brand-border px-2 py-2 flex items-center gap-1 overflow-x-auto">
         {tabs.map((tab) => {
@@ -339,70 +345,66 @@ export default function ReviewManageTable({
         })}
       </div>
 
-      {/* 상단 요약 배너 */}
-      <div className="grid grid-cols-3 gap-2 md:gap-3">
-        {/* 전체 캠페인 (네이비) */}
-        <div className="rounded-2xl p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between text-white"
-          style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-          <span className="text-[12px] md:text-[13px] font-bold text-white/60">전체 캠페인</span>
-          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums">{campaigns.length}<span className="text-[13px] md:text-[15px] font-medium text-white/55 ml-1">건</span></p>
-        </div>
+      {/* 상태별 건수 — 카드가 곧 필터다 */}
+      <StatusFilterCards
+        counts={counts}
+        value={status}
+        onChange={(k) => { setStatus(k); setExpandedId(null); }}
+        keys={REVIEW_CARD_KEYS}
+        labels={REVIEW_CARD_LABELS}
+      />
 
-        {/* 진행중 (블루) */}
-        <div className="rounded-2xl p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between text-white"
-          style={{ background: "linear-gradient(135deg,#2E6BE0 0%,#1D4ED8 100%)" }}>
-          <span className="text-[12px] md:text-[13px] font-bold text-white/65">진행중</span>
-          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums">{running}<span className="text-[13px] md:text-[15px] font-medium text-white/60 ml-1">건</span></p>
-        </div>
+      <PeriodFilter period={period} basisLabel="신청일" />
 
-        {/* 대기중 (화이트) */}
-        <div className="rounded-2xl border border-brand-border bg-white p-3.5 md:p-5 min-h-[88px] md:min-h-[112px] flex flex-col justify-between">
-          <span className="text-[12px] md:text-[13px] font-bold text-brand-muted">대기중</span>
-          <p className="text-[22px] md:text-[30px] font-extrabold leading-none tabular-nums text-brand-dark">{pending}<span className="text-[13px] md:text-[15px] font-medium text-brand-muted ml-1">건</span></p>
-        </div>
-      </div>
-
-      {/* 테이블 */}
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-brand-border flex-wrap">
-          <div className="flex items-center gap-2">
-            {FILTER_OPTIONS.map((opt) => (
-              <button key={opt} onClick={() => { setFilter(opt); setExpandedId(null); }}
-                className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all ${
-                  filter === opt ? "bg-brand-primary text-white" : "bg-brand-lighter text-brand-sub hover:bg-brand-border"
-                }`}
+      {/* ── 목록 ──
+          상자를 두지 않는다. 위 요약 카드만 면을 가지므로 "지금 보는 범위"와
+          "목록"이 나뉜다. (리워드 캠페인 관리·통합순위관리와 같은 규칙) */}
+      <div className="mt-6 md:mt-8">
+        <ManageListHeader
+          title={`${tabs.find((t) => t.href === pathname)?.label ?? "내"} 캠페인`}
+          count={filtered.length}
+          value={status}
+          onChange={(k) => { setStatus(k); setExpandedId(null); }}
+          keys={REVIEW_STATUS_KEYS}
+          labels={REVIEW_LABELS}
+          className="px-5 md:px-6 pt-4 pb-3 border-b border-brand-border"
+          action={
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                </svg>
+                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="캠페인명, 키워드 검색"
+                  className="pl-8 pr-3 py-2 border border-brand-border rounded-lg text-[13px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary transition-all w-44"
+                />
+              </div>
+              <Link href={createHref}
+                className="flex items-center gap-1.5 shrink-0 px-4 py-2 rounded-lg text-[13.5px] font-bold text-white transition-opacity hover:opacity-90"
+                style={{ background: "var(--gradient-point)", boxShadow: "var(--shadow-point)" }}
               >
-                {opt}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-              </svg>
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="캠페인명, 키워드 검색"
-                className="pl-8 pr-3 py-1.5 border border-brand-border rounded-xl text-[13px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all w-48"
-              />
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                새 캠페인 신청
+              </Link>
             </div>
-            <Link href={createHref}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[13px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              캠페인 생성
-            </Link>
-          </div>
-        </div>
+          }
+        />
+
+        {/* ── 그룹 묶어보기 ── */}
+        <ItemGroupBar
+          groups={grp.groups}
+          onAdd={(name) => grp.addGroup(name)}
+          className="px-5 md:px-6 py-3 border-b border-brand-border"
+        />
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-max text-left">
             <thead>
-              <tr className="border-b border-brand-border bg-brand-lighter">
+              <tr className="border-b border-brand-border">
                 <th className="w-10" />
                 {["캠페인명", ...(showChannel ? ["채널"] : []), "키워드", "모집 인원", "진행률", "캠페인 요청일", "결제 금액", "상태"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[12px] font-bold text-brand-muted uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 pt-3 pb-2 text-[11.5px] font-semibold text-brand-muted whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -413,15 +415,44 @@ export default function ReviewManageTable({
                     조건에 맞는 캠페인이 없습니다.
                   </td>
                 </tr>
-              ) : filtered.map((c) => {
-                const st = STATUS_CONFIG[c.status];
+              ) : groupItems(filtered, (c) => c.id, grp.groups, grp.assign).flatMap((g) => [
+                  ...(grp.groups.length
+                    ? [
+                        <ItemGroupHeaderRow
+                          key={`gh-${g.gid ?? "none"}`}
+                          colSpan={showChannel ? 9 : 8}
+                          name={g.name}
+                          count={g.items.length}
+                          onPick={g.gid !== null ? () => setPickGroupId(g.gid!) : undefined}
+                          onRename={
+                            g.gid !== null
+                              ? () => {
+                                  const next = window.prompt("그룹 이름", g.name ?? "");
+                                  if (next) grp.renameGroup(g.gid!, next);
+                                }
+                              : undefined
+                          }
+                          onRemove={g.gid !== null ? () => grp.removeGroup(g.gid!) : undefined}
+                        />,
+                      ]
+                    : []),
+                  ...(g.empty && grp.groups.length
+                    ? [
+                        <tr key={`ge-${g.gid}`}>
+                          <td colSpan={showChannel ? 9 : 8} className="px-5 md:px-6 py-4 text-[13px] text-brand-muted">
+                            「편성」을 눌러 이 그룹에 넣을 캠페인을 고르세요.
+                          </td>
+                        </tr>,
+                      ]
+                    : []),
+                  ...g.items.map((c) => {
                 const isOpen = expandedId === c.id;
                 const pct = c.totalCount === 0 ? 0 : Math.round((c.doneCount / c.totalCount) * 100);
                 return (
                   <Fragment key={c.id}>
                     <tr
                       onClick={() => toggleExpand(c.id)}
-                      className={`border-b border-brand-border cursor-pointer transition-colors ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/40"}`}
+                      className={`cursor-pointer transition-colors ${isOpen ? "bg-brand-lighter/60" : "hover:bg-brand-lighter/50"}`}
                     >
                       <td className="pl-4 py-3.5">
                         <svg
@@ -432,7 +463,10 @@ export default function ReviewManageTable({
                         </svg>
                       </td>
                       <td className="px-4 py-3.5">
-                        <p className="text-[15px] font-semibold text-brand-dark truncate max-w-[160px]">{c.campaignName}</p>
+                        <span className="flex items-center gap-2">
+                          <NameChip name={c.campaignName} />
+                          <span className="text-[15px] font-semibold text-brand-dark truncate max-w-[160px]">{c.campaignName}</span>
+                        </span>
                         {c.productType && (
                           <span className={`inline-flex mt-1 items-center px-1.5 py-0.5 rounded-md text-[11px] font-bold ${
                             c.productType === "제품제공" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
@@ -472,7 +506,7 @@ export default function ReviewManageTable({
                         <span className="text-[12px] text-brand-muted ml-0.5">원</span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[12px] font-bold ${st.bg} ${st.text}`}>{st.label}</span>
+                        <StatusDot status={c.status as "pending" | "running" | "paused" | "done"} labels={REVIEW_LABELS} />
                       </td>
                     </tr>
                     {isOpen && (
@@ -492,15 +526,34 @@ export default function ReviewManageTable({
                     )}
                   </Fragment>
                 );
-              })}
+              }),
+                ])}
             </tbody>
           </table>
         </div>
 
-        <div className="px-5 py-3 border-t border-brand-border">
+        <div className="px-5 md:px-6 py-3 border-t border-brand-border">
           <p className="text-[13px] text-brand-muted">총 <span className="font-bold text-brand-dark">{filtered.length}</span>건</p>
         </div>
       </div>
+
+      {pickGroupId !== null && (
+        <ItemGroupPicker
+          groupName={grp.groups.find((g) => g.id === pickGroupId)?.name ?? "그룹"}
+          groupId={pickGroupId}
+          // 편성은 필터·검색과 무관하게 전체에서 고른다
+          items={campaigns}
+          idOf={(c) => c.id}
+          labelOf={(c) => c.campaignName}
+          subLabelOf={(c) => `${c.keyword} · ${c.type}`}
+          assign={grp.assign}
+          onApply={(add, remove) => {
+            grp.assignMany(add, pickGroupId);
+            grp.assignMany(remove, null);
+          }}
+          onClose={() => setPickGroupId(null)}
+        />
+      )}
 
       {/* 수정 요청 모달 */}
       {editTarget && (

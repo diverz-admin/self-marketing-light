@@ -13,25 +13,33 @@ import {
   Cell,
 } from "recharts";
 
-const KRW = (n: number) => "₩" + Math.round(n).toLocaleString("ko-KR");
+// 접미 "원" — U+20A9(₩)는 가로 획이 뒤 숫자에 닿아 취소선처럼 보인다 (admin-format.ts 참고)
+const KRW = (n: number) => Math.round(n).toLocaleString("ko-KR") + "원";
 
 // ── 차트 공통 스펙 ──
 // 마크는 얇게, 그리드/축은 물러나게. 면적 채움은 10% 워시(포화된 블록 금지).
 // 그리드선은 실선 헤어라인 — 점선은 "예측/임계값"으로 오독된다.
-const GRID = "#EEF1F5";
-const AXIS = "#E2E6ED";
-const TICK = { fontSize: 11, fill: "#99A0AC" } as const;
+// 색은 CSS 변수로 뺀다 — 같은 차트가 밝은 페이지(회원관리)와 다크 대시보드(.console)
+// 양쪽에 놓이므로, 컴포넌트를 복제하는 대신 놓인 자리의 토큰을 따르게 한다.
+// SVG 의 fill/stroke 는 var() 를 그대로 받는다.
+const GRID = "var(--chart-grid, #EEF1F5)";
+const AXIS = "var(--chart-axis, #E2E6ED)";
+// 축 눈금도 모노로 — 카드 수치와 같은 계열로 읽히게 한다 (console-ui.tsx 의 Num 과 짝)
+const TICK = { fontSize: 11, fill: "var(--chart-tick, #99A0AC)", fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace' } as const;
 const AREA_FILL_OPACITY = 0.1;
 const LINE_WIDTH = 2;
 const BAR_SIZE = 22;          // ≤24px, 밴드 여백은 공기로 남긴다
 const BAR_RADIUS: [number, number, number, number] = [4, 4, 0, 0]; // 데이터 끝만 둥글게, 기준선은 각지게
 
 const TOOLTIP_PROPS = {
-  labelStyle: { color: "#5B6472", fontSize: 12 },
+  labelStyle: { color: "var(--chart-tip-label, #5B6472)", fontSize: 12 },
   contentStyle: {
-    borderRadius: 12,
-    border: "1px solid #E2E6ED",
+    borderRadius: 10,
+    border: "1px solid var(--chart-tip-border, #E2E6ED)",
+    background: "var(--chart-tip-bg, #FFFFFF)",
+    color: "var(--chart-tip-text, #111D37)",
     fontSize: 13,
+    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
     boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
   },
 } as const;
@@ -49,8 +57,8 @@ export function RevenueAreaChart({ data }: { data: { date: string; amount: numbe
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0D3473" stopOpacity={AREA_FILL_OPACITY} />
-            <stop offset="100%" stopColor="#0D3473" stopOpacity={0} />
+            <stop offset="0%" stopColor="#2452EB" stopOpacity={AREA_FILL_OPACITY} />
+            <stop offset="100%" stopColor="#2452EB" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke={GRID} vertical={false} />
@@ -69,7 +77,7 @@ export function RevenueAreaChart({ data }: { data: { date: string; amount: numbe
           tickFormatter={(v) => (v >= 10000 ? `${Math.round(v / 10000)}만` : String(v))}
         />
         <Tooltip {...TOOLTIP_PROPS} formatter={(v) => [KRW(Number(v)), "매출"]} />
-        <Area type="monotone" dataKey="amount" stroke="#0D3473" strokeWidth={LINE_WIDTH} fill="url(#revFill)" />
+        <Area type="monotone" dataKey="amount" stroke="#2452EB" strokeWidth={LINE_WIDTH} fill="url(#revFill)" />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -106,7 +114,7 @@ export function RevenueBarChart({ data }: { data: { label: string; amount: numbe
           {data.map((d, i) => (
             // 마지막 막대(이번 달)는 아직 진행 중이라 연한 단계로 구분한다.
             // 색만으로 구분되지 않도록 툴팁 라벨과 패널 설명에 "진행 중"을 함께 표기한다.
-            <Cell key={i} fill={i === last ? "#7189B8" : "#0D3473"} />
+            <Cell key={i} fill={i === last ? "#7189B8" : "#2452EB"} />
           ))}
         </Bar>
       </BarChart>

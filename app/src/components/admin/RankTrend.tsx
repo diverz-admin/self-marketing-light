@@ -159,8 +159,8 @@ export function RankLineChart({ points }: { points: RankPoint[] }) {
       <svg viewBox={`0 0 ${W} ${H + 22}`} className="w-full min-w-[520px]" role="img" aria-label="순위 추이">
         <defs>
           <linearGradient id="rankFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0D3473" stopOpacity="0.16" />
-            <stop offset="100%" stopColor="#0D3473" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2452EB" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="#2452EB" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -177,11 +177,11 @@ export function RankLineChart({ points }: { points: RankPoint[] }) {
         ))}
 
         <polygon points={area} fill="url(#rankFill)" />
-        <polyline points={line} fill="none" stroke="#0D3473" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points={line} fill="none" stroke="#2452EB" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
 
         {points.map((p, i) => (
           <g key={`${p.date}-${i}`}>
-            <circle cx={x(i)} cy={y(p.rank)} r={4} fill="white" stroke="#0D3473" strokeWidth={2} />
+            <circle cx={x(i)} cy={y(p.rank)} r={4} fill="white" stroke="#2452EB" strokeWidth={2} />
             <text x={x(i)} y={y(p.rank) - 10} textAnchor="middle" className="fill-brand-dark" fontSize={11} fontWeight={700}>
               {p.rank}위
             </text>

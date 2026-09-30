@@ -1,252 +1,508 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useRailLeft } from "@/components/marketing/useRailLeft";
+import {
+  Camera,
+  ClipboardList,
+  Download,
+  Eye,
+  FileStack,
+  FileText,
+  Hand,
+  ImageIcon,
+  Lightbulb,
+  MessagesSquare,
+  ShieldCheck,
+  ShoppingCart,
+  Sparkles,
+  Timer,
+  TrendingUp,
+  Upload,
+  Wand2,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  LandingShell,
+  Reveal,
+  PillLink,
+  CountUp,
+  LIGHT,
+  TINT,
+  BLUE,
+  BLUE_BG,
+  NAVY,
+  EYEBROW,
+  EYEBROW_ON_DARK,
+  LEAD,
+  LEAD_ON_DARK,
+  H2,
+} from "@/components/marketing/landing";
 
-/* ── 상세페이지 목업 ─────────────────────────── */
-function DetailMockup() {
+/* ── 히어로 지표 ─────────────────────────────── */
+const HERO_STATS: {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  unit: string;
+}[] = [
+  { icon: FileStack, label: "누적 상세페이지 제작", value: 1200, unit: "건+" },
+  { icon: TrendingUp, label: "평균 전환율 개선", value: 34, unit: "%" },
+  { icon: Timer, label: "최단 납품 기간", value: 7, unit: "일" },
+];
+
+/* ── 구매 결정 흐름 ──────────────────────────────
+   상세페이지 기획의 뼈대. 고객이 위에서 아래로 스크롤하며 거치는 마음의 순서이고,
+   각 단계의 속마음(voice)에 답하는 섹션을 배치한다. */
+const BUY_FLOW: {
+  key: string;
+  icon: LucideIcon;
+  mind: string;
+  voice: string;
+  section: string;
+}[] = [
+  {
+    key: "stop",
+    icon: Hand,
+    mind: "멈춘다",
+    voice: "어? 이거 뭐지?",
+    section: "후킹 카피 · 대표 이미지",
+  },
+  {
+    key: "relate",
+    icon: MessagesSquare,
+    mind: "공감한다",
+    voice: "맞아, 나도 이게 불편했어",
+    section: "고객의 문제 · 불편",
+  },
+  {
+    key: "trust",
+    icon: Lightbulb,
+    mind: "확신한다",
+    voice: "이거라면 해결되겠다",
+    section: "해결 방법 · 특장점 · 근거",
+  },
+  {
+    key: "relief",
+    icon: ShieldCheck,
+    mind: "안심한다",
+    voice: "다들 만족했네",
+    section: "후기 · 인증 · 비교",
+  },
+  {
+    key: "buy",
+    icon: ShoppingCart,
+    mind: "구매한다",
+    voice: "지금 사야겠다",
+    section: "혜택 · 구성 · 구매 버튼",
+  },
+];
+
+/* ── 히어로 목업 — 폰 안에서 긴 상세페이지가 흘러간다 ───── */
+const CARD_SHADOW = "shadow-[0_28px_56px_-20px_rgba(7,15,73,.6)]";
+
+function LongPage() {
+  // 섹션 블록 — 높이 차이로 "롱폼"의 리듬을 만든다
   return (
-    <div className="relative w-[300px] h-[340px] shrink-0 select-none">
-
-      {/* 스마트스토어 스타일 세로 스크롤 카드 */}
+    <div>
+      {/* 멈춘다 — 후킹 */}
       <div
-        className="absolute left-0 top-0 w-[190px] rounded-2xl overflow-hidden shadow-2xl"
-        style={{ border: "1.5px solid rgba(255,255,255,0.18)", background: "#0D1F14" }}
+        className="relative h-[190px] overflow-hidden px-3 pt-4 text-white"
+        style={{ background: NAVY }}
       >
-        {/* 제품 이미지 영역 */}
-        <div className="relative h-[120px]" style={{ background: "linear-gradient(160deg,#064E3B 0%,#065F46 100%)" }}>
-          {/* AI 이미지 placeholder */}
-          <div className="absolute inset-3 rounded-xl flex items-center justify-center" style={{ background: "rgba(16,185,129,0.2)", border: "1px solid rgba(16,185,129,0.3)" }}>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-xl mx-auto mb-1 flex items-center justify-center" style={{ background: "rgba(16,185,129,0.4)" }}>
-                <svg className="w-5 h-5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-[8px] font-bold text-emerald-400">AI 이미지</p>
-            </div>
-          </div>
-          {/* AI 뱃지 */}
-          <div className="absolute top-2 right-2 text-[8px] font-extrabold px-1.5 py-0.5 rounded-md text-white" style={{ background: "#8B5CF6" }}>AI</div>
-        </div>
-
-        {/* 카피 영역 */}
-        <div className="px-3 py-2.5">
-          <div className="h-1.5 w-20 rounded-full mb-1.5" style={{ background: "rgba(16,185,129,0.6)" }} />
-          <div className="h-3 w-full rounded-lg mb-1" style={{ background: "rgba(255,255,255,0.85)" }} />
-          <div className="h-2 w-4/5 rounded-lg" style={{ background: "rgba(255,255,255,0.4)" }} />
-        </div>
-
-        {/* 구분선 */}
-        <div className="mx-3 h-px" style={{ background: "rgba(16,185,129,0.2)" }} />
-
-        {/* 특장점 블록 */}
-        <div className="px-3 py-2.5 space-y-1.5">
-          {[
-            { color: "#10B981", label: "핵심 특징 01" },
-            { color: "#34D399", label: "핵심 특징 02" },
-            { color: "#6EE7B7", label: "핵심 특징 03" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-md shrink-0" style={{ background: item.color }} />
-              <div className="h-1.5 flex-1 rounded-full" style={{ background: `${item.color}50` }} />
-            </div>
-          ))}
-        </div>
-
-        {/* 구분선 */}
-        <div className="mx-3 h-px" style={{ background: "rgba(16,185,129,0.2)" }} />
-
-        {/* 후기 영역 */}
-        <div className="px-3 py-2">
-          <div className="flex gap-0.5 mb-1">
-            {[...Array(5)].map((_, i) => (
-              <svg key={i} className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="#F59E0B">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            ))}
-            <span className="text-[8px] text-emerald-400 font-bold ml-1">4.9</span>
-          </div>
-          <div className="h-1 w-full rounded-full mb-0.5" style={{ background: "rgba(255,255,255,0.12)" }} />
-          <div className="h-1 w-3/4 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }} />
-        </div>
-
-        {/* CTA 버튼 */}
-        <div className="px-3 pb-3">
-          <div className="h-6 w-full rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-            <span className="text-[9px] font-extrabold text-white">구매하기</span>
-          </div>
-        </div>
+        <span className="absolute -right-6 top-8 h-28 w-28 rounded-full bg-[#2A5EFF]/60 blur-2xl" />
+        <p className="relative text-[7px] font-bold tracking-[0.2em] text-[#8FB0FF]">
+          NEW ARRIVAL
+        </p>
+        <p className="relative mt-1 text-[13px] font-extrabold leading-tight">
+          아침이 달라지는
+          <br />단 한 잔
+        </p>
+        <div className="relative mx-auto mt-3 h-20 w-16 rounded-t-[26px] rounded-b-lg bg-gradient-to-b from-white/90 to-white/50 shadow-lg" />
       </div>
-
-      {/* 오른쪽: 섹션 레이어 스택 */}
-      <div className="absolute right-0 top-4 space-y-2">
-        {[
-          { label: "히어로 섹션", color: "#10B981", w: "w-[108px]" },
-          { label: "특장점", color: "#34D399", w: "w-[98px]" },
-          { label: "사용법", color: "#059669", w: "w-[88px]" },
-          { label: "후기/리뷰", color: "#8B5CF6", w: "w-[98px]" },
-          { label: "구매 CTA", color: "#6D28D9", w: "w-[108px]" },
-        ].map((s, i) => (
+      {/* 공감한다 — 문제 */}
+      <div className="bg-white px-3 py-4">
+        <p className="text-[7px] font-extrabold text-brand-primary">
+          혹시 이런 고민 있으세요?
+        </p>
+        {["아침마다 속이 더부룩하다", "커피는 부담스럽다"].map((t) => (
           <div
-            key={s.label}
-            className={`${s.w} rounded-xl px-2.5 py-2 flex items-center gap-2 shadow-md`}
-            style={{ background: `${s.color}18`, border: `1px solid ${s.color}40`, marginLeft: `${i % 2 === 0 ? 0 : 8}px` }}
+            key={t}
+            className="mt-1.5 flex items-center gap-1 rounded-md bg-brand-lighter px-1.5 py-1"
           >
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-            <span className="text-[9px] font-bold" style={{ color: s.color }}>{s.label}</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+            <span className="text-[7px] font-bold text-brand-dark">{t}</span>
           </div>
         ))}
       </div>
-
-      {/* 배지들 */}
-      <div
-        className="absolute top-[96px] left-[-6px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
-        style={{ background: "#8B5CF6" }}
-      >
-        AI 이미지 생성
+      {/* 확신한다 — 특장점 */}
+      <div className="bg-brand-lighter px-3 py-4">
+        <p className="text-[7px] font-extrabold text-brand-primary">
+          POINT 01 · 02 · 03
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-1">
+          {["#DCE5FF", "#E7ECFF", "#F1F4FF"].map((c, k) => (
+            <div
+              key={c}
+              className="flex h-14 flex-col items-center justify-center rounded-md"
+              style={{ background: c }}
+            >
+              <span className="h-5 w-5 rounded-full bg-white" />
+              <span className="mt-1 text-[6px] font-extrabold text-brand-primary">
+                0{k + 1}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-2 h-16 rounded-md bg-gradient-to-br from-[#2A5EFF]/25 to-[#152C9E]/25" />
       </div>
-      <div
-        className="absolute bottom-[30px] right-[4px] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-lg"
-        style={{ background: "#10B981" }}
-      >
-        전환율 최적화
+      {/* 안심한다 — 후기 */}
+      <div className="bg-white px-3 py-4">
+        <p className="text-[7px] font-extrabold text-brand-primary">
+          실제 구매 후기
+        </p>
+        {[0, 1].map((k) => (
+          <div
+            key={k}
+            className="mt-1.5 rounded-md border border-brand-border p-1.5"
+          >
+            <p className="text-[7px] text-amber-400">★★★★★</p>
+            <span className="mt-0.5 block h-1 w-4/5 rounded-full bg-brand-border" />
+          </div>
+        ))}
+      </div>
+      {/* 구매한다 — CTA */}
+      <div className="bg-brand-lighter px-3 pb-5 pt-4">
+        <p className="text-[7px] font-extrabold text-brand-dark">
+          지금 구매 시 1+1 혜택
+        </p>
+        <div
+          className="mt-2 rounded-md py-1.5 text-center text-[8px] font-extrabold text-white"
+          style={{ background: BLUE_BG }}
+        >
+          구매하기
+        </div>
       </div>
     </div>
   );
 }
 
-/* ── 특장점 ──────────────────────────────────── */
-const FEATURES = [
-  {
-    no: "01",
-    title: "구매를 이끄는\n기획부터 시작합니다",
-    desc: "예쁜 디자인보다 팔리는 구조가 중요합니다. 제품 분석 → 핵심 메시지 → 섹션 구성까지, 전환율을 고려한 기획을 먼저 설계합니다.",
-    points: ["제품 특성 & 경쟁사 분석", "구매 결정 흐름 기반 섹션 설계", "핵심 카피 & 메시지 방향 정리", "와이어프레임 기획안 제공"],
-    visual: (
-      <div className="w-full max-w-[280px] space-y-2">
-        {[
-          { label: "① 제품 분석", sub: "경쟁사 · 타겟 · USP", color: "#10B981", done: true },
-          { label: "② 핵심 메시지", sub: "카피 · 슬로건 · 소구점", color: "#10B981", done: true },
-          { label: "③ 섹션 기획", sub: "히어로 · 특장점 · 후기 · CTA", color: "#10B981", done: true },
-          { label: "④ 디자인 착수", sub: "시안 제작 & 피드백", color: "#10B981", done: false },
-        ].map((item, i, arr) => (
-          <div key={item.label} className="flex items-start gap-3">
-            <div className="flex flex-col items-center shrink-0 mt-1">
+function DetailMockup() {
+  // 620×400 캔버스를 그대로 두고 좁은 화면에서는 통째로 축소한다
+  return (
+    <div
+      className="relative mx-auto h-[240px] w-full max-w-[620px] select-none sm:h-[400px]"
+      aria-hidden
+    >
+      <div className="absolute left-1/2 top-0 h-[400px] w-[620px] -translate-x-1/2 origin-top scale-[.58] sm:scale-100">
+        {/* PC — 쇼핑몰 PC 화면처럼 가운데 상세 영역만 흘러간다 */}
+        <div
+          className={`absolute left-0 top-[10px] w-[500px] overflow-hidden rounded-2xl bg-white ${CARD_SHADOW}`}
+        >
+          <div className="flex items-center gap-3 border-b border-brand-border bg-brand-lighter px-3.5 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+            </div>
+            <div className="flex h-6 flex-1 items-center rounded-md bg-white px-2.5 ring-1 ring-inset ring-brand-border">
+              <span className="text-[10.5px] font-medium text-brand-sub">
+                smartstore.naver.com/mybrand
+              </span>
+            </div>
+          </div>
+          <div className="relative flex h-[340px] justify-center overflow-hidden bg-slate-100">
+            <div className="w-[250px] bg-white shadow-[0_0_0_1px_rgba(15,23,42,.05)]">
               <div
-                className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0"
-                style={{ background: item.done ? item.color : "#E2E6ED", color: item.done ? "white" : "#5B6472" }}
+                className="animate-scroll-y"
+                style={{ animationDuration: "28s" }}
               >
-                {item.done ? "✓" : i + 1}
+                <LongPage />
+                <LongPage />
               </div>
-              {i < arr.length - 1 && (
-                <div className="w-px h-3 mt-0.5" style={{ background: item.done ? `${item.color}50` : "#E2E6ED" }} />
+            </div>
+          </div>
+        </div>
+
+        {/* 모바일 — PC 오른쪽에 겹쳐 선다 */}
+        <div
+          className={`absolute right-0 top-[40px] z-10 w-[170px] overflow-hidden rounded-[30px] border-[6px] border-brand-dark bg-white ${CARD_SHADOW}`}
+        >
+          <div className="relative z-10 flex items-center justify-between bg-white px-3 pb-1.5 pt-2">
+            <span className="h-1.5 w-10 rounded-full bg-brand-dark" />
+            <span className="text-[8px] font-extrabold text-brand-muted">
+              스마트스토어
+            </span>
+          </div>
+          <div className="relative h-[310px] overflow-hidden">
+            <div className="animate-scroll-y">
+              <LongPage />
+              <LongPage />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 특장점 비주얼 ───────────────────────────── */
+// 01 — 구매 전환 퍼널. 아래로 갈수록 좁아지고 짙어져 "읽는 사람이 사는 사람이 되는" 흐름을 보여 준다.
+//      각 단 왼쪽은 고객의 속마음, 가운데는 그 마음에 답하는 섹션.
+const FUNNEL_STYLE = [
+  { w: "100%", bg: "#F1F4FF", dark: false },
+  { w: "94%", bg: "#E3E9FF", dark: false },
+  { w: "88%", bg: "#C9D6FF", dark: false },
+  { w: "82%", bg: "#5B84FF", dark: true },
+  { w: "76%", bg: BLUE_BG, dark: true },
+];
+
+function FlowBlueprint() {
+  return (
+    <div className="w-full max-w-[380px] rounded-3xl border border-brand-border bg-white p-5 shadow-[0_30px_60px_-30px_rgba(36,82,235,.45)]">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-muted">
+          Conversion funnel
+        </p>
+        <span className="rounded-md bg-brand-primary-50 px-1.5 py-0.5 text-[10px] font-bold text-brand-primary">
+          속마음 → 섹션
+        </span>
+      </div>
+
+      <ol className="mt-4 flex flex-col items-center gap-1.5">
+        {BUY_FLOW.map((b, i) => {
+          const Icon = b.icon;
+          const st = FUNNEL_STYLE[i];
+          return (
+            <li
+              key={b.key}
+              className="rounded-2xl px-3.5 py-3"
+              style={{ width: st.w, background: st.bg }}
+            >
+              <div className="flex items-center gap-2.5">
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${st.dark ? "bg-white/20 text-white" : "bg-white text-brand-primary shadow-sm"}`}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2.3} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p
+                      className={`text-[14px] font-extrabold leading-tight ${st.dark ? "text-white" : "text-brand-dark"}`}
+                    >
+                      {b.mind}
+                    </p>
+                    <p
+                      className={`truncate text-[11px] font-bold ${st.dark ? "text-white/75" : "text-brand-primary"}`}
+                    >
+                      “{b.voice}”
+                    </p>
+                  </div>
+                  <p
+                    className={`mt-0.5 text-[10.5px] font-medium ${st.dark ? "text-white/65" : "text-brand-muted"}`}
+                  >
+                    {b.section}
+                  </p>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {/* 퍼널 끝 — 결과 */}
+      <div className="mt-3 flex items-center justify-center gap-1.5 text-[11.5px] font-extrabold text-brand-primary">
+        <span className="h-px w-8 bg-brand-primary/30" />
+        읽는 사람이 사는 사람이 됩니다
+        <span className="h-px w-8 bg-brand-primary/30" />
+      </div>
+    </div>
+  );
+}
+
+// 02 — AI로 만드는 연출컷 네 가지. 실제 사진(Unsplash)을 쓰되 브랜드 로고가 크게 보이는 컷은 피했다.
+const unsplash = (id: string) => `https://images.unsplash.com/photo-${id}?w=360&h=360&fit=crop&q=70`;
+const AI_SHOTS = [
+  { label: "제품 단독컷", src: unsplash("1523275335684-37898b6baf30") },
+  { label: "라이프스타일", src: unsplash("1612817288484-6f916006741a") },
+  { label: "배경 합성", src: unsplash("1629198688000-71f23e745b6e") },
+  { label: "인포그래픽", src: unsplash("1620916566398-39f1143ab7be"), info: true },
+];
+
+function AiImageGrid() {
+  return (
+    <div className="w-full max-w-[340px] rounded-3xl border border-brand-border bg-white p-5 shadow-[0_30px_60px_-30px_rgba(36,82,235,.45)]">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-muted">AI images</p>
+        <span className="inline-flex items-center gap-1 rounded-md bg-brand-primary-50 px-1.5 py-0.5 text-[10px] font-bold text-brand-primary">
+          <Camera className="h-3 w-3" strokeWidth={2.4} />
+          촬영 없이
+        </span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2.5">
+        {AI_SHOTS.map((s) => (
+          <div key={s.label}>
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-brand-lighter">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={s.src} alt={s.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+              {s.info && (
+                // 인포그래픽 — 사진 위에 특징 콜아웃을 얹는다
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/55 via-transparent to-transparent">
+                  <span className="absolute left-2 top-2 rounded-md bg-brand-primary px-1.5 py-0.5 text-[9px] font-extrabold text-white shadow">POINT 01</span>
+                  <span className="absolute right-2 top-[38%] rounded-full bg-white/95 px-2 py-0.5 text-[9.5px] font-extrabold text-brand-dark shadow">24h 보습</span>
+                  <span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2 py-0.5 text-[9.5px] font-extrabold text-brand-dark shadow">저자극 테스트 완료</span>
+                </div>
               )}
             </div>
-            <div
-              className="flex-1 rounded-xl px-3 py-2"
-              style={{ background: item.done ? `${item.color}10` : "#F5F6F8", border: `1px solid ${item.done ? `${item.color}30` : "#E2E6ED"}` }}
-            >
-              <p className="text-[12px] font-bold leading-tight" style={{ color: item.done ? item.color : "#5B6472" }}>{item.label}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: item.done ? `${item.color}99` : "#9CA3AF" }}>{item.sub}</p>
-            </div>
+            <p className="mt-1.5 text-center text-[11.5px] font-bold text-brand-sub">{s.label}</p>
           </div>
         ))}
       </div>
-    ),
-    bg: "white",
-    accent: "#10B981",
+    </div>
+  );
+}
+
+// 03 — 포트폴리오 월. 1,200건이라는 숫자를 실제 작업물이 쌓인 벽으로 보여 준다
+const PORTFOLIO = [
+  "1523275335684-37898b6baf30",
+  "1612817288484-6f916006741a",
+  "1629198688000-71f23e745b6e",
+  "1620916566398-39f1143ab7be",
+  "1505740420928-5e560c06d30e",
+];
+
+function PortfolioWall() {
+  return (
+    <div className="w-full max-w-[340px] rounded-3xl border border-brand-border bg-white p-5 shadow-[0_30px_60px_-30px_rgba(36,82,235,.45)]">
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-muted">Portfolio</p>
+          <p className="mt-1.5 text-[34px] font-extrabold leading-none tracking-tight text-brand-dark tabular-nums">
+            <CountUp to={1200} />
+            <span className="ml-1 text-[15px] font-extrabold text-brand-primary">건+</span>
+          </p>
+        </div>
+        <span className="mb-1 rounded-md bg-brand-primary-50 px-1.5 py-0.5 text-[10px] font-bold text-brand-primary">누적 제작</span>
+      </div>
+
+      {/* 미니 상세페이지 썸네일 — 사진 + 본문 줄 */}
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {PORTFOLIO.map((id) => (
+          <div key={id} className="overflow-hidden rounded-xl border border-brand-border bg-white">
+            <div className="relative aspect-square">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={unsplash(id)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+            <div className="space-y-1 p-1.5">
+              <span className="block h-1 w-4/5 rounded-full bg-brand-border-strong" />
+              <span className="block h-1 w-3/5 rounded-full bg-brand-border" />
+              <span className="block h-3 w-full rounded bg-brand-lighter" />
+            </div>
+          </div>
+        ))}
+        <div className="flex flex-col items-center justify-center rounded-xl text-white" style={{ background: BLUE_BG }}>
+          <p className="text-[18px] font-extrabold tabular-nums">+1,195</p>
+          <p className="text-[9.5px] font-bold text-white/70">건 더</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 특장점 섹션 데이터 ──────────────────────── */
+const FEATURES: {
+  no: string;
+  eyebrow: string;
+  title: string;
+  desc: string;
+  points: { icon: LucideIcon; title: string }[];
+  visual: React.ReactNode;
+}[] = [
+  {
+    no: "01",
+    eyebrow: "Planning",
+    title: "예쁜 페이지가 아니라\n팔리는 구조를 만듭니다",
+    desc: "고객은 멈추고, 공감하고, 확신하고, 안심해야 구매합니다. 이 순서대로 섹션과 카피를 쌓아 끝까지 읽히고 결국 사게 만듭니다.",
+    points: [],
+    visual: <FlowBlueprint />,
   },
   {
     no: "02",
-    title: "AI 이미지 생성으로\n제품을 돋보이게",
-    desc: "별도 촬영 없이도 고퀄리티 제품 이미지를 만들 수 있습니다. AI 이미지 생성이 모든 플랜에 기본 포함되어 있습니다.",
-    points: ["제품 컨셉에 맞는 배경 이미지 생성", "라이프스타일 연출 이미지 제작", "썸네일·대표이미지 제작 (Premium)", "무보정 촬영본 업그레이드 가능"],
-    visual: (
-      <div className="w-full max-w-[280px] space-y-2.5">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">AI Image Generation</p>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: "제품컷", color: "#10B981", icon: "📦" },
-              { label: "라이프스타일", color: "#8B5CF6", icon: "🛋️" },
-              { label: "배경 합성", color: "#0EA5E9", icon: "🌿" },
-              { label: "인포그래픽", color: "#F59E0B", icon: "📊" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl p-3 flex flex-col items-center gap-1"
-                style={{ background: `${item.color}12`, border: `1px solid ${item.color}25` }}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="text-[10px] font-bold" style={{ color: item.color }}>{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-md px-4 py-3 flex items-center gap-3">
-          <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#8B5CF620" }}>
-            <span className="text-[16px]">✨</span>
-          </div>
-          <div>
-            <p className="text-[12px] font-bold text-gray-700">별도 촬영 비용 0원</p>
-            <p className="text-[10px] text-gray-400">AI로 프리미엄 이미지 생성</p>
-          </div>
-        </div>
-      </div>
-    ),
-    bg: "#F5F6F8",
-    accent: "#8B5CF6",
+    eyebrow: "AI image",
+    title: "촬영 없이도\n제품이 돋보이게",
+    desc: "AI 이미지 생성이 기본 포함됩니다. 가진 사진 한 장으로 연출컷·배경 합성·인포그래픽까지 만들어 냅니다.",
+    points: [
+      { icon: Wand2, title: "컨셉 배경 생성" },
+      { icon: ImageIcon, title: "라이프스타일 연출" },
+      { icon: Upload, title: "촬영본 업그레이드" },
+      { icon: FileText, title: "썸네일·대표이미지" },
+    ],
+    visual: <AiImageGrid />,
   },
   {
     no: "03",
-    title: "50,000px+\n브랜드 감성 디자인",
-    desc: "단순 나열식 디자인이 아닌 브랜드 톤에 맞는 감성 디자인으로 제작합니다. 섹션마다 스크롤을 멈추게 만드는 레이아웃을 설계합니다.",
-    points: ["브랜드 컬러·폰트 시스템 반영", "섹션별 비주얼 & 레이아웃 다양화", "Figma 소스 파일 납품", "모바일·PC 동시 최적화"],
-    visual: (
-      <div className="w-full max-w-[280px] space-y-2">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4">
-          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">Section Stack</p>
-          {[
-            { label: "히어로 + 핵심 카피", px: "5,000px", color: "#10B981" },
-            { label: "특장점 3–5가지", px: "10,000px", color: "#34D399" },
-            { label: "제품 상세 설명", px: "15,000px", color: "#059669" },
-            { label: "사용 후기 / 인증", px: "8,000px", color: "#8B5CF6" },
-            { label: "구매 CTA", px: "3,000px", color: "#6D28D9" },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-              <span className="text-[11px] text-gray-600 flex-1">{s.label}</span>
-              <span className="text-[10px] font-bold" style={{ color: s.color }}>{s.px}</span>
-            </div>
-          ))}
-          <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-            <span className="text-[10px] font-bold text-gray-400">총 분량</span>
-            <span className="text-[11px] font-extrabold text-violet-600">41,000px+</span>
-          </div>
-        </div>
-      </div>
-    ),
-    bg: "white",
-    accent: "#10B981",
+    eyebrow: "Experience",
+    title: "만들어 본 사람들만이\n압니다",
+    desc: "1,200건의 상세페이지를 만들며 무엇이 팔리고 무엇이 안 팔리는지 쌓아 왔습니다. 처음 만드는 제품도 이미 검증된 구조 위에서 시작합니다.",
+    points: [
+      { icon: Lightbulb, title: "카테고리별 노하우" },
+      { icon: ShieldCheck, title: "검증된 섹션 구조" },
+      { icon: TrendingUp, title: "팔리는 패턴 데이터" },
+      { icon: Timer, title: "빠른 방향 설정" },
+    ],
+    visual: <PortfolioWall />,
   },
 ];
 
 /* ── 프로세스 ───────────────────────────────── */
-const PROCESS = [
-  { step: "01", title: "상담 & 제품 분석", desc: "제품 종류·판매 채널·경쟁사를 파악하고 적합한 플랜을 추천드립니다." },
-  { step: "02", title: "기획 & 레이아웃 설계", desc: "구매 전환 흐름에 맞는 섹션 구성과 핵심 카피 방향을 설계합니다." },
-  { step: "03", title: "AI 이미지 생성 & 소재 준비", desc: "제품 이미지, 배경 합성, 라이프스타일 이미지를 AI로 제작합니다." },
-  { step: "04", title: "디자인 시안 제작 & 수정", desc: "기획안 기반으로 풀 디자인 시안을 제작하고 피드백을 반영합니다." },
-  { step: "05", title: "최종 납품", desc: "Figma 소스 + 이미지 파일 납품. 썸네일·대표이미지 포함 (Premium)." },
+const PROCESS: {
+  step: string;
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  output: string;
+}[] = [
+  {
+    step: "01",
+    icon: MessagesSquare,
+    title: "상담 & 제품 분석",
+    desc: "제품 종류·판매 채널·경쟁사를 파악하고 맞는 구성을 제안드립니다.",
+    output: "제품 분석",
+  },
+  {
+    step: "02",
+    icon: ClipboardList,
+    title: "기획 & 설계",
+    desc: "구매 흐름에 맞는 섹션 구성과 핵심 카피 방향을 설계합니다.",
+    output: "와이어프레임",
+  },
+  {
+    step: "03",
+    icon: Sparkles,
+    title: "AI 이미지 제작",
+    desc: "제품 이미지, 배경 합성, 라이프스타일 이미지를 AI로 제작합니다.",
+    output: "연출 이미지",
+  },
+  {
+    step: "04",
+    icon: Eye,
+    title: "시안 & 수정",
+    desc: "기획안 기반으로 풀 디자인 시안을 제작하고 피드백을 반영합니다.",
+    output: "디자인 시안",
+  },
+  {
+    step: "05",
+    icon: Download,
+    title: "최종 납품",
+    desc: "Figma 소스와 쇼핑몰 업로드용 이미지 파일을 납품합니다.",
+    output: "업로드 파일",
+  },
 ];
 
 /* ── FAQ ────────────────────────────────────── */
 const FAQS = [
   {
     q: "제품 사진이 없어도 제작이 가능한가요?",
-    a: "네, AI 이미지 생성이 모든 플랜에 포함되어 있어 별도 촬영 없이도 고퀄리티 이미지를 제작할 수 있습니다. 기존 제품 사진이 있다면 더 좋은 결과물을 만들 수 있습니다.",
+    a: "네, AI 이미지 생성이 기본 포함되어 있어 별도 촬영 없이도 고퀄리티 이미지를 제작할 수 있습니다. 기존 제품 사진이 있다면 더 좋은 결과물을 만들 수 있습니다.",
   },
   {
     q: "스마트스토어·쿠팡 등 쇼핑몰에 바로 올릴 수 있나요?",
@@ -254,389 +510,394 @@ const FAQS = [
   },
   {
     q: "분량은 어떻게 책정되나요?",
-    a: "Standard는 약 6–7섹션(20,000px+), Deluxe는 약 10섹션(40,000px+), Premium은 15섹션 이상(50,000px+)입니다. 제품 특성에 따라 협의 가능합니다.",
+    a: "제품 특성에 따라 약 6–7섹션(20,000px+)부터 15섹션 이상(50,000px+)까지 구성합니다. 상담 시 맞는 분량을 제안드립니다.",
   },
   {
     q: "디자인 수정은 몇 번까지 가능한가요?",
-    a: "Standard 2회, Deluxe 3회, Premium 4회 수정이 포함됩니다. 기획 단계와 디자인 단계로 나누어 진행합니다.",
+    a: "분량에 따라 2–4회 수정이 포함됩니다. 기획 단계와 디자인 단계로 나누어 진행합니다.",
   },
 ];
-
-/* ── 가격 플랜 ───────────────────────────────── */
-const TIERS = [
-  {
-    id: "standard",
-    name: "Standard",
-    sub: "입문용",
-    price: "79",
-    unit: "만원",
-    duration: "7 영업일",
-    grad: "linear-gradient(135deg,#10B981,#059669)",
-    checkColor: "text-emerald-500",
-    targets: ["간단한 제품 설명이 필요한 경우", "빠른 출시가 필요한 신제품", "예산을 최소화하고 싶은 셀러"],
-    specs: [
-      { label: "분량", value: "20,000px+ (약 6–7섹션)" },
-      { label: "결과물", value: "Figma" },
-      { label: "수정", value: "2회 (기획 1회, 디자인 1회)" },
-    ],
-    includes: ["기획", "디자인", "AI 이미지 생성"],
-    highlight: "",
-  },
-  {
-    id: "deluxe",
-    name: "Deluxe",
-    sub: "주력 매출형",
-    price: "149",
-    unit: "만원",
-    duration: "10 영업일",
-    grad: "linear-gradient(135deg,#3B82F6,#1D4ED8)",
-    checkColor: "text-blue-500",
-    targets: ["주력 제품 매출을 높이고 싶은 경우", "경쟁이 많은 카테고리의 상품", "브랜드 인지도를 높이고 싶은 셀러"],
-    specs: [
-      { label: "분량", value: "40,000px+ (약 10섹션)" },
-      { label: "결과물", value: "Figma" },
-      { label: "수정", value: "3회 (기획 1회, 디자인 2회)" },
-    ],
-    includes: ["기획", "디자인", "AI 이미지 생성"],
-    highlight: "",
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    sub: "브랜드/전환 최적화형",
-    price: "219",
-    unit: "만원~",
-    duration: "12–14 영업일",
-    grad: "linear-gradient(135deg,#8B5CF6,#6D28D9)",
-    checkColor: "text-violet-500",
-    best: true,
-    targets: ["프리미엄 제품 / D2C 브랜드", "설명이 많은 복잡한 제품", "전환율 극대화가 목표인 셀러"],
-    specs: [
-      { label: "분량", value: "50,000px+ (약 15섹션 이상)" },
-      { label: "결과물", value: "Figma" },
-      { label: "수정", value: "4회 (기획 2회, 디자인 2회)" },
-    ],
-    includes: ["기획", "디자인", "AI 이미지 생성", "썸네일 + 대표이미지 제공"],
-    highlight: "썸네일 + 대표이미지 제공",
-  },
-];
-
-function Check({ color }: { color: string }) {
-  return (
-    <svg className={`w-3.5 h-3.5 shrink-0 mt-[1px] ${color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
-  );
-}
 
 export default function DetailPage() {
-  const { railRef, railLeft } = useRailLeft();
+  // 한 번에 하나만 열리게 둔다 — 다 펼쳐 두면 질문 목록을 훑는 이점이 사라진다
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="w-full flex gap-6 items-start">
+    <LandingShell
+      railTitle={
+        <>
+          상세페이지 제작,
+          <br />
+          상담으로 시작
+        </>
+      }
+    >
+      {/* ── 1. 히어로 ── 흰 밴드 · 중앙 정렬, 아래는 블루 무대 위 목업 */}
+      <section
+        className={`${LIGHT} pb-0 md:pb-0`}
+        style={{
+          backgroundImage:
+            "radial-gradient(120% 90% at 50% -10%, rgba(36,82,235,.07), transparent 60%)",
+        }}
+      >
+        <div className="relative text-center">
+          <Reveal>
+            <p className={EYEBROW}>Detail page</p>
+            <h2 className={`${H2} mt-4 text-brand-dark`}>
+              팔리는 상세페이지,
+              <br />
+              <span className="text-brand-primary">기획이 먼저입니다</span>
+            </h2>
+            <p className={LEAD}>
+              고객이 멈추고, 공감하고, 확신하고, 구매하는 순서대로.
+              스마트스토어·쿠팡·자사몰 어디에나 맞게 만들어 드립니다.
+            </p>
+          </Reveal>
 
-      {/* ── 메인 콘텐츠 ────────────────────── */}
-      <div className="flex-1 min-w-0 space-y-4">
-
-        {/* ── 오른쪽 고정 CTA 패널 ────── */}
-        <div
-          className="hidden lg:block fixed z-30 w-64 xl:w-72"
-          style={{ top: 92, left: railLeft, visibility: railLeft == null ? "hidden" : "visible" }}
-        >
-          <div className="rounded-2xl overflow-hidden shadow-xl border border-emerald-100">
-            <div className="px-5 pt-6 pb-6" style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}>
-              <p className="text-[11px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Detail Page</p>
-              <p className="text-[19px] font-extrabold text-white leading-tight mb-1">기획부터 AI 이미지까지</p>
-              <p className="text-[19px] font-extrabold text-white leading-tight mb-5">원스톱 제작</p>
-              <p className="text-[12px] text-white/55 leading-relaxed mb-5">
-                전환율 중심 기획 · AI 이미지 생성<br />감성 디자인 · Figma 납품까지<br />한 팀이 끝까지 담당합니다.
-              </p>
-              <div className="space-y-2">
-                {[
-                  { label: "Standard", price: "79만원~", sub: "7 영업일" },
-                  { label: "Deluxe", price: "149만원~", sub: "10 영업일" },
-                  { label: "Premium", price: "219만원~", sub: "12–14 영업일" },
-                ].map((t) => (
-                  <div key={t.label} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/10">
-                    <div>
-                      <span className="text-[13px] font-bold text-white block leading-tight">{t.label}</span>
-                      <span className="text-[11px] text-white/40">{t.sub}</span>
-                    </div>
-                    <span className="text-[13px] font-extrabold text-emerald-200">{t.price}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white px-4 py-5 space-y-2.5">
-              <button
-                className="w-full py-3 rounded-xl text-[15px] font-extrabold text-white transition-opacity hover:opacity-85"
-                style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}
+          {/* 목업 무대 — 블루 면이 밴드 바닥까지 내려와 다음 섹션과 이어진다 */}
+          <Reveal delay={220}>
+            <div className="relative mx-auto mt-12 max-w-[760px]">
+              <div
+                className="absolute inset-x-0 bottom-0 top-16 overflow-hidden rounded-t-[36px] sm:top-28"
+                style={{ background: "var(--gradient-point)" }}
               >
-                무료 상세페이지 상담 신청
-              </button>
-              <button className="w-full py-3 rounded-xl text-[15px] font-bold text-brand-sub bg-brand-lighter hover:bg-brand-border transition-colors border border-brand-border">
-                카카오로 문의하기
-              </button>
+                <span
+                  className="pointer-events-none absolute -left-16 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl"
+                  aria-hidden
+                />
+                <span
+                  className="pointer-events-none absolute -right-10 bottom-0 h-48 w-48 rounded-full bg-[#8FB0FF]/20 blur-3xl"
+                  aria-hidden
+                />
+                <span
+                  className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                  aria-hidden
+                />
+                <span
+                  className="pointer-events-none absolute inset-0 opacity-60"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px)",
+                    backgroundSize: "32px 32px",
+                    maskImage: "linear-gradient(180deg, #000 30%, transparent)",
+                    WebkitMaskImage:
+                      "linear-gradient(180deg, #000 30%, transparent)",
+                  }}
+                  aria-hidden
+                />
+              </div>
+              <div className="relative px-4 pb-8 sm:pb-10">
+                <DetailMockup />
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
+      </section>
 
-        {/* ── HERO ──────────────────────────── */}
-        <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#022C22 0%,#064E3B 55%,#065F46 100%)" }}>
-          <div className="px-5 py-8 md:px-8 md:py-10 flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-extrabold text-emerald-300 uppercase tracking-[0.2em] mb-3">Detail Page</p>
-              <h1 className="text-[26px] md:text-[34px] font-extrabold text-white leading-tight mb-4">
-                팔리는 상세페이지,<br />
-                기획이 먼저입니다
-              </h1>
-              <p className="text-[16px] text-white/75 leading-relaxed mb-6">
-                전환율 기반 기획 · AI 이미지 생성 · 감성 디자인<br />
-                스마트스토어·쿠팡·자사몰 모두 대응합니다.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["전환율 최적화", "AI 이미지 포함", "Figma 납품", "7일 완성"].map((t) => (
-                  <span key={t} className="text-[12px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
-                    {t}
+      {/* ── 지표 밴드 ── 히어로의 블루 무대 바로 아래, 네이비 띠 위에 숫자만 크게 */}
+      <section
+        className="relative overflow-hidden px-7 py-12 text-white md:px-14 md:py-14"
+        style={{ background: NAVY }}
+      >
+        <span
+          className="pointer-events-none absolute -left-20 -top-24 h-64 w-64 rounded-full bg-[#2A5EFF]/30 blur-3xl"
+          aria-hidden
+        />
+        <span
+          className="pointer-events-none absolute -bottom-24 right-0 h-56 w-56 rounded-full bg-[#8FB0FF]/15 blur-3xl"
+          aria-hidden
+        />
+        <div className="relative grid gap-8 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-white/10">
+          {HERO_STATS.map((st, i) => {
+            const Icon = st.icon;
+            return (
+              <Reveal key={st.label} delay={i * 90}>
+                <div className="flex items-center gap-4 sm:flex-col sm:gap-0 sm:px-4 sm:text-center">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[#8FB0FF] ring-1 ring-inset ring-white/15">
+                    <Icon className="h-5 w-5" strokeWidth={2} />
                   </span>
-                ))}
-              </div>
-            </div>
-            <DetailMockup />
-          </div>
-        </section>
+                  <div className="sm:mt-4">
+                    <p className="text-[34px] font-extrabold leading-none tracking-tight tabular-nums md:text-[44px]">
+                      <CountUp to={st.value} />
+                      <span className="ml-1 align-baseline text-[16px] font-extrabold text-[#8FB0FF] md:text-[20px]">
+                        {st.unit}
+                      </span>
+                    </p>
+                    <p className="mt-2 text-[13px] font-semibold text-white/60 break-keep">
+                      {st.label}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
 
-        {/* ── 숫자 강조 ──────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border py-6 px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-x divide-brand-border">
-            {[
-              { num: "1,200+", label: "누적 상세페이지 제작" },
-              { num: "평균 +34%", label: "전환율 개선 효과" },
-              { num: "7일", label: "최단 납품 기간" },
-            ].map((s) => (
-              <div key={s.label} className="text-center px-2">
-                <p className="text-[27px] font-extrabold text-emerald-600 leading-tight">{s.num}</p>
-                <p className="text-[13px] text-brand-sub mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 특장점 3섹션 ───────────────────── */}
-        {FEATURES.map((f, i) => (
-          <section
-            key={f.no}
-            className="rounded-2xl overflow-hidden"
-            style={{ background: f.bg }}
-          >
-            <div className={`px-5 py-8 md:px-8 md:py-10 flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-8`}>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: f.accent }}>
-                  FEATURE {f.no}
-                </p>
-                <h2 className="text-[25px] font-extrabold text-brand-dark leading-tight mb-3 whitespace-pre-line">
+      {/* ── 2~4. 특장점 ── 연회색 ↔ 흰 밴드를 번갈아 깐다 (히어로가 흰색이라 회색부터) */}
+      {FEATURES.map((f, i) => {
+        const flip = i % 2 === 1;
+        return (
+          <section key={f.no} className={flip ? LIGHT : TINT}>
+            <div className="relative grid items-center gap-10 md:grid-cols-2 md:gap-14">
+              <Reveal className={flip ? "md:order-2" : ""}>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-[14px] font-black text-white tabular-nums shadow-[0_10px_20px_-10px_rgba(36,82,235,.8)]"
+                    style={{ background: BLUE_BG }}
+                  >
+                    {f.no}
+                  </span>
+                  <p className={EYEBROW}>{f.eyebrow}</p>
+                </div>
+                <h2
+                  className={`${H2} mt-5 whitespace-pre-line text-brand-dark`}
+                >
                   {f.title}
                 </h2>
-                <p className="text-[15px] text-brand-sub leading-relaxed mb-5">{f.desc}</p>
-                <ul className="space-y-2">
-                  {f.points.map((pt) => (
-                    <li key={pt} className="flex items-center gap-2">
-                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke={f.accent} strokeWidth={2.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                      <span className="text-[13px] font-semibold text-brand-dark">{pt}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="shrink-0 flex justify-center w-full md:w-auto">
-                {f.visual}
-              </div>
+                <p className="mt-5 text-[15px] leading-relaxed text-brand-sub break-keep md:text-[16.5px]">
+                  {f.desc}
+                </p>
+                {/* points 가 비어 있으면(01) 타일을 그리지 않는다 — 01은 오른쪽 퍼널이 내용을 다 보여준다 */}
+                {f.points.length > 0 && (
+                  <ul className="mt-8 grid grid-cols-2 gap-2.5">
+                    {f.points.map((pt) => {
+                      const Icon = pt.icon;
+                      return (
+                        <li
+                          key={pt.title}
+                          className={`group flex items-center gap-3 rounded-2xl border border-brand-border px-3.5 py-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary/30 hover:shadow-[0_16px_32px_-20px_rgba(36,82,235,.4)] ${
+                            flip ? "bg-brand-lighter/60" : "bg-white"
+                          }`}
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary-50 text-brand-primary transition-colors group-hover:bg-brand-primary group-hover:text-white">
+                            <Icon
+                              className="h-[18px] w-[18px]"
+                              strokeWidth={2}
+                            />
+                          </span>
+                          <p className="text-[14px] font-extrabold leading-snug text-brand-dark break-keep">
+                            {pt.title}
+                          </p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </Reveal>
+
+              <Reveal delay={120} className={flip ? "md:order-1" : ""}>
+                {/* 비주얼 무대 — 점 격자 위에 카드를 올려 작업물처럼 보이게 한다 */}
+                <div
+                  className={`relative flex justify-center overflow-hidden rounded-[28px] px-6 py-10 md:py-12 ${flip ? "bg-brand-lighter" : "bg-white"}`}
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(rgba(36,82,235,.10) 1px, transparent 1px)",
+                    backgroundSize: "18px 18px",
+                  }}
+                >
+                  <span
+                    className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-brand-primary/10 blur-3xl"
+                    aria-hidden
+                  />
+                  <div className="relative flex w-full justify-center">
+                    {f.visual}
+                  </div>
+                </div>
+              </Reveal>
             </div>
           </section>
-        ))}
+        );
+      })}
 
-        {/* ── 프로세스 ────────────────────────── */}
-        <section className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(160deg,#022C22 0%,#064E3B 100%)" }}>
-          <div className="px-5 py-8 md:px-8 md:py-10">
-            <p className="text-[12px] font-extrabold uppercase tracking-widest mb-2" style={{ color: "#6EE7B7" }}>Process</p>
-            <h2 className="text-[25px] font-extrabold text-white mb-8">5단계 제작 프로세스</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {PROCESS.map((p, i) => (
-                <div key={p.step} className="relative rounded-2xl p-5 flex flex-col"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
-                  {/* 단계 연결 화살표 (데스크톱) */}
-                  {i < PROCESS.length - 1 && (
-                    <svg className="hidden lg:block absolute top-9 -right-3 w-5 h-5 text-white/25 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center text-[15px] font-extrabold text-white mb-4 shrink-0"
-                    style={{ background: "linear-gradient(135deg,#10B981,#059669)", boxShadow: "0 6px 16px rgba(16,185,129,0.35)" }}>
-                    {p.step}
-                  </div>
-                  <p className="text-[15px] font-bold text-white mb-1.5 leading-snug">{p.title}</p>
-                  <p className="text-[13px] text-white/50 leading-relaxed">{p.desc}</p>
-                </div>
-              ))}
+      {/* ── 5. 진행 프로세스 ── 블루 밴드 */}
+      <section className={BLUE} style={{ background: BLUE_BG }}>
+        <div className="relative text-center">
+          <Reveal>
+            <p className={EYEBROW_ON_DARK}>How it works</p>
+            <h2 className={`${H2} mt-4 text-white`}>
+              분석부터 업로드 파일까지
+            </h2>
+            <p className={LEAD_ON_DARK}>
+              제품과 판매 채널부터 여쭙고, 팔리는 구조를 먼저 잡습니다.
+            </p>
+          </Reveal>
+
+          {/* 데스크톱: 레일 위 스텝 노드 + 카드. 마지막(업로드 파일)을 가장 밝게 띄운다 */}
+          <div className="relative mt-14 hidden sm:block">
+            <div className="pointer-events-none absolute left-[10%] right-[10%] top-[22px] h-[2px] rounded-full bg-gradient-to-r from-white/15 via-white/45 to-white/80" />
+            <div className="grid grid-cols-5 gap-3 lg:gap-4">
+              {PROCESS.map((pr, i) => {
+                const last = i === PROCESS.length - 1;
+                const Icon = pr.icon;
+                return (
+                  <Reveal key={pr.step} delay={i * 90} className="h-full">
+                    <div className="group flex h-full flex-col items-center">
+                      <span
+                        className={`relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-[13px] font-extrabold text-brand-primary tabular-nums shadow-[0_8px_18px_-6px_rgba(7,15,73,.6)] ring-[6px] transition-transform duration-300 group-hover:scale-110 ${
+                          last ? "ring-white/30" : "ring-white/10"
+                        }`}
+                      >
+                        {pr.step}
+                      </span>
+                      <span className="h-4 w-px bg-white/30" />
+                      <div
+                        className={`flex w-full flex-1 flex-col items-center rounded-2xl border p-4 text-center transition-all duration-300 group-hover:-translate-y-1 lg:p-5 ${
+                          last
+                            ? "border-white bg-white shadow-[0_24px_48px_-20px_rgba(7,15,73,.75)]"
+                            : "border-white/15 bg-white/[0.08] backdrop-blur-sm group-hover:border-white/30 group-hover:bg-white/[0.12]"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-10 w-10 items-center justify-center rounded-xl ${last ? "text-white" : "bg-white/15 text-white ring-1 ring-inset ring-white/20"}`}
+                          style={last ? { background: BLUE_BG } : undefined}
+                        >
+                          <Icon className="h-5 w-5" strokeWidth={1.8} />
+                        </span>
+                        <p
+                          className={`mt-3.5 text-[15px] font-extrabold leading-snug break-keep ${last ? "text-brand-dark" : "text-white"}`}
+                        >
+                          {pr.title}
+                        </p>
+                        <p
+                          className={`mb-4 mt-1.5 text-[12.5px] leading-relaxed break-keep ${last ? "text-brand-sub" : "text-white/65"}`}
+                        >
+                          {pr.desc}
+                        </p>
+                        <span
+                          className={`mt-auto inline-flex rounded-full px-2.5 py-1 text-[11.5px] font-bold break-keep ${
+                            last
+                              ? "bg-brand-primary text-white"
+                              : "bg-white/10 text-white/85 ring-1 ring-inset ring-white/15"
+                          }`}
+                        >
+                          {pr.output}
+                        </span>
+                      </div>
+                    </div>
+                  </Reveal>
+                );
+              })}
             </div>
           </div>
-        </section>
 
-        {/* ── 가격 플랜 ───────────────────────── */}
-        <section className="rounded-2xl bg-brand-lighter border border-brand-border px-5 py-8 md:px-8 md:py-10">
-          <p className="text-[12px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">Pricing</p>
-          <h2 className="text-[25px] font-extrabold text-brand-dark mb-2">플랜 선택</h2>
-          <p className="text-[15px] text-brand-sub mb-8">제품 종류와 목적에 맞는 플랜을 선택하세요.</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {TIERS.map((tier) => (
-              <div
-                key={tier.id}
-                className={`relative flex flex-col rounded-2xl overflow-hidden bg-white ${
-                  tier.best
-                    ? "border-2 border-violet-400 shadow-[0_4px_24px_rgba(139,92,246,0.15)]"
-                    : "border border-brand-border"
-                }`}
-              >
-                {tier.best && (
-                  <div
-                    className="absolute top-4 right-4 text-white text-[11px] font-extrabold tracking-widest px-2.5 py-1 rounded-full"
-                    style={{ background: "linear-gradient(135deg,#8B5CF6,#6D28D9)" }}
-                  >
-                    BEST
+          {/* 모바일: 세로 타임라인 */}
+          <div className="mt-10 space-y-3 text-left sm:hidden">
+            {PROCESS.map((pr, i) => {
+              const Icon = pr.icon;
+              return (
+                <div key={pr.step} className="flex items-stretch gap-3.5">
+                  <div className="relative flex shrink-0 flex-col items-center">
+                    <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[13px] font-extrabold text-brand-primary tabular-nums ring-4 ring-white/10">
+                      {pr.step}
+                    </div>
+                    {i < PROCESS.length - 1 && (
+                      <div className="-mb-3 w-px flex-1 bg-gradient-to-b from-white/40 to-white/10" />
+                    )}
                   </div>
-                )}
-                <div className="px-5 pt-5 pb-8" style={{ background: tier.grad }}>
-                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-0.5">{tier.sub}</p>
-                  <p className="text-white text-[20px] font-extrabold">{tier.name}</p>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-white text-[23px] md:text-[31px] font-extrabold">{tier.price}</span>
-                    <span className="text-white/70 text-[15px] font-semibold">{tier.unit}</span>
-                  </div>
-                  <p className="text-white/40 text-[11px] mt-0.5">VAT 별도</p>
-                  <div className="mt-3 flex items-center gap-1.5 bg-white/15 rounded-lg px-2.5 py-1.5 w-fit">
-                    <svg className="w-3 h-3 text-white/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-white text-[12px] font-bold">{tier.duration} 소요</span>
+                  <div className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-white/[0.08] p-4">
+                    <p className="flex items-center gap-1.5 text-[15px] font-extrabold text-white break-keep">
+                      <Icon
+                        className="h-4 w-4 shrink-0 text-white/80"
+                        strokeWidth={2}
+                      />
+                      {pr.title}
+                    </p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-white/65 break-keep">
+                      {pr.desc}
+                    </p>
+                    <span className="mt-3 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-bold text-white/85 ring-1 ring-inset ring-white/15">
+                      {pr.output}
+                    </span>
                   </div>
                 </div>
-                <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">추천 대상</p>
-                  <ul className="space-y-1.5">
-                    {tier.targets.map((t, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <Check color={tier.checkColor} />
-                        <span className="text-[12px] text-brand-sub leading-snug">{t}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="px-4 py-4 border-b border-brand-border">
-                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">스펙</p>
-                  <ul className="space-y-1.5">
-                    {tier.specs.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-[11px] font-bold text-brand-muted w-10 shrink-0 pt-[1px]">{s.label}</span>
-                        <span className="text-[12px] text-brand-dark leading-snug">{s.value}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="px-4 py-4 flex-1">
-                  <p className="text-[10px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">포함 구성</p>
-                  <ul className="space-y-1.5">
-                    {tier.includes.map((inc, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: tier.grad.includes("#") ? (tier.grad.split(",")[1]?.trim().replace(")", "") ?? "#10B981") : "#10B981" }} />
-                        <span className={`text-[12px] leading-snug ${inc === tier.highlight ? "font-bold text-brand-dark" : "text-brand-sub"}`}>
-                          {inc}
-                        </span>
-                        {inc === tier.highlight && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-600 shrink-0">추가</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="px-4 pb-4 pt-2">
-                  <button
-                    className="w-full py-2.5 rounded-xl text-[15px] font-bold text-white hover:opacity-85 transition-opacity"
-                    style={{ background: tier.grad }}
-                  >
-                    문의하기
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </section>
-
-        {/* ── FAQ ────────────────────────────── */}
-        <section className="rounded-2xl bg-white border border-brand-border px-5 py-8 md:px-8 md:py-10">
-          <p className="text-[12px] font-extrabold text-emerald-600 uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-[25px] font-extrabold text-brand-dark mb-6">자주 묻는 질문</h2>
-          <div className="space-y-2">
-            {FAQS.map((faq, i) => (
-              <div key={i} className="rounded-2xl border border-brand-border overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors"
-                >
-                  <span className="text-[15px] font-bold text-brand-dark">{faq.q}</span>
-                  <svg
-                    className={`w-4 h-4 text-brand-muted shrink-0 ml-3 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {openFaq === i && (
-                  <div className="px-5 pb-4 border-t border-brand-border bg-brand-lighter">
-                    <p className="text-[15px] text-brand-sub leading-relaxed pt-3">{faq.a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── 하단 CTA 배너 ──────────────────── */}
-        <section
-          className="rounded-2xl px-5 py-7 md:px-8 md:py-8 flex flex-col md:flex-row items-center justify-between gap-6"
-          style={{ background: "linear-gradient(135deg,#10B981,#059669)" }}
-        >
-          <div>
-            <p className="text-[12px] font-extrabold text-emerald-100/50 uppercase tracking-widest mb-1">무료 상담</p>
-            <p className="text-[22px] font-extrabold text-white leading-tight">어떤 플랜이 맞는지<br />모르겠다면 먼저 물어보세요</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <button className="px-6 py-3 rounded-xl text-[15px] font-extrabold bg-white text-emerald-700 hover:bg-emerald-50 transition-colors">
-              무료 상담 신청
-            </button>
-            <button className="px-6 py-3 rounded-xl text-[15px] font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors">
-              카카오로 문의
-            </button>
-          </div>
-        </section>
-
-        {/* 안내 */}
-        <div className="flex items-start gap-3 px-1 pb-8">
-          <svg className="w-4 h-4 text-brand-muted shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-          </svg>
-          <p className="text-[12px] text-brand-muted leading-relaxed">
-            작업기간은 영업일 기준이며, 피드백 속도 및 수정 횟수에 따라 달라질 수 있습니다. 가격은 VAT 별도이며, 세부 범위에 따라 변동될 수 있습니다.
-          </p>
         </div>
+      </section>
 
-      </div>
+      {/* ── 6. FAQ ── 흰 밴드 */}
+      <section className={LIGHT}>
+        <div className="relative">
+          <Reveal>
+            <p className={`${EYEBROW} text-center`}>FAQ</p>
+            <h2 className={`${H2} mt-4 text-center text-brand-dark`}>
+              자주 묻는 질문
+            </h2>
+          </Reveal>
 
-      {/* 오른쪽 고정 패널 자리 확보용 */}
-      <div ref={railRef} className="hidden lg:block w-64 xl:w-72 shrink-0" />
+          <div className="mx-auto mt-12 max-w-[720px] space-y-2.5">
+            {FAQS.map((faq, i) => {
+              const open = openFaq === i;
+              return (
+                <Reveal key={faq.q} delay={i * 60}>
+                  <div
+                    className={`overflow-hidden rounded-2xl border bg-white transition-colors ${open ? "border-brand-primary/30" : "border-brand-border"}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(open ? null : i)}
+                      aria-expanded={open}
+                      className="flex w-full cursor-pointer items-center gap-3.5 px-5 py-5 text-left md:px-6"
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[13px] font-black transition-colors ${
+                          open
+                            ? "bg-brand-primary text-white"
+                            : "bg-brand-primary-50 text-brand-primary"
+                        }`}
+                      >
+                        Q
+                      </span>
+                      <span className="flex-1 text-[15.5px] font-bold text-brand-dark break-keep md:text-[16.5px]">
+                        {faq.q}
+                      </span>
+                      <svg
+                        className={`h-5 w-5 shrink-0 text-brand-muted transition-transform duration-200 ${open ? "rotate-180 text-brand-primary" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    {open && (
+                      <p className="animate-be-fade border-t border-brand-border px-5 py-5 pl-[62px] text-[14.5px] leading-relaxed text-brand-sub break-keep md:px-6 md:pl-[66px]">
+                        {faq.a}
+                      </p>
+                    )}
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-    </div>
+      {/* ── 7. 마무리 ── 그레이 밴드 */}
+      <section className={TINT}>
+        <div className="relative text-center">
+          <Reveal>
+            <h2 className={`${H2} text-brand-dark`}>
+              어떤 구조가 맞는지,
+              <br />
+              <span className="text-brand-primary">먼저 물어보세요</span>
+            </h2>
+            <p className={LEAD}>
+              제품과 판매 채널만 알려 주시면 맞는 구성과 견적을 안내해 드립니다.
+            </p>
+            <div className="mt-9">
+              <PillLink>상담 문의하기</PillLink>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </LandingShell>
   );
 }

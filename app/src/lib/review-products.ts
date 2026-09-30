@@ -13,6 +13,8 @@ export type ReviewProductOption = {
   reviewChars: number | null;
   reviewImages: number | null;
   blogGrade: string | null;
+  /** 일 발행량 상한 — 비어 있으면 화면 기본값(100) */
+  maxQty: number | null;
 };
 
 /**
@@ -31,6 +33,7 @@ export async function loadReviewProducts(channel: string, reviewType: string): P
       reviewChars: products.reviewChars,
       reviewImages: products.reviewImages,
       blogGrade: products.blogGrade,
+      maxQty: products.maxQty,
     })
     .from(products)
     .where(
@@ -52,5 +55,6 @@ export async function loadReviewProducts(channel: string, reviewType: string): P
     reviewChars: p.reviewChars,
     reviewImages: p.reviewImages,
     blogGrade: p.blogGrade,
+    maxQty: p.maxQty,
   }));
 }

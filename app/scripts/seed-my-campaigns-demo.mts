@@ -48,7 +48,7 @@ type RewardDemo = {
   dailyQty: number;
   days: number;
   startOffset: number;
-  status: "running" | "scheduled" | "completed";
+  status: "submitted" | "running" | "scheduled" | "completed" | "canceled";
   /** 순위 추이 — 시작 순위에서 현재 순위까지 30일간 내려온다 (null = 순위 미측정) */
   rank: { start: number; now: number; prev: number } | null;
 };
@@ -102,6 +102,30 @@ const REWARDS: RewardDemo[] = [
     startOffset: -45,
     status: "completed",
     rank: { start: 9, now: 2, prev: 2 },
+  },
+  {
+    platform: "place",
+    productTitle: "올스타",
+    targetName: "강남 한우담 본점",
+    targetUrl: "https://m.place.naver.com/restaurant/5678901",
+    keyword: "강남 소고기 맛집",
+    dailyQty: 100,
+    days: 30,
+    startOffset: 1,
+    status: "submitted",
+    rank: { start: 40, now: 25, prev: 23 },
+  },
+  {
+    platform: "place",
+    productTitle: "앤드류",
+    targetName: "망원 수제버거공방",
+    targetUrl: "https://m.place.naver.com/restaurant/6789012",
+    keyword: "망원동 수제버거",
+    dailyQty: 70,
+    days: 20,
+    startOffset: -25,
+    status: "canceled",
+    rank: { start: 22, now: 8, prev: 9 },
   },
   // 네이버 쇼핑
   {

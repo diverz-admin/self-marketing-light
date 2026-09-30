@@ -4,6 +4,11 @@ import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import { login } from "@/app/(platform)/auth/actions";
 import Logo from "@/components/Logo";
+import AuthBanner, { AuthBannerCompact } from "@/components/AuthBanner";
+
+const inputCls =
+  "w-full px-3.5 py-2.5 border border-brand-border rounded-lg bg-brand-lighter text-brand-dark placeholder-brand-muted text-[14px] focus:outline-none focus:bg-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 transition-all";
+const labelCls = "block text-[13px] font-semibold text-brand-dark mb-1";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -20,69 +25,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-5">
-      <div className="w-full max-w-[360px]">
-        {/* Logo */}
-        <Link href="/marketing" className="flex justify-center mb-10">
-          <Logo markClassName="h-9 w-auto" textClassName="h-5.5 w-auto" textColor="text-brand-dark" />
-        </Link>
+    <div className="min-h-screen bg-white lg:h-screen lg:flex lg:overflow-hidden lg:p-4">
+      <AuthBanner />
 
-        <h1 className="text-[29px] font-extrabold text-brand-dark mb-1 tracking-tight">로그인</h1>
-        <p className="text-[16px] text-brand-sub mb-8">서비스 이용을 위해 로그인해 주세요</p>
+      {/* ── 우측 폼 ── */}
+      <div className="flex-1 overflow-y-auto px-5 py-10 lg:flex lg:items-center lg:px-12 lg:py-12">
+        <div className="mx-auto w-full max-w-[400px]">
+          {/* 모바일 전용 상단 배너 — lg 이상에서는 좌측 AuthBanner 가 같은 역할을 한다 */}
+          <AuthBannerCompact className="lg:hidden mb-7" />
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          {error && (
-            <div className="p-4 text-[16px] text-brand-error bg-brand-error-bg rounded-2xl border border-red-100">
-              {error}
-            </div>
-          )}
+          {/* 데스크톱 로고 — 모바일은 위 배너가 대신한다 */}
+          <Link href="/marketing" className="mb-7 hidden lg:flex lg:justify-start">
+            <Logo size="h-9" />
+          </Link>
 
-          <div>
-            <label htmlFor="email" className="block text-[16px] font-semibold text-brand-dark mb-2">
-              이메일
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="name@example.com"
-              className="w-full px-4 py-[15px] border border-brand-border rounded-2xl bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all text-[17px]"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-[16px] font-semibold text-brand-dark mb-2">
-              비밀번호
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              placeholder="비밀번호를 입력하세요"
-              className="w-full px-4 py-[15px] border border-brand-border rounded-2xl bg-brand-lighter text-brand-dark placeholder-brand-muted focus:outline-none focus:bg-white focus:border-brand-primary transition-all text-[17px]"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full py-[17px] rounded-2xl text-[17px] font-bold text-white bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer mt-1"
-          >
-            {isPending ? "로그인 중..." : "로그인"}
-          </button>
-        </form>
-
-        <div className="mt-6 pt-6 border-t border-brand-border text-center">
-          <p className="text-[16px] text-brand-sub">
+          <h1 className="text-[26px] font-extrabold tracking-tight text-brand-dark">로그인</h1>
+          <p className="mt-1 text-[13.5px] text-brand-sub">
             계정이 없으신가요?{" "}
-            <Link href="/signup" className="font-semibold text-brand-primary hover:underline">
+            <Link href="/signup" className="font-bold text-brand-primary hover:underline">
               회원가입
             </Link>
           </p>
+
+          <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
+            {error && (
+              <div className="rounded-lg border border-red-100 bg-brand-error-bg p-3.5 text-[13.5px] text-brand-error">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className={labelCls}>이메일</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="name@example.com"
+                className={inputCls}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className={labelCls}>비밀번호</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                placeholder="비밀번호를 입력하세요"
+                className={inputCls}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full cursor-pointer rounded-lg bg-brand-primary py-3 text-[15px] font-bold text-white transition-all hover:bg-brand-primary-hover active:scale-[0.99] disabled:opacity-50"
+            >
+              {isPending ? "로그인 중..." : "로그인"}
+            </button>
+          </form>
         </div>
       </div>
     </div>

@@ -173,7 +173,7 @@ export default function OpenChatWidget() {
               className={`shrink-0 px-2.5 py-1 rounded-full text-[12px] font-bold transition-colors ${
                 on ? "text-white" : "text-white/50 hover:text-white/80"
               }`}
-              style={on ? { background: "linear-gradient(135deg,#2E6BE0,#1D4ED8)" } : { background: "#1B2230", border: "1px solid #2A3140" }}
+              style={on ? { background: "linear-gradient(135deg,#2452EB,#2764C7)" } : { background: "#1B2230", border: "1px solid #2A3140" }}
             >
               {r.name}
             </button>
@@ -218,7 +218,7 @@ export default function OpenChatWidget() {
             onClick={send}
             disabled={!input.trim()}
             className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center transition-colors disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg,#2E6BE0,#1D4ED8)" }}
+            style={{ background: "linear-gradient(135deg,#2452EB,#2764C7)" }}
             aria-label="전송"
           >
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>

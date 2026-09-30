@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/marketing/PageHeader";
 import { AttachmentGallery } from "@/components/AttachmentGallery";
 import type { Attachment } from "@/lib/attachments";
+import { BoardComments } from "./BoardComments";
+import { incrementBoardView } from "./actions";
+
+/** 목록+상세 2단 화면이 되는 폭 — 이보다 좁으면 목록 안에서 펼친다 */
+const TWO_COLUMN = "(min-width: 901px)";
 
 type Platform = "네이버 쇼핑" | "네이버 플레이스" | "쿠팡";
 
@@ -33,7 +38,7 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
   노하우: { bg: "bg-purple-50", text: "text-purple-600" },
 };
 const BOARD_TYPES: { key: "전체" | Platform; color: string; sub: string }[] = [
-  { key: "전체", color: "#0D3473", sub: "모든 채널" },
+  { key: "전체", color: "#2452EB", sub: "모든 채널" },
   { key: "네이버 쇼핑", color: "#03C75A", sub: "상위노출·리뷰" },
   { key: "네이버 플레이스", color: "#03C75A", sub: "지도·방문자 리뷰" },
   { key: "쿠팡", color: "#AE0000", sub: "로켓·검색광고" },
@@ -100,16 +105,31 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
 
   const selected = posts.find((p) => p.id === selectedId) ?? null;
 
+  // 댓글을 달거나 지우면 목록·상세의 댓글 수를 바로 맞춘다
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const onCountChange = useCallback((id: string, n: number) => {
+    setCommentCounts((prev) => (prev[id] === n ? prev : { ...prev, [id]: n }));
+  }, []);
+  const commentsOf = (p: BoardItem) => commentCounts[p.id] ?? p.comments;
+
+  // 실제로 본 글만 한 번씩 조회수를 올린다 — 2단 화면은 상세에 뜬 글, 좁은 화면은 펼친 글
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const counted = useRef(new Set<string>());
+  useEffect(() => {
+    const id = window.matchMedia(TWO_COLUMN).matches ? selectedId : mobileOpenId;
+    if (!id || counted.current.has(id)) return;
+    counted.current.add(id);
+    incrementBoardView(id).then((v) => {
+      if (v != null) setViewCounts((prev) => ({ ...prev, [id]: v }));
+    });
+  }, [selectedId, mobileOpenId]);
+  const viewsOf = (p: BoardItem) => viewCounts[p.id] ?? p.views;
+
   return (
     <div className="w-full space-y-6">
 
-      {/* 헤더 */}
-      <div className="flex items-start justify-between gap-4">
-        <PageHeader title="게시판" subtitle="마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요." iconPath={"M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"} />
-        <button className="shrink-0 px-5 py-2.5 rounded-xl text-[15px] font-bold bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors">
-          글쓰기
-        </button>
-      </div>
+      {/* 헤더 — 글쓰기는 운영자 전용이라 고객 화면에서는 노출하지 않는다 */}
+      <PageHeader title="지식공유" subtitle="마케터들과 노하우를 공유하고 최신 마케팅 정보를 얻어가세요." iconPath={"M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"} />
 
       {/* 게시판 종류 탭 */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -162,7 +182,7 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
       </div>
 
       {/* 마스터–디테일 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[460px_minmax(0,1fr)] gap-4 items-start">
+      <div className="grid grid-cols-1 min-[901px]:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.6fr)] xl:grid-cols-[460px_minmax(0,1fr)] gap-4 items-start">
 
         {/* 목록 */}
         <div className="rounded-2xl border border-brand-border bg-white overflow-hidden">
@@ -173,7 +193,7 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
           ) : (
             filtered.map((post, i) => {
               const colors = CATEGORY_COLORS[post.category] ?? { bg: "bg-gray-50", text: "text-gray-600" };
-              const pColor = post.platform ? PLATFORM_COLORS[post.platform] : "#0D3473";
+              const pColor = post.platform ? PLATFORM_COLORS[post.platform] : "#2452EB";
               const active = post.id === selectedId;
               const open = post.id === mobileOpenId;
               return (
@@ -182,22 +202,25 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
                   type="button"
                   onClick={() => {
                     setSelectedId(post.id);
-                    setMobileOpenId((prev) => (prev === post.id ? null : post.id));
+                    // 2단 화면에선 오른쪽 상세로 열고, 좁은 화면에서만 목록 안에서 펼친다
+                    if (!window.matchMedia(TWO_COLUMN).matches) {
+                      setMobileOpenId((prev) => (prev === post.id ? null : post.id));
+                    }
                   }}
                   aria-current={active}
                   aria-expanded={open}
                   className={[
                     "w-full text-left px-4 py-4 flex items-start gap-3 transition-colors relative",
-                    active ? "lg:bg-brand-primary-50" : "hover:bg-brand-lighter",
+                    active ? "min-[901px]:bg-brand-primary-50" : "hover:bg-brand-lighter",
                     open ? "bg-brand-primary-50" : "",
                   ].join(" ")}
                 >
-                  {active && <span className="hidden lg:block absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
-                  {open && <span className="lg:hidden absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {active && <span className="hidden min-[901px]:block absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
+                  {open && <span className="min-[901px]:hidden absolute left-0 top-0 bottom-0 w-1 bg-brand-primary" />}
 
                   {/* 채널 뱃지 */}
                   <span
-                    className="shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-lg mt-0.5"
+                    className="shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-lg mt-0.5 min-[901px]:max-xl:hidden"
                     style={{ background: `${pColor}14`, color: pColor }}
                   >
                     {post.platform ?? "공지"}
@@ -218,27 +241,27 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
                         className={[
                           "text-[16px] font-semibold truncate transition-colors",
                           open ? "text-brand-primary" : "text-brand-dark",
-                          active ? "lg:text-brand-primary" : "lg:text-brand-dark",
+                          active ? "min-[901px]:text-brand-primary" : "min-[901px]:text-brand-dark",
                         ].join(" ")}
                       >
                         {post.title}
                       </span>
-                      {post.comments > 0 && (
-                        <span className="shrink-0 text-[13px] text-brand-primary font-bold">({post.comments})</span>
+                      {commentsOf(post) > 0 && (
+                        <span className="shrink-0 text-[13px] text-brand-primary font-bold">({commentsOf(post)})</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 mt-1.5 text-[13px] text-brand-muted">
+                    <div className="flex items-center gap-1.5 mt-1.5 text-[13px] text-brand-muted whitespace-nowrap overflow-hidden">
                       <span>{post.author}</span>
                       <span>·</span>
                       <span>{post.date}</span>
                       <span>·</span>
-                      <span>조회 {post.views.toLocaleString()}</span>
+                      <span>조회 {viewsOf(post).toLocaleString()}</span>
                     </div>
                   </div>
                 </button>
 
                 {/* 모바일 아코디언 본문 — 클릭한 글 내용이 목록 안에서 바로 펼쳐짐 */}
-                <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-[1600px]" : "max-h-0"}`}>
+                <div className={`min-[901px]:hidden overflow-hidden transition-all duration-300 ease-out ${open ? "max-h-[4000px]" : "max-h-0"}`}>
                   <div className="px-4 pb-5 pt-3 space-y-3 border-t border-brand-border">
                     <AttachmentGallery items={post.attachments} className="pb-1" />
                     {post.paragraphs.map((para, idx) => (
@@ -246,6 +269,11 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
                         {para}
                       </p>
                     ))}
+                    {open && (
+                      <div className="pt-4 mt-2 border-t border-brand-border">
+                        <BoardComments postId={post.id} onCountChange={onCountChange} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 </div>
@@ -255,15 +283,15 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
         </div>
 
         {/* 상세 (데스크톱 전용 — 모바일은 목록 내 아코디언으로 표시) */}
-        <div className="hidden lg:block bg-white rounded-2xl border border-brand-border min-h-[360px] lg:sticky lg:top-6">
+        <div className="hidden min-[901px]:block bg-white rounded-2xl border border-brand-border min-h-[360px] min-[901px]:sticky min-[901px]:top-6">
           {selected ? (
             <article className="p-6 md:p-8">
               <div className="flex items-center gap-2">
                 <span
                   className="text-[12px] font-bold px-2.5 py-1 rounded-lg"
                   style={{
-                    background: `${selected.platform ? PLATFORM_COLORS[selected.platform] : "#0D3473"}14`,
-                    color: selected.platform ? PLATFORM_COLORS[selected.platform] : "#0D3473",
+                    background: `${selected.platform ? PLATFORM_COLORS[selected.platform] : "#2452EB"}14`,
+                    color: selected.platform ? PLATFORM_COLORS[selected.platform] : "#2452EB",
                   }}
                 >
                   {selected.platform ?? "공지"}
@@ -290,8 +318,8 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
                   {selected.author}
                 </span>
                 <span className="text-brand-muted">{selected.date}</span>
-                <span className="text-brand-muted">조회 {selected.views.toLocaleString()}</span>
-                <span className="text-brand-muted">댓글 {selected.comments}</span>
+                <span className="text-brand-muted">조회 {viewsOf(selected).toLocaleString()}</span>
+                <span className="text-brand-muted">댓글 {commentsOf(selected)}</span>
               </div>
 
               <div className="mt-5 pt-5 border-t border-brand-border space-y-4">
@@ -301,6 +329,10 @@ export function BoardView({ posts }: { posts: BoardItem[] }) {
                   </p>
                 ))}
                 <AttachmentGallery items={selected.attachments} />
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-brand-border">
+                <BoardComments postId={selected.id} onCountChange={onCountChange} />
               </div>
             </article>
           ) : (

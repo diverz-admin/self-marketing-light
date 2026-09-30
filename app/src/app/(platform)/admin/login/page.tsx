@@ -29,7 +29,7 @@ function AdminLoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5" style={{ background: "linear-gradient(135deg,#0B1637 0%,#0D2148 50%,#111D37 100%)" }}>
+    <div className="min-h-screen flex items-center justify-center px-5" style={{ background: "linear-gradient(135deg,#0B1637 0%,#152C9E 50%,#111D37 100%)" }}>
       <div className="w-full max-w-[400px]">
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center gap-2.5 mb-3">

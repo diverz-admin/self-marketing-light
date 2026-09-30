@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-/* ── 장바구니 아이템 (리워드 신청 → 결제 시 즉시 담김) ── */
+/* ── 장바구니 아이템 — 리워드 신청 화면에서 담고, 주문·결제는 장바구니에서 한 번에 한다 ── */
 export type CartItem = {
   id: number;
   productId: string;      // 어드민 상품등록의 상품 ID — 주문 확정 시 금액을 다시 계산하는 기준
@@ -16,6 +16,31 @@ export type CartItem = {
   dailyQty: number;
   price: number;
   amount: number;
+  /** C-02 담은 시각 — 30일이 지나면 장바구니에서 "확인 필요"로 표시한다 */
+  addedAt?: number;
+  /* ── 주문할 때 캠페인으로 만들 정보 ── */
+  channel?: "place" | "shopping" | "coupang";
+  days?: number;
+  startDate?: string;
+  /** 플레이스 링크 / 상품 URL */
+  url?: string;
+  /** 쿠팡 — 검색하기(search) · 찜하기(wishlist) */
+  serviceType?: "search" | "wishlist";
+  /** 리뷰·체험단이면 "review" — 주문 때 리뷰 캠페인으로 만든다 (없으면 리워드) */
+  kind?: "reward" | "review";
+  review?: ReviewCartPayload;
+};
+
+/** 리뷰 캠페인 신청 내용 — 주문하면 이 값 그대로 리뷰 캠페인이 된다 */
+export type ReviewCartPayload = {
+  reviewType: "blog_distribute";
+  mainKeywords: string[];
+  postingType: "후기성" | "정보성";
+  hashtags: string[];
+  businessInfo: string;
+  imageMode: "CRAWL" | "ATTACH";
+  imageDriveUrl?: string;
+  crawlRequest?: string;
 };
 
 type CartContextValue = {
@@ -69,22 +94,16 @@ export function CartProvider({ children, initialBalance = 0 }: {
     if (hydrated) localStorage.setItem(LS_ITEMS, JSON.stringify(items));
   }, [items, hydrated]);
 
-  // 결제(담기) 시 포인트 즉시 차감
+  // 담기만 한다 — 포인트는 장바구니에서 주문할 때 빠진다 (개발본과 같은 흐름)
   const addItem = (item: Omit<CartItem, "id">) => {
-    setItems((prev) => [{ ...item, id: Date.now() }, ...prev]);
-    adjust(-item.amount);
+    const now = Date.now();
+    setItems((prev) => [{ addedAt: now, ...item, id: now }, ...prev]);
   };
 
-  // 삭제 시 차감했던 포인트 환급
   const removeItem = (id: number) => {
-    setItems((prev) => {
-      const target = prev.find((it) => it.id === id);
-      if (target) adjust(target.amount);
-      return prev.filter((it) => it.id !== id);
-    });
+    setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
-  // 주문 확정 — 포인트는 담을 때 이미 차감되었으므로 목록만 비움
   const clear = () => setItems([]);
 
   // 포인트 충전

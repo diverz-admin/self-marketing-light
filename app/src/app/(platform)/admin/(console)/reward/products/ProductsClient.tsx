@@ -541,11 +541,11 @@ function ProductModal({ product, onClose }: { product: AdminProductRow | null; o
 
         <div className="flex gap-5 mt-3">
           <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-            <input type="checkbox" checked={form.isSale} onChange={(e) => set("isSale", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+            <input type="checkbox" checked={form.isSale} onChange={(e) => set("isSale", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
             SALE 표시
           </label>
           <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-            <input type="checkbox" checked={form.isRecommended} onChange={(e) => set("isRecommended", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+            <input type="checkbox" checked={form.isRecommended} onChange={(e) => set("isRecommended", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
             추천 상품 (👍)
           </label>
         </div>
@@ -571,7 +571,7 @@ function ProductModal({ product, onClose }: { product: AdminProductRow | null; o
           </Field>
           <div className="flex items-end pb-2.5">
             <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-              <input type="checkbox" checked={form.sameDayStart} onChange={(e) => set("sameDayStart", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+              <input type="checkbox" checked={form.sameDayStart} onChange={(e) => set("sameDayStart", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
               당일 구동 가능
             </label>
           </div>
@@ -592,7 +592,7 @@ function ProductModal({ product, onClose }: { product: AdminProductRow | null; o
       </Field>
 
       <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-        <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+        <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
         판매중 상태로 저장
       </label>
 

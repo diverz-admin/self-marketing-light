@@ -196,11 +196,11 @@ function NoticeModal({ notice, onClose }: { notice: NoticeRow | null; onClose: (
 
       <div className="flex gap-5">
         <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-          <input type="checkbox" checked={form.isPinned} onChange={(e) => set("isPinned", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+          <input type="checkbox" checked={form.isPinned} onChange={(e) => set("isPinned", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
           상단 고정
         </label>
         <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-          <input type="checkbox" checked={form.isPublished} onChange={(e) => set("isPublished", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+          <input type="checkbox" checked={form.isPublished} onChange={(e) => set("isPublished", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
           즉시 노출
         </label>
       </div>

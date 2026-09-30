@@ -373,7 +373,7 @@ function GuaranteeCount({ row }: { row: GuaranteedRow }) {
   const pct = row.guaranteedDays > 0 ? Math.min(100, Math.round((counted / row.guaranteedDays) * 100)) : 0;
 
   return (
-    <div className="p-3 rounded-xl bg-brand-primary-50 border border-[#C4CEE6]">
+    <div className="p-3 rounded-xl bg-brand-primary-50 border border-[#BFCCFA]">
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-[12px] font-extrabold text-brand-primary">보장 카운트</span>
         <span className="text-[13px] font-extrabold text-brand-primary tabular-nums">

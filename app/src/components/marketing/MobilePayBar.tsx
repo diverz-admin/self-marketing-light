@@ -57,7 +57,7 @@ export default function MobilePayBar({
             onClick={() => setOpen(true)}
             disabled={disabled}
             className="w-full py-3 rounded-xl text-[15px] font-extrabold text-white flex items-center justify-center gap-1.5 whitespace-nowrap active:opacity-90 disabled:opacity-40 transition-opacity"
-            style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+            style={{ background: "linear-gradient(135deg,#152C9E,#2452EB)" }}
           >
             {boltIcon}
             즉시 포인트 차감하기
@@ -138,7 +138,7 @@ export default function MobilePayBar({
                 onClick={() => { onInstantPay(); }}
                 disabled={disabled || busy}
                 className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-40 transition-opacity"
-                style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
+                style={{ background: "linear-gradient(135deg,#152C9E,#2452EB)" }}
               >
                 {instantPending ? "결제 처리 중..." : (<>{boltIcon}즉시 포인트 차감하기</>)}
               </button>

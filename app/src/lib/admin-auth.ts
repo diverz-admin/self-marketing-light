@@ -18,6 +18,13 @@ const BYPASS_ADMIN: User = {
   email: "preview@local",
   role: "admin",
   creditBalance: "0",
+  freeBalance: "0",
+  lastTransactionAt: null,
+  status: "active",
+  suspendedAt: null,
+  suspendReason: null,
+  suspendedByAdminId: null,
+  sessionsValidFrom: null,
   createdAt: new Date(0),
   updatedAt: new Date(0),
 };

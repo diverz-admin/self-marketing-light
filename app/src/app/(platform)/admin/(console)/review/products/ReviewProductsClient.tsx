@@ -31,7 +31,7 @@ const keyOf = (r: { channel: string; reviewType: string }) => `${r.channel}:${r.
 
 /** 플랫폼 카드 머리말 색 — 고객 화면의 채널 색과 맞춘다 */
 const CHANNEL_ACCENT: Record<string, string> = {
-  place: "#0D3473",
+  place: "#2452EB",
   shopping: "#059669",
   coupang: "#EF4444",
 };
@@ -98,7 +98,7 @@ export function ReviewProductsClient({ rows }: { rows: ReviewPriceRow[] }) {
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         {byChannel.map((c) => {
-          const accent = CHANNEL_ACCENT[c.key] ?? "#0D3473";
+          const accent = CHANNEL_ACCENT[c.key] ?? "#2452EB";
           const onSale = c.items.filter((r) => draft[keyOf(r)]?.isActive).length;
           return (
             <Card key={c.key} className="overflow-hidden p-0">

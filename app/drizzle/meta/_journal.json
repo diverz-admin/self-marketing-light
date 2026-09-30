@@ -120,6 +120,20 @@
       "when": 1784868083018,
       "tag": "0016_steady_the_order",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1789353133538,
+      "tag": "0017_fast_paper_doll",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790572455799,
+      "tag": "0018_overconfident_christian_walker",
+      "breakpoints": true
     }
   ]
 }

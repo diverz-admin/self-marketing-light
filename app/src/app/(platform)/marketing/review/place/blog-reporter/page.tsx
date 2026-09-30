@@ -1,11 +1,6 @@
-import { loadReviewProducts } from "@/lib/review-products";
-import BlogReporterForm from "./BlogReporterForm";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function BlogReporterPage() {
-  // 어드민 "리뷰 상품등록"의 플레이스 블로그배포 상품만 신청 화면에 노출한다
-  const products = await loadReviewProducts("place", "blog_distribute");
-
-  return <BlogReporterForm products={products} />;
+/* 개발본은 블로그 배포·영수증 리뷰를 한 신청 화면에서 고른다 — 예전 주소는 그리로 보낸다 */
+export default function Page() {
+  redirect("/marketing/review/place");
 }

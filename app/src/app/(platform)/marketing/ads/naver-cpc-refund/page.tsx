@@ -1,6 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import {
+  LandingShell,
+  Reveal,
+  CheckIcon,
+  LIGHT,
+  TINT,
+  BLUE,
+  NAVY,
+  EYEBROW,
+  EYEBROW_ON_DARK,
+  LEAD,
+  H2,
+} from "@/components/marketing/landing";
 
 /* ─────────────────────────────────────────
    데이터
@@ -14,20 +27,12 @@ const REFUND_TIERS = [
 ];
 
 const OPTIMIZE_FEATURES = [
-  { title: "불필요 키워드 제거", desc: "전환 없이 비용만 소모하는 키워드를 매주 진단하고 즉시 제외 처리합니다.", icon: "M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-  { title: "입찰가 자동 최적화", desc: "시간대·요일·디바이스별 성과 데이터를 분석해 입찰가를 실시간으로 조정합니다.", icon: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-  { title: "품질지수 개선", desc: "광고 소재와 랜딩페이지 연관도를 높여 품질지수를 올리고 클릭당 비용을 낮춥니다.", icon: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-  { title: "전환추적 세팅", desc: "네이버 전환 스크립트를 설치해 실제 구매·신청까지 추적하고 ROAS를 정확히 측정합니다.", icon: "M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-  { title: "소재 A/B 테스트", desc: "복수의 광고 소재를 동시 운영해 클릭률이 높은 소재로 자동 집중합니다.", icon: "M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-  { title: "월간 성과 리포트", desc: "클릭·노출·전환·ROAS 등 핵심 KPI를 정리한 리포트를 매월 제공합니다.", icon: "M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3", color: "text-[#2E6BE0]", bg: "bg-blue-50" },
-];
-
-const PROCESS = [
-  { step: "01", title: "광고 계정 연동", desc: "네이버 광고 계정 접근 권한을 공유해주시면, 현재 운영 현황을 전수 진단합니다.", icon: "M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" },
-  { step: "02", title: "무료 계정 진단", desc: "낭비 키워드, 낮은 품질지수, 비효율 광고그룹을 분석하고 개선 우선순위를 도출합니다.", icon: "M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" },
-  { step: "03", title: "최적화 실행", desc: "진단 결과를 바탕으로 키워드·입찰가·소재를 즉시 최적화하고 성과 개선을 시작합니다.", icon: "M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" },
-  { step: "04", title: "환급 신청 대행", desc: "네이버 공식 환급 프로그램에 대행사 명의로 신청하고, 환급금을 고객께 전액 지급합니다.", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
-  { step: "05", title: "월간 성과 공유", desc: "매월 성과 리포트와 함께 다음 달 운영 전략을 공유하고 지속적인 개선을 반복합니다.", icon: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" },
+  { title: "불필요 키워드 제거", desc: "전환 없이 비용만 소모하는 키워드를 매주 진단하고 즉시 제외 처리합니다.", icon: "M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z", color: "text-[#2452EB]", bg: "bg-blue-50" },
+  { title: "입찰가 자동 최적화", desc: "시간대·요일·디바이스별 성과 데이터를 분석해 입찰가를 실시간으로 조정합니다.", icon: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z", color: "text-[#2452EB]", bg: "bg-blue-50" },
+  { title: "품질지수 개선", desc: "광고 소재와 랜딩페이지 연관도를 높여 품질지수를 올리고 클릭당 비용을 낮춥니다.", icon: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z", color: "text-[#2452EB]", bg: "bg-blue-50" },
+  { title: "전환추적 세팅", desc: "네이버 전환 스크립트를 설치해 실제 구매·신청까지 추적하고 ROAS를 정확히 측정합니다.", icon: "M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59", color: "text-[#2452EB]", bg: "bg-blue-50" },
+  { title: "소재 A/B 테스트", desc: "복수의 광고 소재를 동시 운영해 클릭률이 높은 소재로 자동 집중합니다.", icon: "M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5", color: "text-[#2452EB]", bg: "bg-blue-50" },
+  { title: "월간 성과 리포트", desc: "클릭·노출·전환·ROAS 등 핵심 KPI를 정리한 리포트를 매월 제공합니다.", icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25M9 16.5v.75m3-3v3M15 12v5.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z", color: "text-[#2452EB]", bg: "bg-blue-50" },
 ];
 
 const FAQS = [
@@ -41,52 +46,136 @@ const FAQS = [
 /* ─────────────────────────────────────────
    서브 컴포넌트
 ───────────────────────────────────────── */
+/* 계산기 구간 — 슬라이더 눈금·구간 칩·환급률 계산이 모두 이 표를 읽는다 */
+const CALC_MIN = 50;
+const CALC_MAX = 2000;
+const CALC_TIERS = [
+  { from: 50, rate: 0.03 },
+  { from: 200, rate: 0.05 },
+  { from: 500, rate: 0.07 },
+  { from: 1000, rate: 0.1 },
+];
+const toPos = (v: number) => ((v - CALC_MIN) / (CALC_MAX - CALC_MIN)) * 100;
+/* 네이티브 손잡이(24px)는 양 끝에서 반 폭만큼 안쪽에 멈춘다 — 채움·눈금 위치를 손잡이 중심에 맞춘다 */
+const THUMB = 24;
+const atThumb = (p: number) => `calc(${p}% + ${(0.5 - p / 100) * THUMB}px)`;
+
 function RefundCalculator() {
   const [spend, setSpend] = useState(500);
-  const getRate = (v: number) => {
-    if (v >= 1000) return 0.10;
-    if (v >= 500) return 0.07;
-    if (v >= 200) return 0.05;
-    if (v >= 50) return 0.03;
-    return 0;
-  };
-  const rate = getRate(spend);
+  const tierIdx = CALC_TIERS.findLastIndex((t) => spend >= t.from);
+  const rate = tierIdx >= 0 ? CALC_TIERS[tierIdx].rate : 0;
+  const next = CALC_TIERS[tierIdx + 1];
   const monthly = Math.round(spend * rate);
   const annual = monthly * 12;
   const pct = Math.round(rate * 100);
+  const pos = toPos(spend);
 
   return (
-    <div className="bg-white rounded-2xl border border-brand-border p-6 w-full">
-      <h3 className="text-[17px] font-extrabold text-brand-dark mb-1">환급금 계산기</h3>
-      <p className="text-[13px] text-brand-sub mb-5">월 광고비를 입력하면 예상 환급금을 알 수 있습니다.</p>
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[15px] text-brand-sub font-medium">월 광고비</span>
-          <span className="text-[18px] font-extrabold text-brand-dark">{spend.toLocaleString()}만원</span>
-        </div>
-        <input type="range" min={50} max={2000} step={50} value={spend} onChange={(e) => setSpend(Number(e.target.value))} className="w-full accent-[#2E6BE0] h-2" />
-        <div className="flex justify-between text-[11px] text-brand-muted mt-1">
-          <span>50만원</span>
-          <span>2,000만원</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl bg-blue-50 border border-[#D7E3FA] p-3 text-center">
-          <p className="text-[12px] text-[#2E6BE0] font-semibold mb-1">환급률</p>
-          <p className="text-[25px] font-extrabold text-[#0D3473]">{pct}%</p>
-        </div>
-        <div className="rounded-xl bg-blue-50 border border-[#D7E3FA] p-3 text-center">
-          <p className="text-[12px] text-[#2E6BE0] font-semibold mb-1">월 환급금</p>
-          <p className="text-[20px] font-extrabold text-[#0D3473]">{monthly > 0 ? `${monthly}만원` : "—"}</p>
-        </div>
-        <div className="rounded-xl bg-blue-50 border border-[#D7E3FA] p-3 text-center">
-          <p className="text-[12px] text-[#2E6BE0] font-semibold mb-1">연간 환급금</p>
-          <p className="text-[20px] font-extrabold text-[#0D3473]">{annual > 0 ? `${annual}만원` : "—"}</p>
+    <div className="w-full rounded-3xl bg-white p-6 shadow-[0_30px_60px_-30px_rgba(3,10,60,.6)] md:p-7">
+      {/* 머리 */}
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-50 text-brand-primary">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0012 2.25z" />
+          </svg>
+        </span>
+        <div className="min-w-0">
+          <h3 className="text-[17px] font-extrabold text-brand-dark">환급금 계산기</h3>
+          <p className="text-[12.5px] text-brand-sub">막대를 움직여 월 광고비를 맞춰 보세요.</p>
         </div>
       </div>
-      {rate === 0 && (
-        <p className="text-[13px] text-brand-muted text-center mt-3">월 50만원 이상부터 환급이 적용됩니다.</p>
-      )}
+
+      {/* 월 광고비 */}
+      <div className="mt-7 flex items-end justify-between">
+        <span className="text-[13px] font-bold text-brand-sub">월 광고비</span>
+        <span className="text-[28px] font-extrabold leading-none text-brand-dark tabular-nums">
+          {spend.toLocaleString()}
+          <span className="ml-0.5 text-[15px] font-bold text-brand-sub">만원</span>
+        </span>
+      </div>
+
+      {/* 슬라이더 — 채워진 구간은 포인트 블루, 구간 경계마다 눈금 */}
+      <div className="relative mt-4 h-6">
+        <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#E8ECF3]" />
+        <div
+          className="absolute left-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#6F93FF] to-brand-primary"
+          style={{ width: atThumb(pos) }}
+        />
+        {CALC_TIERS.slice(1).map((t) => (
+          <span
+            key={t.from}
+            className={`absolute top-1/2 h-3.5 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full ${spend >= t.from ? "bg-white/80" : "bg-[#CBD3E0]"}`}
+            style={{ left: atThumb(toPos(t.from)) }}
+          />
+        ))}
+        <input
+          type="range"
+          min={CALC_MIN}
+          max={CALC_MAX}
+          step={50}
+          value={spend}
+          onChange={(e) => setSpend(Number(e.target.value))}
+          aria-label="월 광고비(만원)"
+          style={{ height: THUMB, background: "transparent" }}
+          className="absolute inset-0 m-0 w-full cursor-pointer
+            [&::-webkit-slider-thumb]:h-6! [&::-webkit-slider-thumb]:w-6! [&::-webkit-slider-thumb]:border-[5px]! [&::-webkit-slider-thumb]:border-brand-primary! [&::-webkit-slider-thumb]:bg-white! [&::-webkit-slider-thumb]:shadow-[0_4px_12px_rgba(36,82,235,.45)]!
+            [&::-moz-range-thumb]:h-6! [&::-moz-range-thumb]:w-6! [&::-moz-range-thumb]:border-[5px]! [&::-moz-range-thumb]:border-brand-primary! [&::-moz-range-thumb]:bg-white! [&::-moz-range-track]:bg-transparent!"
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between text-[11px] text-brand-muted tabular-nums">
+        <span>{CALC_MIN}만원</span>
+        <span>{CALC_MAX.toLocaleString()}만원</span>
+      </div>
+
+      {/* 구간 칩 — 누르면 그 구간 시작 금액으로 이동 */}
+      <div className="mt-4 grid grid-cols-4 gap-1.5 rounded-xl bg-[#F3F5F9] p-1">
+        {CALC_TIERS.map((t, i) => {
+          const on = i === tierIdx;
+          return (
+            <button
+              key={t.from}
+              type="button"
+              onClick={() => setSpend(t.from)}
+              className={`cursor-pointer rounded-lg px-1 py-2 text-center transition-all ${
+                on ? "bg-white shadow-[0_2px_8px_rgba(15,23,42,.08)]" : "hover:bg-white/60"
+              }`}
+            >
+              <p className={`text-[14px] font-extrabold tabular-nums ${on ? "text-brand-primary" : "text-brand-muted"}`}>{Math.round(t.rate * 100)}%</p>
+              <p className="mt-0.5 text-[10.5px] font-semibold text-brand-muted tabular-nums">{t.from.toLocaleString()}만~</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 결과 — 연간 환급금을 주인공으로 */}
+      <div className="relative mt-5 overflow-hidden rounded-2xl p-5 text-white" style={{ background: "var(--gradient-point)" }}>
+        <div className="relative flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[12.5px] font-bold text-white/75">연간 예상 환급금</p>
+            <p className="mt-1.5 text-[34px] font-extrabold leading-none tabular-nums md:text-[38px]">
+              {annual > 0 ? annual.toLocaleString() : "—"}
+              {annual > 0 && <span className="ml-1 text-[16px] font-bold text-white/80">만원</span>}
+            </p>
+          </div>
+          <div className="shrink-0 space-y-1.5 border-l border-white/20 pl-4 text-right">
+            <p className="text-[12px] text-white/70">
+              월 <span className="ml-1 text-[15px] font-extrabold text-white tabular-nums">{monthly > 0 ? `${monthly.toLocaleString()}만원` : "—"}</span>
+            </p>
+            <p className="text-[12px] text-white/70">
+              환급률 <span className="ml-1 text-[15px] font-extrabold text-white tabular-nums">{pct}%</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 안내 줄은 늘 한 줄을 차지한다 — 최고 구간에서 사라지면 카드 높이가 흔들린다 */}
+      <p className="mt-3 truncate text-center text-[12px] text-brand-muted">
+        {next ? (
+          <>월 {next.from.toLocaleString()}만원부터 환급률 <b className="font-extrabold text-brand-primary">{Math.round(next.rate * 100)}%</b>가 적용됩니다.</>
+        ) : (
+          <>최고 환급률 <b className="font-extrabold text-brand-primary">{pct}%</b>가 적용되는 구간입니다.</>
+        )}
+      </p>
     </div>
   );
 }
@@ -96,580 +185,212 @@ function RefundCalculator() {
 ───────────────────────────────────────── */
 export default function NaverRefundPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [provider, setProvider] = useState("naver-sa");
-  const [accountId, setAccountId] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [advertiserId, setAdvertiserId] = useState("");
-  const [agreed, setAgreed] = useState(false);
 
   return (
-    <>
-      <div className="w-full pb-24 lg:pb-0">
+    <LandingShell
+      railTitle={
+        <>
+          광고비 환급,
+          <br />
+          상담으로 시작
+        </>
+      }
+    >
 
-        {/* 좌: 상세페이지 블럭 · 우: 문의 레일 (상단 정렬) */}
-        <div className="flex gap-5 items-stretch">
+      {/* ── 1. 히어로 ── 흰 밴드 · 중앙 정렬 */}
+      <section
+        className={LIGHT}
+        style={{ backgroundImage: "radial-gradient(120% 90% at 50% -10%, rgba(36,82,235,.07), transparent 60%)" }}
+      >
 
-          {/* LEFT: 상세페이지 블럭 */}
-          <div className="flex-1 min-w-0 space-y-4">
+        <div className="relative text-center">
+          <Reveal>
+            <p className={EYEBROW}>Naver SA refund</p>
+            <h2 className={`${H2} mt-4 text-brand-dark`}>
+              집행한 광고비 그대로,
+              <br />
+              <span className="text-brand-primary">최대 10% 돌려받으세요</span>
+            </h2>
+            <p className={LEAD}>
+              네이버 공식 파트너사를 통해 광고비의 최대 10%를 환급받고, 전문가의 광고 관리로 같은 예산에서 더 많은 성과를 만들어 드립니다.
+            </p>
+          </Reveal>
 
-          {/* ══ 상세페이지 블럭 — 전 섹션을 하나의 블럭으로 묶음 ══ */}
-          <div className="rounded-2xl overflow-hidden border border-brand-border shadow-[0_8px_28px_rgba(17,29,55,0.10)]">
-
-        {/* ══════════════════════════════
-            HERO
-        ══════════════════════════════ */}
-        <div style={{ background: "linear-gradient(135deg,#1B3160 0%,#111D37 100%)" }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* 왼쪽: 텍스트 */}
-            <div className="px-5 py-9 md:px-10 md:py-14 flex flex-col justify-center">
-              <span className="inline-block text-[14px] font-extrabold tracking-wide mb-5" style={{ color: "#9DBBF5" }}>NAVER SA / 광고비 환급</span>
-              <h1 className="text-[26px] md:text-[38px] font-extrabold text-white leading-[1.28] mb-4">
-                집행한 광고비 그대로,<br />
-                <span style={{ color: "#7EA6F5" }}>최대 10% 현금 환급.</span>
-              </h1>
-              <p className="text-[15px] text-white/65 leading-relaxed mb-8">
-                네이버 공식 파트너사를 통해 광고비의 최대 10%를 환급받고,<br />
-                전문 최적화로 동일 예산에서 더 많은 성과를 만들어 드립니다.
-              </p>
-              {/* 메타 정보 */}
-              <div className="inline-flex flex-wrap items-center gap-y-4 rounded-2xl px-6 py-5" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                {[
-                  { k: "광고비 환급률", v: "최대 10%" },
-                  { k: "정산 주기", v: "월 1회" },
-                  { k: "계정 최적화", v: "무제한" },
-                ].map((m, i) => (
-                  <div key={m.k} className={`flex flex-col gap-1 pr-6 ${i > 0 ? "pl-6" : ""}`} style={i > 0 ? { borderLeft: "1px solid rgba(255,255,255,0.15)" } : {}}>
-                    <span className="text-[12px] text-white/50">{m.k}</span>
-                    <span className="text-[15px] font-bold text-white">{m.v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* 오른쪽: 환급 구간 카드 */}
-            <div className="flex items-start justify-center px-8 py-12">
-              <div className="w-full rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                <p className="text-[12px] text-white/45 font-bold uppercase tracking-widest mb-5">환급 구간별 혜택</p>
-                <div className="space-y-2.5">
-                  {REFUND_TIERS.map((t) => (
-                    <div
-                      key={t.range}
-                      className={`flex items-center justify-between rounded-xl px-4 py-3.5 ${t.highlight ? "border border-[#2E6BE0]/40" : ""}`}
-                      style={{ background: t.highlight ? "rgba(46,107,224,0.15)" : "rgba(255,255,255,0.05)" }}
-                    >
-                      <div>
-                        <p className="text-[12px] text-white/55 leading-none mb-1">{t.range}</p>
-                        <p className="text-[16px] font-extrabold text-white">
-                          {t.monthly} <span className="text-[12px] font-normal text-white/40">/ 월</span>
+          {/* 환급 구간 — 환급률만큼 높아지는 계단 기둥. 주인공 구간만 블루로 채운다 */}
+          <Reveal delay={120}>
+            <div className="mx-auto mt-12 max-w-[760px]">
+              <div className="grid h-[260px] grid-cols-4 items-end gap-2.5 sm:h-[320px] sm:gap-4">
+                {REFUND_TIERS.map((t, i) => {
+                  const on = t.highlight;
+                  const rate = parseFloat(t.rate);
+                  return (
+                    <div key={t.range} className="flex h-full flex-col justify-end">
+                      {/* 기둥 위 — 구간 금액 */}
+                      <div className="mb-2.5 flex flex-col items-center gap-1.5">
+                        {on && (
+                          <span className="whitespace-nowrap rounded-full bg-brand-dark px-2 py-0.5 text-[10px] font-extrabold text-white shadow-md sm:px-2.5 sm:py-1 sm:text-[11px]">
+                            가장 많이 받는 구간
+                          </span>
+                        )}
+                        <p className={`whitespace-nowrap text-[11.5px] font-bold sm:text-[13px] ${on ? "text-brand-primary" : "text-brand-sub"}`}>
+                          {t.range.replace(" 이상", "~")}
                         </p>
                       </div>
-                      <span className={`text-[25px] font-extrabold ${t.highlight ? "text-[#7EA6F5]" : "text-white/40"}`}>{t.rate}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[11px] text-white/25 mt-4">* 네이버 정책에 따라 변동될 수 있습니다.</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* ══════════════════════════════
-            FEATURE 1: 환급 신청
-        ══════════════════════════════ */}
-        <div className="bg-white border-t border-brand-border">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
-              <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>환급 신청 대행</span>
-              <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
-                환급 신청은 복잡하지만<br />
-                <span style={{ color: "#2E6BE0" }}>BlueEgg는 쉽습니다</span>
-              </h2>
-              <p className="text-[17px] text-brand-sub leading-relaxed mb-8">
-                광고주 ID 하나만 등록하면 신청부터 지급까지<br />
-                모든 과정을 대신 처리해드립니다.
-              </p>
-              <button
-                onClick={() => document.getElementById("form")?.scrollIntoView({ behavior: "smooth" })}
-                className="inline-flex items-center gap-1.5 text-[16px] font-bold text-[#2E6BE0] cursor-pointer w-fit hover:underline"
-              >
-                지금 바로 신청하기
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-              </button>
-            </div>
-            <div className="order-last lg:order-none flex items-center justify-center px-5 py-8 md:px-8 md:py-10">
-              <div className="w-full max-w-sm">
-                <div className="bg-white rounded-2xl border border-brand-border p-5 shadow-sm">
-                  <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest mb-4">진행 프로세스</p>
-                  {PROCESS.map((p, i) => (
-                    <div key={p.step} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <span className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-[12px] font-extrabold text-white" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>
-                          {p.step}
+                      {/* 기둥 */}
+                      <div
+                        className={`relative overflow-hidden rounded-t-2xl px-2.5 pt-3 sm:rounded-t-3xl sm:px-4 sm:pt-4 ${
+                          on
+                            ? "text-white shadow-[0_-18px_40px_-16px_rgba(36,82,235,.6)]"
+                            : "border border-b-0 border-brand-primary/10 bg-gradient-to-b from-brand-primary-50 to-brand-primary-50/0"
+                        }`}
+                        style={{
+                          height: `${28 + rate * 7.2}%`,
+                          background: on ? "linear-gradient(180deg, #2452EB 0%, #4C74FF 55%, rgba(76,116,255,.15) 100%)" : undefined,
+                        }}
+                      >
+                        <span className={`relative text-[10px] font-extrabold tabular-nums sm:text-[11px] ${on ? "text-white/70" : "text-brand-muted"}`}>
+                          STEP {i + 1}
                         </span>
-                        {i < PROCESS.length - 1 && <span className="w-px flex-1 bg-brand-border my-1" />}
-                      </div>
-                      <div className="pb-4 pt-1">
-                        <p className="text-[15px] font-bold text-brand-dark mb-0.5">{p.title}</p>
-                        <p className="text-[12px] text-brand-sub leading-relaxed">{p.desc}</p>
+                        <p className={`relative mt-1 text-[26px] font-black leading-none tracking-tight tabular-nums sm:text-[40px] ${on ? "text-white" : "text-brand-dark"}`}>
+                          {t.rate}
+                        </p>
+                        <p className={`relative mt-1 text-[10.5px] font-semibold sm:text-[12px] ${on ? "text-white/75" : "text-brand-muted"}`}>환급률</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* ══════════════════════════════
-            FEATURE 2: 환급 계산기 (dark)
-        ══════════════════════════════ */}
-        <div id="calculator" className="border-t border-brand-border" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
-              <span className="text-[12px] font-extrabold text-[#7EA6F5] uppercase tracking-widest mb-4">환급 계산</span>
-              <h2 className="text-[34px] font-extrabold text-white leading-tight mb-5">
-                환급금이 얼마인지<br />
-                <span style={{ color: "#7EA6F5" }}>한눈에 보입니다</span>
-              </h2>
-              <p className="text-[17px] text-white/60 leading-relaxed mb-8">
-                월 광고비 규모에 따라 환급률이 달라집니다.<br />
-                오른쪽 계산기로 예상 환급금을 직접 확인하세요.
-              </p>
-              <div className="rounded-xl overflow-hidden border border-white/10">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ background: "rgba(255,255,255,0.07)" }}>
-                      <th className="text-left px-4 py-3 font-bold text-white/40 text-[12px]">광고비</th>
-                      <th className="text-center px-4 py-3 font-bold text-white/40 text-[12px]">환급률</th>
-                      <th className="text-right px-4 py-3 font-bold text-white/40 text-[12px]">월 환급</th>
-                      <th className="text-right px-4 py-3 font-bold text-white/40 text-[12px]">연간</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {REFUND_TIERS.map((t) => (
-                      <tr key={t.range} className="border-t border-white/5" style={{ background: t.highlight ? "rgba(46,107,224,0.12)" : "transparent" }}>
-                        <td className="px-4 py-2.5 text-white/70 text-[13px]">{t.range}</td>
-                        <td className="px-4 py-2.5 text-center">
-                          <span className={`font-extrabold text-[16px] ${t.highlight ? "text-[#7EA6F5]" : "text-white/60"}`}>{t.rate}</span>
-                        </td>
-                        <td className="px-4 py-2.5 text-right text-white/70 font-bold text-[13px]">{t.monthly}</td>
-                        <td className="px-4 py-2.5 text-right">
-                          <span className={`font-extrabold text-[13px] ${t.highlight ? "text-[#7EA6F5]" : "text-white/60"}`}>{t.annual}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="order-last lg:order-none flex items-center justify-center px-5 py-8 md:px-8 md:py-12">
-              <div className="w-full max-w-sm">
-                <RefundCalculator />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════
-            FEATURE 3: 계정 최적화 (gray)
-        ══════════════════════════════ */}
-        <div className="border-t border-brand-border" style={{ background: "#F2F4F6" }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex items-center justify-center p-10">
-              <div className="grid grid-cols-2 gap-3 w-full">
-                {OPTIMIZE_FEATURES.map((f) => (
-                  <div key={f.title} className="rounded-xl p-4 bg-white border border-brand-border flex gap-3 shadow-sm">
-                    <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${f.bg}`}>
-                      <svg className={`w-4 h-4 ${f.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
-                      </svg>
+              {/* 바닥선 + 환급 금액 */}
+              <div className="grid grid-cols-4 gap-2.5 border-t border-brand-border pt-4 text-center sm:gap-4">
+                {REFUND_TIERS.map((t) => (
+                  <dl key={t.range} className="space-y-1">
+                    <div>
+                      <dt className="text-[11px] text-brand-muted sm:text-[12px]">월 환급</dt>
+                      <dd className="whitespace-nowrap text-[12.5px] font-extrabold text-brand-dark tabular-nums sm:text-[14px]">{t.monthly}</dd>
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-brand-dark mb-0.5">{f.title}</p>
-                      <p className="text-[11px] text-brand-sub leading-relaxed">{f.desc}</p>
+                      <dt className="text-[11px] text-brand-muted sm:text-[12px]">연 환급</dt>
+                      <dd className={`whitespace-nowrap text-[13.5px] font-extrabold tabular-nums sm:text-[16px] ${t.highlight ? "text-brand-primary" : "text-brand-dark"}`}>{t.annual}</dd>
                     </div>
-                  </div>
+                  </dl>
                 ))}
               </div>
             </div>
-            <div className="flex flex-col justify-center px-5 py-9 md:px-12 md:py-14">
-              <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-4 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>계정 최적화</span>
-              <h2 className="text-[24px] md:text-[34px] font-extrabold text-brand-dark leading-tight mb-5">
-                계정 최적화는 어렵지만<br />
-                <span className="text-brand-primary">BlueEgg는 자동입니다</span>
-              </h2>
-              <p className="text-[17px] text-brand-sub leading-relaxed mb-8">
-                키워드·입찰가·소재·품질지수까지<br />
-                6가지 핵심 영역을 전문가가 지속 관리합니다.
-              </p>
-              <div className="space-y-2">
-                {["계약 기간 내 최적화 횟수 무제한", "월간 성과 리포트 제공", "전담 매니저 1:1 관리"].map((t) => (
-                  <div key={t} className="flex items-center gap-2 text-[15px] text-brand-sub">
-                    <svg className="w-4 h-4 text-brand-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {t}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+            <p className="mt-5 text-[12px] text-brand-muted">* 월 광고비 기준 예상 금액이며, 네이버 정책에 따라 변동될 수 있습니다.</p>
+          </Reveal>
         </div>
+      </section>
 
-        {/* ══════════════════════════════
-            FAQ
-        ══════════════════════════════ */}
-        <div className="bg-white border-t border-brand-border px-5 py-8 md:px-10 md:py-12">
-          <div className="max-w-2xl mx-auto">
-            <p className="text-[12px] font-extrabold text-brand-muted uppercase tracking-widest text-center mb-3">FAQ</p>
-            <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark text-center mb-8">자주 묻는 질문</h2>
-            <div className="space-y-2">
-              {FAQS.map((faq, i) => (
-                <div key={i} className="border border-brand-border rounded-xl overflow-hidden">
+      {/* ── 2. 환급 계산기 ── 네이비 밴드 */}
+      <section id="calculator" className={BLUE} style={{ background: NAVY }}>
+        <div className="relative grid items-center gap-10 md:grid-cols-2 md:gap-14">
+          <Reveal>
+            <p className={EYEBROW_ON_DARK}>Calculator</p>
+            <h2 className={`${H2} mt-4 text-white`}>
+              얼마를 돌려받는지,
+              <br />
+              <span className="text-[#8FB0FF]">직접 확인해 보세요</span>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <RefundCalculator />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── 3. 계정 최적화 ── 흰 밴드 */}
+      <section className={LIGHT}>
+        <div className="relative text-center">
+          <Reveal>
+            <p className={EYEBROW}>Optimization</p>
+            <h2 className={`${H2} mt-4 text-brand-dark`}>
+              환급으로 끝나지 않고,
+              <br />
+              <span className="text-brand-primary">광고 성과까지 챙겨 드립니다</span>
+            </h2>
+            <p className={LEAD}>
+              환급과 함께 키워드·입찰가·소재·품질지수 등 여섯 가지 영역을 전담 매니저가 꾸준히 관리합니다.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
+            {OPTIMIZE_FEATURES.map((f, i) => (
+              <Reveal key={f.title} delay={i * 80} className="h-full">
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-brand-border bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-[0_20px_40px_-20px_rgba(36,82,235,.35)]">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-[0_8px_18px_-8px_rgba(36,82,235,.7)]"
+                    style={{ background: "var(--gradient-point)" }}
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
+                    </svg>
+                  </div>
+                  <p className="mt-5 text-[16px] font-extrabold text-brand-dark break-keep">{f.title}</p>
+                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-brand-sub break-keep">{f.desc}</p>
+                  {/* 호버 시 아래에서 차오르는 포인트 선 */}
+                  <span
+                    className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+                    style={{ background: "var(--gradient-point)" }}
+                  />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* 포함 사항 — 한 줄 띠로 묶는다 */}
+          <Reveal delay={200}>
+            <ul className="mx-auto mt-8 grid max-w-[760px] gap-3 rounded-2xl bg-brand-primary-50 px-5 py-4 text-left sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-brand-primary/15 sm:px-2">
+              {["계약 기간 내 최적화 횟수 무제한", "월간 성과 리포트 제공", "전담 매니저 1:1 관리"].map((t) => (
+                <li key={t} className="flex items-center gap-2.5 text-[14px] font-bold text-brand-dark break-keep sm:justify-center sm:px-4">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white">
+                    <CheckIcon className="h-3 w-3" />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── 4. FAQ ── 그레이 밴드 */}
+      <section className={TINT}>
+        <div className="relative">
+          <Reveal>
+            <p className={`${EYEBROW} text-center`}>FAQ</p>
+            <h2 className={`${H2} mt-4 text-center text-brand-dark`}>자주 묻는 질문</h2>
+          </Reveal>
+
+          <div className="mx-auto mt-12 max-w-[720px] space-y-2">
+            {FAQS.map((faq, i) => (
+              <Reveal key={faq.q} delay={i * 60}>
+                <div className="overflow-hidden rounded-xl bg-white">
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-brand-lighter transition-colors cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-between px-5 py-4 text-left transition-colors hover:bg-brand-lighter"
                   >
-                    <span className="text-[16px] font-semibold text-brand-dark pr-4">{faq.q}</span>
-                    <svg className={`w-4 h-4 text-brand-muted shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <span className="pr-4 text-[15.5px] font-semibold text-brand-dark break-keep">{faq.q}</span>
+                    <svg
+                      className={`h-4 w-4 shrink-0 text-brand-muted transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                   {openFaq === i && (
-                    <div className="px-5 pb-5 pt-3 text-[16px] text-brand-sub leading-relaxed border-t border-brand-border">
+                    <div className="border-t border-brand-border px-5 pb-5 pt-3 text-[14.5px] leading-relaxed text-brand-sub break-keep">
                       {faq.a}
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
+              </Reveal>
+            ))}
           </div>
         </div>
-
-        {/* ══════════════════════════════
-            광고주 ID 등록 폼
-        ══════════════════════════════ */}
-        <div id="form" className="border-t border-brand-border" style={{ background: "#F2F4F6" }}>
-          <div className="px-10 py-10 text-center border-b border-brand-border" style={{ background: "white" }}>
-            <span className="inline-flex items-center text-[13px] font-extrabold px-3 py-1.5 rounded-lg mb-3 w-fit" style={{ background: "#EEF1FE", color: "#2E6BE0" }}>광고주 ID 등록</span>
-            <h2 className="text-[23px] md:text-[31px] font-extrabold text-brand-dark mb-2">지금 바로 신청하세요</h2>
-            <p className="text-[16px] text-brand-sub">정보 입력 후 영업일 1~3일 내 담당자가 연락드립니다.</p>
-          </div>
-          <div className="p-8 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
-            {/* 왼쪽: 폼 */}
-            <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-              <div className="px-8 py-6 border-b border-brand-border" style={{ background: "linear-gradient(135deg,#f8faff,#eef4ff)" }}>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[12px] font-extrabold px-2.5 py-1 rounded-lg text-white" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>NAVER SA</span>
-                  <span className="text-[12px] px-2.5 py-1 rounded-lg text-brand-sub bg-brand-lighter border border-brand-border">광고비 환급</span>
-                </div>
-                <h3 className="text-[22px] font-extrabold text-brand-dark mt-3 mb-1">광고주 ID 등록</h3>
-                <p className="text-[15px] text-brand-sub">아래 정보를 입력하시면 환급 신청이 즉시 접수됩니다.</p>
-              </div>
-              <div className="px-8 py-7 space-y-5">
-                <div>
-                  <label className="text-[15px] font-bold text-brand-dark mb-2 block">
-                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full text-white text-[11px] font-extrabold mr-1.5" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>1</span>
-                    매체사 선택
-                  </label>
-                  <select
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                    className="w-full border border-brand-border rounded-xl px-4 py-3 text-[15px] text-brand-dark bg-white focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 pr-10"
-                  >
-                    <option value="naver-sa">네이버 SA (검색광고)</option>
-                    <option value="naver-gfa">네이버 GFA (성과형 DA)</option>
-                    <option value="kakao">카카오모먼트</option>
-                    <option value="google">구글 Ads</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[15px] font-bold text-brand-dark mb-2 block">
-                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full text-white text-[11px] font-extrabold mr-1.5" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>2</span>
-                    네이버 계정 ID
-                  </label>
-                  <input
-                    type="text"
-                    value={accountId}
-                    onChange={(e) => setAccountId(e.target.value)}
-                    placeholder="예) naver_id123"
-                    className="w-full border border-brand-border rounded-xl px-4 py-3 text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-                  />
-                </div>
-                <div>
-                  <label className="text-[15px] font-bold text-brand-dark mb-2 block">
-                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full text-white text-[11px] font-extrabold mr-1.5" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>3</span>
-                    네이버 계정 이름
-                  </label>
-                  <input
-                    type="text"
-                    value={accountName}
-                    onChange={(e) => setAccountName(e.target.value)}
-                    placeholder="예) 홍길동"
-                    className="w-full border border-brand-border rounded-xl px-4 py-3 text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-                  />
-                </div>
-                <div>
-                  <label className="text-[15px] font-bold text-brand-dark mb-2 block">
-                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full text-white text-[11px] font-extrabold mr-1.5" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>4</span>
-                    광고주 ID <span className="text-brand-muted font-normal">(숫자)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={advertiserId}
-                    onChange={(e) => setAdvertiserId(e.target.value.replace(/\D/g, ""))}
-                    placeholder="예) 1234567"
-                    className="w-full border border-brand-border rounded-xl px-4 py-3 text-[15px] text-brand-dark placeholder:text-brand-muted focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-                  />
-                  <p className="text-[12px] text-brand-muted mt-1.5">네이버 광고 관리시스템 &gt; 계정 관리 &gt; 광고주 정보에서 확인하세요.</p>
-                </div>
-                <div className="rounded-xl bg-brand-lighter border border-brand-border p-4">
-                  <p className="text-[13px] font-extrabold text-brand-dark mb-2.5">📋 필독 안내 사항</p>
-                  <ul className="space-y-1.5">
-                    {[
-                      "광고주 ID는 네이버 광고 관리시스템 내 숫자 형태의 고유 식별자입니다.",
-                      "잘못된 정보 입력 시 환급 처리가 지연될 수 있습니다.",
-                      "환급 신청 후 영업일 기준 1~3일 내로 담당자가 연락드립니다.",
-                      "본 서비스는 네이버 공식 파트너 프로그램을 통해 제공됩니다.",
-                    ].map((txt) => (
-                      <li key={txt} className="flex items-start gap-2 text-[13px] text-brand-sub">
-                        <span className="text-brand-muted mt-0.5 shrink-0">·</span>
-                        {txt}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={agreed}
-                    onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded border-brand-border accent-[#2E6BE0] cursor-pointer"
-                  />
-                  <span className="text-[15px] text-brand-sub leading-snug">
-                    개인정보 수집·이용에 동의하며, 환급 서비스 신청을 위해 위 정보가 활용됨을 확인합니다.
-                    <span className="text-brand-primary underline ml-1 cursor-pointer">[전문 보기]</span>
-                  </span>
-                </label>
-                <button
-                  disabled={!agreed || !accountId || !advertiserId}
-                  onClick={() => alert("신청이 접수되었습니다. 담당자가 곧 연락드립니다.")}
-                  className="w-full py-4 rounded-2xl text-[17px] font-extrabold text-white flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: "linear-gradient(135deg,#111D37,#2B3648)" }}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  광고주 ID 등록 신청
-                </button>
-              </div>
-            </div>
-            {/* 오른쪽: 스티키 패널 */}
-            <div className="sticky top-6 space-y-4">
-              <div className="bg-white rounded-2xl border border-brand-border p-5">
-                <h3 className="text-[15px] font-extrabold text-brand-dark mb-3 flex items-center gap-2">
-                  <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>①</span>
-                  환급 대상 광고 상품
-                </h3>
-                <div className="space-y-1">
-                  {["파워링크 (SA 검색광고)", "쇼핑검색광고", "브랜드검색", "디스플레이광고 (GFA)"].map((item, i) => (
-                    <div key={item} className="flex items-center gap-2.5 py-2 border-b border-brand-border last:border-0">
-                      <span className="h-5 w-5 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>
-                        {i + 1}
-                      </span>
-                      <span className="text-[13px] font-semibold text-brand-dark">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl border border-brand-border p-5">
-                <h3 className="text-[15px] font-extrabold text-brand-dark mb-3 flex items-center gap-2">
-                  <span className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>②</span>
-                  광고주 ID 확인 방법
-                </h3>
-                <div className="space-y-2.5 mb-4">
-                  {[
-                    { n: 1, t: "네이버 광고 관리시스템 접속", sub: "searchad.naver.com" },
-                    { n: 2, t: "우측 상단 계정 설정 클릭", sub: "계정명 옆 설정 아이콘" },
-                    { n: 3, t: "광고주 정보에서 ID 확인", sub: "숫자 7자리 광고주 ID" },
-                  ].map((s) => (
-                    <div key={s.n} className="flex items-start gap-2.5">
-                      <span className="h-5 w-5 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 mt-0.5" style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}>{s.n}</span>
-                      <div>
-                        <p className="text-[13px] font-semibold text-brand-dark leading-tight">{s.t}</p>
-                        <p className="text-[12px] text-brand-muted">{s.sub}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-xl border border-brand-border overflow-hidden text-[11px]">
-                  <div className="bg-white border-b border-brand-border px-3 py-2 flex items-center gap-2">
-                    <span className="font-extrabold text-[12px]" style={{ color: "#03C75A" }}>N</span>
-                    <span className="text-brand-muted font-medium">광고주센터</span>
-                    <div className="ml-auto flex items-center gap-1">
-                      <span className="px-1.5 py-0.5 rounded border border-[#2E6BE0] text-[#2E6BE0] text-[10px] font-bold">계정 관리</span>
-                      <span className="text-[#0D3473] font-bold text-[10px]">광고 플랫폼 ▾</span>
-                    </div>
-                  </div>
-                  <div className="bg-white border-b border-brand-border px-3 py-1.5 flex gap-3">
-                    {["광고 계정", "관리 계정", "즐겨찾기"].map((t, i) => (
-                      <span key={t} className={`text-[11px] pb-0.5 ${i === 0 ? "font-bold text-brand-primary border-b-2 border-brand-primary" : "text-brand-muted"}`}>{t}</span>
-                    ))}
-                  </div>
-                  <div className="bg-brand-lighter px-3 py-1.5 grid grid-cols-[1fr_60px_70px] text-[10px] text-brand-muted font-semibold border-b border-brand-border">
-                    <span>계정 이름 ↑↓</span>
-                    <span className="text-center">권한</span>
-                    <span className="text-center">플랫폼</span>
-                  </div>
-                  <div className="px-3 py-2 grid grid-cols-[1fr_60px_70px] text-[10px] bg-white">
-                    <div className="flex items-center gap-1">
-                      <input type="checkbox" className="w-2.5 h-2.5 accent-[#2E6BE0]" readOnly />
-                      <span className="text-blue-500 underline">BlueEgg</span>
-                      <span className="text-[#0D3473] font-bold">(1234567)</span>
-                    </div>
-                    <span className="text-center text-brand-sub">핵심자</span>
-                    <span className="text-center text-brand-sub">검색광고</span>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => window.open("https://www.aurabiz.kr/menus/rebate/", "_blank")}
-                className="w-full py-3.5 rounded-2xl text-[15px] font-extrabold text-white flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer"
-                style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-                10초만에 환급 신청하기
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════
-            BOTTOM CTA
-        ══════════════════════════════ */}
-        <div className="border-t border-brand-border relative py-16 px-10 text-center" style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)" }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 50%, rgba(46,107,224,0.12), transparent 70%)" }} />
-          <div className="relative z-10">
-            <p className="text-[12px] font-extrabold text-[#7EA6F5] uppercase tracking-widest mb-4">지금 바로 시작하세요</p>
-            <h2 className="text-[36px] font-extrabold text-white leading-tight mb-4">
-              광고비, 이제<br />
-              <span style={{ color: "#7EA6F5" }}>돌려받으세요</span>
-            </h2>
-            <p className="text-[17px] text-white/55 leading-relaxed mb-8">
-              네이버 공식 파트너를 통해 광고비 최대 10%를 환급받고<br />
-              전문 최적화로 더 많은 성과를 만들어보세요.
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <button
-                onClick={() => alert("무료 상담 연결 예정")}
-                className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-[17px] font-extrabold text-white cursor-pointer hover:opacity-90 transition-all shadow-lg"
-                style={{ background: "linear-gradient(135deg,#0D3473,#2E6BE0)" }}
-              >
-                무료 환급 상담 시작
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-              </button>
-              <button
-                onClick={() => window.open("https://www.aurabiz.kr/menus/rebate/", "_blank")}
-                className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-[17px] font-semibold text-white/70 cursor-pointer hover:text-white transition-all"
-                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)" }}
-              >
-                10초 빠른 신청
-              </button>
-            </div>
-          </div>
-        </div>
-        {/* END 상세페이지 블럭 */}
-        </div>
-
-          <div className="h-24" />
-          </div>
-          {/* END LEFT */}
-
-          {/* ── RIGHT: 문의 레일 (sticky · SA 동일) ── */}
-          <div className="hidden lg:block w-72 xl:w-80 shrink-0 pt-12">
-            <div className="sticky top-6 space-y-2.5 pb-3">
-
-              {/* 메인 CTA 카드 */}
-              <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(160deg,#1B3160 0%,#111D37 100%)" }}>
-                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 110%, rgba(255,255,255,0.12), transparent 60%)" }} />
-                <div className="relative z-10 px-5 py-6 text-center">
-                  <p className="text-[11px] font-extrabold text-white/60 uppercase tracking-widest mb-2">지금 바로 시작하세요</p>
-                  <h2 className="text-[22px] font-extrabold text-white leading-tight mb-3">
-                    광고비, 이제<br />
-                    돌려받으세요
-                  </h2>
-                  <p className="text-[12px] text-white/70 leading-relaxed mb-5">
-                    계정 연동 없이 광고비만 알려주시면<br />
-                    환급 가능 여부를 바로 안내해드립니다.
-                  </p>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => alert("문의하기 연결 예정")}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[15px] font-extrabold text-[#0D3473] bg-white cursor-pointer hover:bg-white/90 transition-all shadow-lg"
-                    >
-                      무료 환급 상담
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                    </button>
-                    <button
-                      onClick={() => document.getElementById("form")?.scrollIntoView({ behavior: "smooth" })}
-                      className="w-full px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white/80 cursor-pointer hover:text-white transition-all"
-                      style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
-                    >
-                      10초 빠른 신청
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* 환급 혜택 카드 */}
-              <div className="bg-white rounded-2xl border border-brand-border p-4">
-                <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">환급 혜택</p>
-                {[
-                  { label: "광고비 환급률", value: "최대 10%" },
-                  { label: "정산 주기", value: "월 1회" },
-                  { label: "계정 최적화", value: "무제한" },
-                  { label: "정산 방식", value: "현금 환급" },
-                ].map((s) => (
-                  <div key={s.label} className="flex items-center justify-between py-1.5 border-b border-brand-border last:border-0">
-                    <span className="text-[12px] text-brand-sub">{s.label}</span>
-                    <span className="text-[13px] font-extrabold text-brand-dark">{s.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* 포함 항목 카드 */}
-              <div className="bg-brand-lighter rounded-2xl border border-brand-border p-4">
-                <p className="text-[11px] font-extrabold text-brand-muted uppercase tracking-widest mb-2">서비스 포함 항목</p>
-                <ul className="space-y-1.5">
-                  {["광고비 최대 10% 현금 환급", "전문가 계정 최적화 (무제한)", "월간 성과 리포트 제공", "전담 매니저 1:1 관리", "계정 연동 없이 신청 가능"].map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-[12px] text-brand-sub">
-                      <svg className="w-3 h-3 shrink-0" style={{ color: "#2E6BE0" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* 모바일 하단 고정 CTA */}
-      <div className="lg:hidden fixed inset-x-0 bottom-[60px] md:bottom-0 z-40 bg-white border-t border-brand-border px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(17,29,55,0.10)]">
-        <button
-          onClick={() => alert("무료 환급 상담 연결 예정")}
-          className="w-full py-3.5 rounded-xl text-[16px] font-extrabold text-white flex items-center justify-center gap-2 active:opacity-90 transition-opacity"
-          style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
-        >
-          무료 환급 상담
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-        </button>
-      </div>
-    </>
+      </section>
+    </LandingShell>
   );
 }

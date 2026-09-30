@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-brand-lighter flex flex-col">
       <header className="sticky top-0 z-50 h-[60px] bg-white border-b border-brand-border flex items-center justify-between px-6 shrink-0">
         <Link href="/marketing" className="flex items-center">
-          <Logo markClassName="h-7 w-auto" textClassName="h-4.5 w-auto" textColor="text-brand-dark" />
+          <Logo size="h-9" />
         </Link>
         <div className="flex items-center gap-2.5">
           <div className="h-7 w-7 rounded-full bg-brand-light border border-brand-border flex items-center justify-center shrink-0">

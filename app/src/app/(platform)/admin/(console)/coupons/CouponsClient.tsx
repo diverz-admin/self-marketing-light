@@ -309,7 +309,7 @@ function CouponModal({ coupon, onClose }: { coupon: CouponRow | null; onClose: (
       </Field>
 
       <label className="flex items-center gap-2 text-[14px] text-brand-dark cursor-pointer">
-        <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#0D3473]" />
+        <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-[#2452EB]" />
         활성 상태로 저장
       </label>
 

@@ -143,8 +143,8 @@ function Metric({
     <div className="px-5 py-4">
       <p className="text-[12.5px] font-semibold text-brand-sub">{label}</p>
       <p
-        // 큰 단독 숫자는 비례 폰트 — tabular-nums는 표·축처럼 세로 정렬이 필요한 곳에만
-        className={`text-[24px] md:text-[26px] font-extrabold mt-1 leading-none ${
+        // 대시보드 수치는 모노로 통일한다 (console-ui.tsx 참고) — 자릿수가 세로로 맞는다
+        className={`text-[24px] md:text-[26px] font-extrabold mt-1 leading-none font-mono tabular-nums tracking-[-0.02em] ${
           accent ? "text-[#5B3FB0]" : "text-brand-dark"
         }`}
       >

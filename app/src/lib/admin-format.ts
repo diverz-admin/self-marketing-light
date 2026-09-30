@@ -4,17 +4,28 @@ export type BadgeTone = "gray" | "blue" | "green" | "amber" | "red" | "purple";
 
 export const toneClass: Record<BadgeTone, string> = {
   gray: "bg-[#EEF1F5] text-[#5B6472]",
-  blue: "bg-[#E4EFFF] text-[#0D3473]",
+  blue: "bg-[#E4EFFF] text-[#2452EB]",
   green: "bg-[#DFF5E6] text-[#1E7E43]",
   amber: "bg-[#FCEFD9] text-[#B5751B]",
   red: "bg-[#FFE3E8] text-[#C4363B]",
   purple: "bg-[#EBE6FB] text-[#5B3FB0]",
 };
 
+/**
+ * 금액 표기 — "1,234,567원".
+ *
+ * 원화 기호 U+20A9(₩)를 앞에 붙이지 않는다. 이 글자는 잉크 폭이 advance 폭보다
+ * 넓어 가로 획 두 개가 바로 뒤 숫자에 닿는다. 굵고 큰 글씨(대시보드 KPI 등)에서는
+ * 금액에 취소선이 그어진 것처럼 읽혀 "매출이 취소됐나?"로 오해할 소지가 있다.
+ * tracking 을 정상으로 되돌려도 글리프 자체의 문제라 그대로다.
+ *
+ * 접미 "원"은 그 충돌이 없고, 고객 화면(장바구니 등)이 이미 쓰는 표기이며
+ * 보이지 않는 문자를 섞지 않아 복사·붙여넣기도 깨끗하다.
+ */
 export function formatKRW(value: string | number | null | undefined): string {
   const n = typeof value === "string" ? Number(value) : value ?? 0;
-  if (!Number.isFinite(n)) return "₩0";
-  return "₩" + Math.round(n).toLocaleString("ko-KR");
+  if (!Number.isFinite(n)) return "0원";
+  return Math.round(n).toLocaleString("ko-KR") + "원";
 }
 
 export function formatNumber(value: string | number | null | undefined): string {
@@ -563,7 +574,7 @@ export function tiersFor(category: string | null | undefined): readonly string[]
 
 /** 묶음 머리말 색 — 고객 신청 화면 섹션 헤더에 쓰인다 */
 export const TIER_COLOR: Record<string, string> = {
-  공통: "#0D3473",
+  공통: "#2452EB",
   맞집: "#F97316",
   일반: "#8B5CF6",
   "쿠팡 전용": "#AE0000",

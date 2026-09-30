@@ -52,10 +52,22 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [{ href: "/admin/rank", label: "멤버쉽관리", icon: icon(I.rank) }],
   },
   {
-    title: "상품등록",
+    // 상품을 등록해 두고 들어온 캠페인을 상품별 화면에서 처리한다
+    title: "리워드마케팅",
     items: [
       { href: "/admin/reward/products", label: "리워드 상품등록", icon: icon(I.product) },
+      { href: "/admin/reward/campaigns/place", label: "플레이스 상위노출 관리", icon: icon(I.campaign) },
+      { href: "/admin/reward/campaigns/shopping", label: "쇼핑 상위노출 관리", icon: icon(I.campaign) },
+      { href: "/admin/reward/campaigns/coupang", label: "쿠팡 상위노출 관리", icon: icon(I.campaign) },
+      { href: "/admin/reward/guaranteed", label: "보장형 캠페인 관리", icon: icon(I.guaranteed) },
+    ],
+  },
+  {
+    title: "리뷰/체험단",
+    items: [
       { href: "/admin/review/products", label: "리뷰 상품등록", icon: icon(I.product) },
+      { href: "/admin/review/place", label: "플레이스 리뷰 관리", icon: icon(I.place) },
+      { href: "/admin/review/shopping", label: "쇼핑 리뷰 관리", icon: icon(I.shopping) },
     ],
   },
   {
@@ -83,9 +95,12 @@ function useIsActive() {
 export function AdminSidebar({ adminName }: { adminName: string }) {
   const isActive = useIsActive();
   return (
+    // z-30 — 사이드바는 본문 위에 있어야 한다. sticky 라 위치는 잡히지만 z-index 가
+    // 없으면, 스태킹 컨텍스트를 만드는 본문(대시보드의 .console)이 DOM 순서상 뒤라는
+    // 이유로 사이드바를 덮는다. 모바일 네비(z-40)보다는 아래에 둔다.
     <aside
-      className="w-[248px] shrink-0 sticky top-0 h-screen hidden md:flex flex-col text-white"
-      style={{ background: "linear-gradient(180deg,#0D3473 0%,#111D37 100%)" }}
+      className="w-[248px] shrink-0 sticky top-0 z-30 h-screen hidden md:flex flex-col text-white"
+      style={{ background: "linear-gradient(180deg,#2452EB 0%,#111D37 100%)" }}
     >
       <div className="px-5 pt-6 pb-5">
         <Link href="/admin" className="flex items-center gap-2">
@@ -142,7 +157,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
 export function AdminMobileNav() {
   const isActive = useIsActive();
   return (
-    <div className="md:hidden sticky top-0 z-40 bg-[#0D3473] text-white">
+    <div className="md:hidden sticky top-0 z-40 bg-[#2452EB] text-white">
       <div className="flex items-center justify-between px-4 h-14">
         <Link href="/admin" className="flex items-center gap-2">
           <span className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-[13px] font-black">B</span>
@@ -160,7 +175,7 @@ export function AdminMobileNav() {
               key={item.href}
               href={item.href}
               className={`px-3 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-all ${
-                active ? "bg-white text-[#0D3473]" : "bg-white/12 text-white/80"
+                active ? "bg-white text-[#2452EB]" : "bg-white/12 text-white/80"
               }`}
             >
               {item.label}

@@ -2,7 +2,6 @@ import { db } from "@/db";
 import { notices } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { parseAttachments } from "@/lib/attachments";
-import { noticeCategoryMeta } from "@/lib/admin-format";
 import { NoticesView, type NoticeItem } from "./NoticesView";
 
 export const dynamic = "force-dynamic";
@@ -15,29 +14,38 @@ const KST_DATE = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
 });
 
-function formatKoreanDate(d: Date) {
-  const [y, m, day] = KST_DATE.format(d).split("-");
-  return `${y}년 ${m}월 ${day}일`;
-}
+export default async function NoticesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [rows, sp] = await Promise.all([
+    db
+      .select()
+      .from(notices)
+      .where(eq(notices.isPublished, true))
+      .orderBy(desc(notices.isPinned), desc(notices.createdAt))
+      .limit(200),
+    searchParams,
+  ]);
 
-export default async function NoticesPage() {
-  const rows = await db
-    .select()
-    .from(notices)
-    .where(eq(notices.isPublished, true))
-    .orderBy(desc(notices.isPinned), desc(notices.createdAt))
-    .limit(200);
+  const items: NoticeItem[] = rows.map((n) => {
+    const [y, m, d] = KST_DATE.format(n.publishedAt ?? n.createdAt).split("-");
+    return {
+      id: n.id,
+      title: n.title,
+      date: `${y}.${m}.${d}`,
+      shortDate: `${y.slice(2)}.${m}.${d}`,
+      category: n.category,
+      isPinned: n.isPinned,
+      viewCount: n.viewCount,
+      // 관리자가 입력한 본문을 문단 단위로 나눠 렌더한다
+      paragraphs: n.content.split(/\n\s*\n|\n/).map((p) => p.trim()).filter(Boolean),
+      attachments: parseAttachments(n.attachments),
+    };
+  });
 
-  const items: NoticeItem[] = rows.map((n) => ({
-    id: n.id,
-    title: n.title,
-    date: formatKoreanDate(n.publishedAt ?? n.createdAt),
-    categoryLabel: noticeCategoryMeta[n.category]?.label ?? "공지",
-    isPinned: n.isPinned,
-    // 관리자가 입력한 본문을 문단 단위로 나눠 렌더한다
-    paragraphs: n.content.split(/\n\s*\n|\n/).map((p) => p.trim()).filter(Boolean),
-    attachments: parseAttachments(n.attachments),
-  }));
-
-  return <NoticesView notices={items} />;
+  const cat = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
+  const post = Array.isArray(sp.post) ? sp.post[0] : sp.post;
+  return <NoticesView notices={items} initialCategory={cat} initialPostId={post} />;
 }

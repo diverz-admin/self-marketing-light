@@ -13,6 +13,7 @@ export default async function ShoppingManagePage() {
   return (
     <RewardManageView
       campaigns={items}
+      groupScope="reward-shopping"
       rankHistory={rankHistory}
       today={todayKST()}
       title="네이버 쇼핑 상위노출 캠페인 관리"

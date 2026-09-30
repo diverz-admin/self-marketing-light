@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 
 const TYPES = [
   "유입·리뷰·순위 마케팅",
@@ -145,17 +146,18 @@ export default function ContactForm() {
           />
           개인정보 수집에 동의합니다.
         </label>
-        <a
-          href="/about"
+        <Link
+          href="/#about"
           className="text-xs text-white/40 hover:text-white/70 transition-colors"
         >
           자세히보기
-        </a>
+        </Link>
       </div>
 
       <button
         type="submit"
-        className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-lg text-sm font-bold bg-electric text-white hover:bg-electric-hover transition-colors"
+        className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-lg text-sm font-bold text-white transition-opacity hover:opacity-90"
+        style={{ background: "var(--gradient-point-wide)" }}
       >
         간편 문의하기 <span aria-hidden>→</span>
       </button>

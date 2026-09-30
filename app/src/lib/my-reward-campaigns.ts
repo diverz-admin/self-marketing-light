@@ -13,7 +13,9 @@ export type MyRewardCampaign = {
   unitPrice: number;
   dailyQty: number;
   durationDays: number;
-  status: "running" | "pending" | "done";
+  status: "running" | "pending" | "done" | "stopped";
+  /** 신청일(YYYY-MM-DD) — 기간 필터의 기준 (개발본과 같이 신청일 기준) */
+  appliedAt: string;
   startDate: string;
   endDate: string;
   orderAmount: number;
@@ -67,8 +69,9 @@ function daysBetween(start: string, end: string) {
   return Math.max(1, Math.round(diff) + 1);
 }
 
-/** 어드민 4단계(신청접수·셋팅완료·구동중·완료) → 고객 화면 3단계 */
-function customerStatus(stage: string): MyRewardCampaign["status"] {
+/** 어드민 4단계(신청접수·셋팅완료·구동중·완료) + 중단 → 고객 화면 상태 */
+function customerStatus(raw: string, stage: string): MyRewardCampaign["status"] {
+  if (raw === "canceled" || raw === "refunded") return "stopped";
   if (stage === "completed") return "done";
   if (stage === "running") return "running";
   return "pending";
@@ -152,7 +155,8 @@ export async function loadMyRewardCampaigns(userId: string, platform: "place" | 
       unitPrice: Number(c.productUnitPrice),
       dailyQty: c.dailyQty ?? c.totalQty,
       durationDays: daysBetween(startDate, endDate),
-      status: customerStatus(campaignStage(c.status, { startDate: c.startDate, endDate: c.endDate, today })),
+      status: customerStatus(c.status, campaignStage(c.status, { startDate: c.startDate, endDate: c.endDate, today })),
+      appliedAt: toYMD(c.createdAt),
       startDate,
       endDate,
       orderAmount: Number(c.quotedAmount),

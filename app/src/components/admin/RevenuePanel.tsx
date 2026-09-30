@@ -75,7 +75,7 @@ export function RevenuePanel({
           <>
             <div>
               <span className="text-[12.5px] text-brand-sub">최근 14일 합계 </span>
-              <span className="text-[20px] font-extrabold text-brand-dark tabular-nums">{formatKRW(dailyTotal)}</span>
+              <span className="text-[20px] font-extrabold text-brand-dark font-mono tabular-nums tracking-[-0.02em]">{formatKRW(dailyTotal)}</span>
             </div>
             <span className="text-[12px] text-brand-muted">결제완료 기준</span>
           </>
@@ -83,15 +83,15 @@ export function RevenuePanel({
           <>
             <div>
               <span className="text-[12.5px] text-brand-sub">이번 달 </span>
-              <span className="text-[20px] font-extrabold text-brand-dark tabular-nums">{formatKRW(thisMonth)}</span>
+              <span className="text-[20px] font-extrabold text-brand-dark font-mono tabular-nums tracking-[-0.02em]">{formatKRW(thisMonth)}</span>
             </div>
             <div>
               <span className="text-[12.5px] text-brand-sub">지난 달 </span>
-              <span className="text-[15px] font-semibold text-brand-text tabular-nums">{formatKRW(lastMonth)}</span>
+              <span className="text-[15px] font-semibold text-brand-text font-mono tabular-nums tracking-[-0.02em]">{formatKRW(lastMonth)}</span>
             </div>
             {monthDelta !== null && (
               <span
-                className={`text-[13px] font-bold tabular-nums ${
+                className={`text-[13px] font-bold font-mono tabular-nums tracking-[-0.02em] ${
                   monthDelta > 0 ? "text-brand-success" : monthDelta < 0 ? "text-brand-error" : "text-brand-muted"
                 }`}
               >

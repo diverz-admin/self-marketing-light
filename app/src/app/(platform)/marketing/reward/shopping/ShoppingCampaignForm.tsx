@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/marketing/CartContext";
-import { createShoppingRewardCampaign } from "../../actions";
-import MobilePayBar from "@/components/marketing/MobilePayBar";
+import { CartAddedModal, CartSummaryCard, MobileCartBar } from "@/components/marketing/CartAddPanel";
 import PageHeader from "@/components/marketing/PageHeader";
+import SelectedProductCard from "@/components/marketing/SelectedProductCard";
+import ProductDetailModal from "@/components/marketing/ProductDetailModal";
+import { CampaignScheduleFields, useCampaignSchedule } from "@/components/marketing/CampaignScheduleFields";
 
 /* 상품은 어드민 "리워드 상품등록"(products, category=reward_shopping)에서 내려온다 */
 export type RewardProduct = {
@@ -20,48 +22,14 @@ export type RewardProduct = {
   efficiency: number;
   riseRate: number;
   trend: number[];
+  minQty: number;
+  maxQty: number | null;
+  orderCutoffTime: string | null;
+  sameDayStart: boolean;
+  minRunDays: number | null;
 };
 
 export type RewardGroup = { category: string; color: string; items: RewardProduct[] };
-
-/* 순위 상승 추이 미니 차트 — 숫자가 작을수록(상위) 선이 위로 향함 */
-function RankRiseMiniChart({ trend }: { trend: number[] }) {
-  // 상승 전/후 순위가 비어 있는 상품은 그릴 값이 없다
-  if (!trend.length) return null;
-  const W = 280, H = 76, pad = 10;
-  const min = Math.min(...trend), max = Math.max(...trend);
-  const range = max - min || 1;
-  const x = (i: number) => pad + (i / (trend.length - 1)) * (W - pad * 2);
-  const y = (r: number) => pad + ((r - min) / range) * (H - pad * 2);
-  const pts = trend.map((r, i) => [x(i), y(r)] as const);
-  const line = pts.map(([px, py]) => `${px},${py}`).join(" ");
-  const area = `${x(0)},${H - pad} ${line} ${x(trend.length - 1)},${H - pad}`;
-  const [ex, ey] = pts[pts.length - 1];
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="rankRiseFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2E6BE0" stopOpacity="0.20" />
-          <stop offset="100%" stopColor="#2E6BE0" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="rankRiseStroke" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#6EA0F2" />
-          <stop offset="100%" stopColor="#2E6BE0" />
-        </linearGradient>
-      </defs>
-      {/* 기준선 */}
-      <line x1={pad} y1={H / 2} x2={W - pad} y2={H / 2} stroke="#CBD9F4" strokeWidth={1} strokeDasharray="3 4" />
-      <polygon points={area} fill="url(#rankRiseFill)" />
-      <polyline points={line} fill="none" stroke="url(#rankRiseStroke)" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" />
-      {/* 마지막 지점 후광 */}
-      <circle cx={ex} cy={ey} r={7} fill="#2E6BE0" opacity={0.16} />
-      {pts.map(([px, py], i) => (
-        <circle key={i} cx={px} cy={py} r={i === pts.length - 1 ? 3.8 : 2.2}
-          fill={i === pts.length - 1 ? "#2E6BE0" : "white"} stroke="#2E6BE0" strokeWidth={1.6} />
-      ))}
-    </svg>
-  );
-}
 
 function efficiencyLabel(v: number) {
   if (v >= 80) return "높음";
@@ -70,89 +38,71 @@ function efficiencyLabel(v: number) {
 }
 
 /* ── Page ── */
-export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[] }) {
+export default function ShoppingCampaignForm({ groups, today }: { groups: RewardGroup[]; today: string }) {
   const allItems = groups.flatMap((g) => g.items);
-  const { balance, addItem, spend } = useCart();
+  const { items, addItem } = useCart();
   const [selectedMedia, setSelectedMedia] = useState(allItems[0]?.id ?? "");
   // 입력 UI 없이 고정으로 쓰는 예시 값 (플레이스 신청 화면과 동일한 구성)
-  const [productName] = useState("제주 오메기떡 선물 택배 50개입");
-  const [productUrl, setProductUrl] = useState("https://smartstore.naver.com/");
-  const [rankKeyword, setRankKeyword] = useState("오메기떡 선물세트");
-  const [dailyQty, setDailyQty] = useState(100);
+  // 빈 칸으로 시작한다 — 예시 값을 채워 두면 그대로 신청되는 일이 생긴다
+  const [productName, setProductName] = useState("");
+  const [productUrl, setProductUrl] = useState("");
+  const [rankKeyword, setRankKeyword] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
-  const [justAdded, setJustAdded] = useState(false);
-  const [instantPending, setInstantPending] = useState(false);
-  const [instantPaid, setInstantPaid] = useState(false);
+  const [addedOpen, setAddedOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const selectedItem = allItems.find((i) => i.id === selectedMedia);
   const price = selectedItem?.price ?? 0;
-  const efficiency = selectedItem?.efficiency ?? 0;
-  const orderAmount = dailyQty * price;
-  const insufficient = balance < orderAmount;
-  const incomplete = !productUrl || !rankKeyword;
+  // 일정 규칙은 고른 상품이 정한다 (어드민 상품등록 › 구독 정보)
+  const limits = {
+    minDaily: selectedItem?.minQty ?? 1,
+    maxDaily: selectedItem?.maxQty ?? null,
+    minDays: selectedItem?.minRunDays ?? 1,
+    cutoffTime: selectedItem?.orderCutoffTime ?? null,
+    sameDayStart: selectedItem?.sameDayStart ?? false,
+  };
+  const schedule = useCampaignSchedule(today, limits);
+  const { startDate, days, dailyQty } = schedule;
 
-  const handleSubmit = async () => {
-    if (!productUrl || !rankKeyword) { setPayError("상품 URL과 순위 상승 희망 키워드를 입력해주세요."); return; }
-    if (insufficient) {
-      setPayError("보유 포인트가 부족합니다. 충전 후 다시 시도해주세요.");
-      return;
-    }
+  // 기간이 금액에 들어간다 — 이전에는 일 작업량만 곱해 며칠을 돌리든 금액이 같았다
+  const orderAmount = dailyQty * days * price;
+  const incomplete = !productName || !productUrl || !rankKeyword || !schedule.ready;
+
+  // 담기만 한다 — 주문·결제는 장바구니에서 (개발본과 같은 흐름)
+  const handleAddToCart = async () => {
+    if (!schedule.ready || !startDate) return setPayError("작업 시작일을 선택해 주세요");
+    if (!rankKeyword.trim()) return setPayError("메인 키워드를 입력해 주세요");
+    if (!productUrl.trim()) return setPayError("상품 링크를 입력해 주세요");
+    if (!productName.trim()) return setPayError("상품명을 입력해 주세요");
+    if (limits.maxDaily != null && dailyQty > limits.maxDaily) return setPayError(`최대 ${limits.maxDaily}건까지만 가능합니다.`);
+    if (dailyQty < limits.minDaily) return setPayError(`최소 ${limits.minDaily}건 이상 설정 부탁드립니다.`);
+    if (days < limits.minDays) return setPayError(`최소 구동기간 ${limits.minDays}일 이상 설정 부탁드립니다.`);
     setPayError(null);
     setIsPending(true);
-    await new Promise((r) => setTimeout(r, 700));
-    // 결제 시 즉시 포인트 차감 + 장바구니 담기
     addItem({
       productId: selectedMedia,
       platform: "네이버 쇼핑",
       name: selectedItem?.name ?? "",
       initial: selectedItem?.initial ?? "",
-      bg: selectedItem?.bg ?? "#0D3473",
+      bg: selectedItem?.bg ?? "#2452EB",
       textColor: "white",
-      target: productName,
-      keyword: rankKeyword,
+      target: productName.trim(),
+      keyword: rankKeyword.trim(),
       dailyQty,
       price,
       amount: orderAmount,
+      channel: "shopping",
+      days,
+      startDate,
+      url: productUrl.trim(),
     });
     setIsPending(false);
-    setJustAdded(true);
-    setInstantPaid(false);
-  };
-
-  // 즉시 포인트 차감하기 — 장바구니를 거치지 않고 바로 결제
-  const handleInstantPay = async () => {
-    if (!productUrl || !rankKeyword) { setPayError("상품 URL과 순위 상승 희망 키워드를 입력해주세요."); return; }
-    if (insufficient) {
-      setPayError("보유 포인트가 부족합니다. 충전 후 다시 시도해주세요.");
-      return;
-    }
-    setPayError(null);
-    setInstantPending(true);
-
-    // 선택한 상품 그대로 캠페인을 등록한다 — 어드민 상위노출 관리에 신청접수로 뜬다
-    const res = await createShoppingRewardCampaign({
-      productId: selectedMedia,
-      productName,
-      productUrl,
-      keyword: rankKeyword,
-      dailyQty,
-    });
-
-    if ("error" in res) {
-      setInstantPending(false);
-      setPayError(res.error);
-      return;
-    }
-
-    spend(orderAmount);
-    setInstantPending(false);
-    setInstantPaid(true);
-    setJustAdded(false);
+    setAddedOpen(true);
   };
 
   return (
-    <div className="w-full space-y-5 pb-36 lg:pb-0">
+    <div className="w-full space-y-5 pb-4 lg:pb-0">
       {/* breadcrumb */}
       {/* 페이지 헤더 */}
       <PageHeader
@@ -179,15 +129,17 @@ export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[]
                   const isSelected = selectedMedia === item.id;
                   const itemPrice = item.price;
                   const itemEff = item.efficiency;
-                  const itemTrend = item.trend;
-                  const itemRate = item.riseRate;
                   return (
                     <React.Fragment key={item.id}>
                     <button
-                      onClick={() => setSelectedMedia(item.id)}
+                      onClick={() => {
+                        setSelectedMedia(item.id);
+                        // 모바일은 오른쪽 「선택한 상품」 카드가 없어 설명을 모달로 띄운다
+                        if (window.matchMedia("(max-width: 1023px)").matches) setDetailOpen(true);
+                      }}
                       className={`relative rounded-2xl p-3 text-left transition-all border-2 ${
                         isSelected
-                          ? "border-brand-primary shadow-[0_0_0_3px_rgba(13,52,115,0.10)] bg-white"
+                          ? "border-brand-primary shadow-[0_0_0_3px_rgba(36,82,235,0.10)] bg-white"
                           : "border-brand-border bg-white hover:border-brand-primary/40 hover:shadow-sm"
                       }`}
                     >
@@ -227,7 +179,7 @@ export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[]
                           <span className="text-[11px] font-bold text-brand-primary">{efficiencyLabel(itemEff)}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-brand-lighter overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${itemEff}%`, background: "linear-gradient(90deg,#0D3473,#22C7E0)" }} />
+                          <div className="h-full rounded-full" style={{ width: `${itemEff}%`, background: "linear-gradient(90deg,#2452EB,#22C7E0)" }} />
                         </div>
                       </div>
 
@@ -240,58 +192,6 @@ export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[]
                       </div>
                     </button>
 
-                    {/* 모바일 전용 — 선택 상품 상세 아코디언 */}
-                    {isSelected && (
-                      <div className="col-span-full lg:hidden rounded-2xl border border-brand-primary/25 bg-brand-primary-50/40 p-4 space-y-3.5">
-                        <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[12px] font-semibold text-brand-sub">상품 효율</span>
-                            <span className="inline-flex items-baseline gap-1.5">
-                              <span className="text-[14px] font-extrabold text-brand-dark tabular-nums">{itemEff}%</span>
-                              <span className="text-[11px] font-bold text-brand-primary">{efficiencyLabel(itemEff)}</span>
-                            </span>
-                          </div>
-                          <div className="h-2.5 rounded-full bg-white overflow-hidden ring-1 ring-inset ring-black/[0.04]">
-                            <div className="h-full rounded-full" style={{ width: `${itemEff}%`, background: "linear-gradient(90deg,#0D3473,#6D5CE0,#8B5CF6)" }} />
-                          </div>
-                        </div>
-                        <div className="rounded-xl bg-white/70 border border-white p-2.5">
-                          <p className="text-[12px] leading-snug text-brand-sub mb-2">
-                            이 상품을 사용하신 고객님의 <span className="font-extrabold" style={{ color: "#2E6BE0" }}>{itemRate}%</span>가 순위 상승을 경험했습니다.
-                          </p>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-[11px] font-bold text-brand-sub">순위 상승 추이</span>
-                            <span className="text-[11px] font-bold" style={{ color: "#2E6BE0" }}>
-                              {itemTrend.length > 0
-                              ? `${itemTrend[0]}위 → ${itemTrend[itemTrend.length - 1]}위`
-                              : "집계 준비 중"}
-                            </span>
-                          </div>
-                          <RankRiseMiniChart trend={itemTrend} />
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl bg-white px-3.5 py-2.5">
-                          <span className="text-[13px] font-semibold text-brand-sub">단가</span>
-                          <span className="text-[18px] font-extrabold text-brand-dark tabular-nums">{itemPrice}<span className="text-[12px] font-medium text-brand-sub ml-1">원</span></span>
-                        </div>
-                        <div className="rounded-xl border border-brand-border bg-white p-3 space-y-1.5">
-                          <p className="text-[12px] font-bold text-brand-dark mb-1">구독 정보</p>
-                          {[
-                            { label: "당일 접수 마감", value: "13시 30분", highlight: true },
-                            { label: "당일 구동", badge: "가능" },
-                            { label: "구동 기간", value: "최소 3일 이상" },
-                          ].map((row, i) => (
-                            <div key={i} className="flex items-center justify-between text-[12.5px]">
-                              <span className="text-brand-sub">{row.label}</span>
-                              {row.badge ? (
-                                <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-bold text-[11px]">{row.badge}</span>
-                              ) : (
-                                <span className={`font-bold ${row.highlight ? "text-red-500" : "text-brand-dark"}`}>{row.value}</span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     </React.Fragment>
                   );
                 })}
@@ -301,130 +201,12 @@ export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[]
         </section>
 
         {/* 선택한 상품 요약 (데스크톱 전용 — 모바일은 상품 아래 아코디언) */}
-        <section className="hidden lg:block bg-white rounded-2xl border border-brand-border overflow-hidden shadow-sm h-full">
-          {/* 그라데이션 헤더 */}
-          <div className="relative px-5 pt-4 pb-5 text-white overflow-hidden" style={{ background: "linear-gradient(135deg,#0D3473 0%,#16345C 55%,#111D37 100%)" }}>
-            <div className="absolute -top-10 -right-8 w-28 h-28 rounded-full bg-white/[0.06]" />
-            <div className="absolute -bottom-12 -left-6 w-24 h-24 rounded-full bg-white/[0.05]" />
-            <div className="relative flex items-center justify-between mb-4">
-              <span className="text-[12px] font-bold text-white/55 uppercase tracking-wider">선택한 상품</span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-sm">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                선택됨
-              </span>
-            </div>
-            <div className="relative flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-[18px] font-extrabold shrink-0 ring-2 ring-white/25 shadow-lg"
-                style={{ background: selectedItem?.bg, color: "white" }}>
-                {selectedItem?.initial}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[19px] font-extrabold leading-tight truncate">{selectedItem?.name}</p>
-                <p className="text-[12px] text-white/55 truncate mt-0.5">{selectedItem?.desc}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 본문 — 원페이지 (개별 박스 없이 구분선으로 구획) */}
-          <div className="p-5 divide-y divide-brand-border">
-            {/* 상품 효율 */}
-            <div className="pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[13px] font-semibold text-brand-sub">상품 효율</span>
-                <span className="inline-flex items-baseline gap-1.5">
-                  <span className="text-[16px] font-extrabold text-brand-dark tabular-nums">{efficiency}%</span>
-                  <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-brand-lighter text-brand-primary">{efficiencyLabel(efficiency)}</span>
-                </span>
-              </div>
-              <div className="relative h-3 rounded-full bg-brand-lighter ring-1 ring-inset ring-black/[0.04] overflow-hidden">
-                <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-                  style={{ width: `${efficiency}%`, background: "linear-gradient(90deg,#0D3473,#6D5CE0,#8B5CF6)" }} />
-              </div>
-            </div>
-
-            {/* 순위 상승 레퍼런스 */}
-            {(() => {
-              const trend = selectedItem?.trend ?? [];
-              const hasTrend = trend.length > 0;
-              const startRank = hasTrend ? trend[0] : 0;
-              const nowRank = hasTrend ? trend[trend.length - 1] : 0;
-              const rate = selectedItem?.riseRate ?? 0;
-              return (
-                <div className="py-4">
-                  {/* 메시지 */}
-                  <div className="flex items-start gap-2.5">
-                    <span className="h-8 w-8 rounded-lg bg-brand-lighter flex items-center justify-center shrink-0">
-                      <svg className="w-4 h-4" style={{ color: "#2E6BE0" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8m0 0h-5m5 0v5" />
-                      </svg>
-                    </span>
-                    <p className="text-[12.5px] leading-snug text-brand-sub pt-0.5">
-                      이 상품을 사용하신 고객님의{" "}
-                      <span className="font-extrabold" style={{ color: "#2E6BE0" }}>{rate}%</span>
-                      가 순위 상승을 경험했습니다.
-                    </p>
-                  </div>
-
-                  {/* 순위 상승 추이 차트 — 상승 전/후 순위가 등록된 상품만 */}
-                  {hasTrend && (
-                  <div className="mt-3.5">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-bold text-brand-sub">순위 상승 추이</span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="text-[11px] font-semibold text-brand-muted tabular-nums">{startRank}위</span>
-                        <svg className="w-3 h-3 text-brand-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5-5 5M6 12h12" />
-                        </svg>
-                        <span className="text-[12px] font-extrabold tabular-nums" style={{ color: "#2E6BE0" }}>{nowRank}위</span>
-                        <span className="inline-flex items-center gap-0.5 text-[10.5px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">▲{startRank - nowRank}</span>
-                      </span>
-                    </div>
-                    <RankRiseMiniChart trend={trend} />
-                  </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* 단가 */}
-            <div className="py-4 flex items-center justify-between">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-semibold text-brand-sub">단가</span>
-                <span className="text-[11px] text-brand-muted">1건 기준</span>
-              </div>
-              <span className="text-[24px] font-extrabold text-brand-dark tabular-nums leading-none">{price}<span className="text-[14px] font-medium text-brand-sub ml-1">원</span></span>
-            </div>
-
-            {/* 구독 정보 */}
-            <div className="pt-4">
-              <div className="flex items-center gap-1.5 mb-3">
-                <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-[13px] font-bold text-brand-dark">구독 정보</p>
-              </div>
-              <div className="space-y-2.5">
-                {[
-                  { label: "당일 접수 마감", value: "13시 30분", highlight: true },
-                  { label: "당일 구동", badge: "가능" },
-                  { label: "구동 기간", value: "최소 3일 이상" },
-                ].map((row, i) => (
-                  <div key={i} className="flex items-center justify-between text-[13px]">
-                    <span className="text-brand-sub">{row.label}</span>
-                    {row.badge ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-bold text-[12px]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />{row.badge}
-                      </span>
-                    ) : (
-                      <span className={`font-bold ${row.highlight ? "text-red-500" : "text-brand-dark"}`}>{row.value}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        <SelectedProductCard item={selectedItem} className="hidden lg:block self-start sticky top-4" />
       </div>
+
+      {detailOpen && selectedItem && (
+        <ProductDetailModal item={selectedItem} onClose={() => setDetailOpen(false)} />
+      )}
 
       {/* Row 2: 캠페인 설정 | 결제 (높이 맞춤) */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-stretch">
@@ -437,186 +219,78 @@ export default function ShoppingCampaignForm({ groups }: { groups: RewardGroup[]
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
-            {/* 작업 기간 */}
-            <div>
-              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">작업 기간</label>
-              <button className="w-full h-[42px] flex items-center gap-2 px-3 rounded-xl border border-brand-border bg-brand-lighter hover:bg-white hover:border-brand-primary transition-colors text-brand-sub text-[14px]">
-                <svg className="w-4 h-4 text-brand-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                날짜 선택
-              </button>
-              <p className="text-[12px] text-red-500 mt-1.5">* 주말 접수 시 구동 시작일은 평일로 설정해주세요.</p>
-            </div>
-
-            {/* 일 작업량 */}
-            <div>
-              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">일 작업량</label>
-              <input
-                type="number"
-                value={dailyQty}
-                onChange={(e) => setDailyQty(Number(e.target.value))}
-                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[16px] font-bold text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
-              />
-              <p className="text-[12px] text-brand-muted mt-1.5">단가 {price.toLocaleString()}원 · 일 {dailyQty.toLocaleString()}회</p>
-            </div>
+            <CampaignScheduleFields schedule={schedule} today={today} unitPrice={price} limits={limits} />
 
             {/* 순위 상승 희망 키워드 */}
-            <div>
-              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">순위 상승 희망 키워드</label>
+            <div className="sm:col-span-2">
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">메인 키워드<span className="text-red-500 ml-0.5">*</span></label>
               <input
                 value={rankKeyword}
                 onChange={(e) => setRankKeyword(e.target.value)}
-                placeholder="예) 오메기떡 선물세트"
-                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[15px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+                placeholder="예: 오메기떡 선물세트"
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all text-[15px]"
               />
             </div>
 
             {/* 상품 URL */}
             <div>
-              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">상품 URL <span className="text-[12px] font-medium text-red-500">* 스마트스토어 또는 쿠팡 상품 URL</span></label>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">
+                상품 URL<span className="text-red-500 ml-0.5">*</span>
+                <span className="text-[12px] font-medium text-brand-muted ml-1">스마트스토어 상품 URL</span>
+              </label>
               <input
                 value={productUrl}
                 onChange={(e) => setProductUrl(e.target.value)}
                 placeholder="https://smartstore.naver.com/..."
-                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-[14px] text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all"
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all text-[14px]"
               />
             </div>
 
+            {/* 상품명 — URL만으로는 어드민이 어느 상품인지 못 알아본다 */}
+            <div>
+              <label className="block text-[13px] font-bold text-brand-dark mb-1.5">
+                상품명<span className="text-red-500 ml-0.5">*</span>
+                <span className="text-[12px] font-medium text-brand-muted ml-1">링크에서 자동 · 직접 수정 가능</span>
+              </label>
+              <input
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="링크를 넣으면 자동으로 채워집니다"
+                className="w-full h-[42px] px-3 border border-brand-border rounded-xl text-brand-dark bg-brand-lighter focus:outline-none focus:border-brand-primary focus:bg-white transition-all text-[14px]"
+              />
+            </div>
           </div>
         </section>
 
         {/* 결제 */}
-        <section className="bg-white rounded-2xl border border-brand-border p-5 h-full flex flex-col">
-          <h3 className="text-[15px] font-extrabold text-brand-dark mb-3">결제</h3>
-          {/* 쿠폰 받기 */}
-          <button type="button" className="w-full flex items-center justify-between rounded-xl border border-brand-border bg-brand-lighter px-3.5 py-3 mb-3 hover:border-brand-primary/40 transition-colors">
-            <span className="text-[13px] font-medium text-brand-dark">받지 않은 쿠폰이 더 있어요</span>
-            <span className="inline-flex items-center gap-1 text-[13px] font-bold text-red-500">
-              쿠폰 받기
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75" /></svg>
-            </span>
-          </button>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-brand-sub">보유 포인트</span>
-              <span className="text-[15px] font-bold text-brand-dark tabular-nums">{balance.toLocaleString()} P</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-brand-sub">주문 금액</span>
-              <span className="text-[15px] font-bold text-brand-dark tabular-nums">{orderAmount.toLocaleString()} 원</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-brand-sub">할인 금액</span>
-              <span className="text-[15px] font-bold text-red-500 tabular-nums">-0 원</span>
-            </div>
-            <div className="flex items-center justify-between pt-3 mt-1 border-t border-brand-border">
-              <span className="text-[14px] font-bold text-brand-dark">결제 금액</span>
-              <span className="text-[22px] font-extrabold text-brand-primary tabular-nums">{orderAmount.toLocaleString()}<span className="text-[14px] font-medium text-brand-sub ml-1">원</span></span>
-            </div>
-            <div className="flex items-center justify-between text-[12px]">
-              <span className="text-brand-muted">결제 후 예상 잔액</span>
-              <span className={`font-bold tabular-nums ${insufficient ? "text-red-500" : "text-brand-sub"}`}>{Math.max(0, balance - orderAmount).toLocaleString()} P</span>
-            </div>
-          </div>
-
-          {payError && (
-            <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-[12px] font-semibold text-red-600">
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
-              {payError}
-            </div>
-          )}
-
-            {/* 즉시 포인트 차감하기 (바로 결제) */}
-            {incomplete && <p className="hidden lg:block text-[12px] font-semibold text-red-500 mt-3 -mb-1">캠페인 정보를 모두 입력해주세요</p>}
-            <div className="hidden lg:grid grid-cols-[1.5fr_1fr] gap-2.5 mt-4">
-            <button
-              onClick={handleInstantPay}
-              disabled={isPending || instantPending || incomplete}
-              className="w-full py-3.5 rounded-xl text-[15px] font-extrabold text-white shadow-md hover:opacity-90 transition-opacity disabled:opacity-40 disabled:shadow-none cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
-              style={{ background: "linear-gradient(135deg,#1D3E7E,#0D3473)" }}
-            >
-              {instantPending ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  결제 처리 중...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  즉시 포인트 차감하기
-                </>
-              )}
-            </button>
-
-            {/* 장바구니 담기 */}
-            <button
-              onClick={handleSubmit}
-              disabled={isPending || instantPending || incomplete}
-              className="w-full py-3.5 rounded-xl text-[15px] font-extrabold border-2 border-brand-primary text-brand-primary bg-white hover:bg-brand-primary/5 transition-colors disabled:opacity-40 cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
-            >
-              {isPending ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  담는 중...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                  </svg>
-                  장바구니
-                </>
-              )}
-            </button>
-
-          </div>
-          {justAdded && (
-            <Link href="/marketing/cart" className="mt-3 flex items-center gap-2 rounded-xl bg-green-50 border border-green-100 px-3.5 py-3 hover:bg-green-100/60 transition-colors">
-              <span className="h-6 w-6 rounded-lg bg-green-500 flex items-center justify-center shrink-0">
-                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-bold text-green-700 leading-tight">장바구니에 담겼습니다</p>
-                <p className="text-[11px] text-green-600/80">포인트가 즉시 차감되었습니다</p>
-              </div>
-              <span className="text-[13px] font-bold text-green-700 whitespace-nowrap">장바구니 →</span>
-            </Link>
-          )}
-            {instantPaid && (
-              <Link href="/marketing/my/campaigns" className="mt-3 flex items-center gap-2 rounded-xl bg-green-50 border border-green-100 px-3.5 py-3 hover:bg-green-100/60 transition-colors">
-                <span className="h-6 w-6 rounded-lg bg-green-500 flex items-center justify-center shrink-0">
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold text-green-700 leading-tight">결제가 완료되었습니다</p>
-                  <p className="text-[11px] text-green-600/80">포인트가 즉시 차감되고 캠페인이 등록되었습니다</p>
-                </div>
-                <span className="text-[13px] font-bold text-green-700 whitespace-nowrap">주문내역 →</span>
-              </Link>
-            )}
-        </section>
+        <CartSummaryCard
+          productName={selectedItem?.name ?? ""}
+          dailyQty={dailyQty}
+          days={days}
+          unitPrice={price}
+          pending={isPending}
+          error={payError}
+          missing={incomplete ? "캠페인 정보를 모두 입력해주세요" : null}
+          onAdd={handleAddToCart}
+        />
       </div>
 
 
-      {/* 모바일 하단 고정 결제 바 + 시트 */}
-      <MobilePayBar
-        orderAmount={orderAmount}
-        balance={balance}
-        insufficient={insufficient}
-        isPending={isPending}
-        instantPending={instantPending}
-        onInstantPay={handleInstantPay}
-        onAddToCart={handleSubmit}
-        payError={payError}
-        disabled={incomplete}
-      />
+      {/* 신청 뒤 어디서 보는지 — 개발본과 같이 한 줄로 알린다 */}
+      <p className="text-[13px] text-brand-sub">
+        신청한 캠페인은{" "}
+        <Link href="/marketing/reward/shopping/manage" className="font-bold text-brand-primary hover:underline">
+          [상위노출] 캠페인 관리
+        </Link>
+        에서 확인할 수 있습니다.
+      </p>
+
+      {/* 모바일 하단 고정 — 예상 금액 + 담기 */}
+      <MobileCartBar amount={orderAmount} pending={isPending} onAdd={handleAddToCart} />
+
+      {addedOpen && (
+        <CartAddedModal label={selectedItem?.name ?? ""} count={items.length} onMore={() => setAddedOpen(false)} />
+      )}
     </div>
   );
 }

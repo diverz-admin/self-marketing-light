@@ -16,6 +16,13 @@ export type RewardCardProduct = {
   efficiency: number;
   riseRate: number;
   trend: number[];
+  /** 신청 화면의 일 작업량 범위 — 어드민 상품등록에서 정한다 */
+  minQty: number;
+  maxQty: number | null;
+  /** 일정 규칙도 상품마다 다르다 (어드민 "구독 정보") */
+  orderCutoffTime: string | null;   // "13:30"
+  sameDayStart: boolean;
+  minRunDays: number | null;
 };
 
 export type RewardCardGroup = { category: string; color: string; items: RewardCardProduct[] };
@@ -54,6 +61,11 @@ export async function loadRewardProductGroups(category: RewardCategory): Promise
       rankAfter: products.rankAfter,
       isSale: products.isSale,
       isRecommended: products.isRecommended,
+      minQty: products.minQty,
+      maxQty: products.maxQty,
+      orderCutoffTime: products.orderCutoffTime,
+      sameDayStart: products.sameDayStart,
+      minRunDays: products.minRunDays,
     })
     .from(products)
     .where(and(eq(products.category, category), eq(products.isActive, true)))
@@ -70,19 +82,24 @@ export async function loadRewardProductGroups(category: RewardCategory): Promise
       desc: p.subtitle ?? "",
       sale: p.isSale,
       recommended: p.isRecommended,
-      bg: p.badgeColor ?? "#0D3473",
+      bg: p.badgeColor ?? "#2452EB",
       initial: p.badgeInitial ?? p.title.slice(0, 1),
       price: Number(p.unitPrice),
       efficiency: p.efficiency != null ? Number(p.efficiency) : 0,
       riseRate: p.rankUpUserRate != null ? Number(p.rankUpUserRate) : 0,
       trend: trendBetween(p.rankBefore, p.rankAfter),
+      minQty: p.minQty,
+      maxQty: p.maxQty,
+      orderCutoffTime: p.orderCutoffTime,
+      sameDayStart: p.sameDayStart,
+      minRunDays: p.minRunDays,
     } satisfies RewardCardProduct,
   }));
 
   return tiers
     .map((tier) => ({
       category: tier,
-      color: TIER_COLOR[tier] ?? "#0D3473",
+      color: TIER_COLOR[tier] ?? "#2452EB",
       items: items.filter((i) => i.tier === tier).map((i) => i.card),
     }))
     .filter((g) => g.items.length > 0);
