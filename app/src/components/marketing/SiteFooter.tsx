@@ -6,7 +6,7 @@ export default function SiteFooter() {
     <footer className="border-t border-brand-border bg-white px-6 md:px-12 lg:px-16 py-7 pb-[92px] md:pb-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="text-[12px] leading-[1.75] text-brand-muted">
-          <p className="text-[13px] font-extrabold text-brand-sub">BLUE EGG · 셀프 마케팅 플랫폼</p>
+          <p className="text-[13px] font-extrabold text-brand-sub">BLUE EGG · 바이럴 마케팅 솔루션</p>
           <p className="mt-1">
             <span className="font-semibold text-brand-sub">주식회사 다이버즈 (DIVERZ Inc.)</span>
             <span className="mx-2 text-brand-border-strong">|</span>대표자 전채민

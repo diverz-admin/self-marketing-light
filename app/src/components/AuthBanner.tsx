@@ -11,8 +11,8 @@ const SLIDES = [
   {
     img: "/dashboard-preview.png",
     alt: "BLUE EGG biz 대시보드",
-    body: "대행사에 맡기고 결과만 기다리고 계신가요?",
-    punch: "이제 셀프로 관리하세요!",
+    body: "블로그·카페·리뷰·커뮤니티 바이럴까지",
+    punch: "한곳에서 실행하고 관리하세요!",
     badge: true,
   },
   {

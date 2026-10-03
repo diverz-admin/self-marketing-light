@@ -175,62 +175,45 @@ export function AccordionFeatures({
         </Accordion>
       </div>
 
-      {/* 오른쪽 미리보기 — 고른 항목에 따라 바뀐다 */}
-      {/* 오른쪽 미리보기 — 모니터 목업 안에 화면을 끼운다.
+      {/* 오른쪽 미리보기 — 고른 항목에 따라 바뀐다. 기기 목업 없이 화면만 둥근 사각형으로 띄운다.
           왼쪽 목록과 같은 높이로 늘어나고(그리드 기본 stretch), 뒤 배경은 없다. */}
       <div className="relative hidden h-full min-h-[360px] w-full lg:block">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-full">
-            {/* 베젤 — 어두운 바탕에서 묻히지 않게 밝은 금속 톤으로 */}
-            <div
-              className="rounded-[14px] p-[10px] shadow-[0_26px_64px_rgba(0,0,0,.55)] ring-1 ring-white/60"
-              style={{ background: "linear-gradient(180deg,#F4F7FC 0%,#DCE3F0 100%)" }}
-            >
-              {/* 화면 — 캡처 비율(1568×759) 그대로라 잘리지 않는다 */}
-              <div className="relative aspect-[1568/759] overflow-hidden rounded-[6px] bg-white ring-1 ring-black/10">
-                {features.map((f) => (
-                  <div
-                    key={f.id}
-                    /* 모두 깔아 두고 투명도만 바꾼다 — 매번 새로 받으면 깜빡인다 */
-                    className={`absolute inset-0 transition-opacity duration-500 ${
-                      f.id === active.id ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <Image
-                      src={f.image}
-                      alt={f.title}
-                      fill
-                      sizes="(min-width: 1024px) 50vw, 100vw"
-                      className="object-cover"
-                    />
+            {/* 화면 — 캡처 비율(1568×759) 그대로라 잘리지 않는다 */}
+            <div className="relative aspect-[1568/759] overflow-hidden rounded-[20px] bg-white shadow-[0_26px_64px_rgba(0,0,0,.55)] ring-1 ring-white/15">
+              {features.map((f) => (
+                <div
+                  key={f.id}
+                  /* 모두 깔아 두고 투명도만 바꾼다 — 매번 새로 받으면 깜빡인다 */
+                  className={`absolute inset-0 transition-opacity duration-500 ${
+                    f.id === active.id ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <Image
+                    src={f.image}
+                    alt={f.title}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover"
+                  />
 
-                    {/* 강조 이미지 — 화면 아래쪽에 걸쳐 띄워 시선을 모은다 */}
-                    {f.overlay && (
-                      <div className="absolute bottom-[6%] left-[6%] right-[6%] overflow-hidden rounded-[8px] shadow-[0_14px_36px_rgba(0,0,0,.5)] ring-1 ring-black/15">
-                        <Image
-                          src={f.overlay}
-                          alt=""
-                          width={1210}
-                          height={430}
-                          sizes="(min-width: 1024px) 44vw, 88vw"
-                          className="h-auto w-full"
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  {/* 강조 이미지 — 화면 아래쪽에 걸쳐 띄워 시선을 모은다 */}
+                  {f.overlay && (
+                    <div className="absolute bottom-[6%] left-[6%] right-[6%] overflow-hidden rounded-[8px] shadow-[0_14px_36px_rgba(0,0,0,.5)] ring-1 ring-black/15">
+                      <Image
+                        src={f.overlay}
+                        alt=""
+                        width={1210}
+                        height={430}
+                        sizes="(min-width: 1024px) 44vw, 88vw"
+                        className="h-auto w-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-
-            {/* 목 · 받침 — 베젤과 같은 톤 */}
-            <div
-              className="mx-auto h-[16px] w-[104px]"
-              style={{ background: "linear-gradient(180deg,#DCE3F0 0%,#C6CEDE 100%)" }}
-            />
-            <div
-              className="mx-auto h-[9px] w-[240px] rounded-b-[5px] shadow-[0_10px_24px_rgba(0,0,0,.35)]"
-              style={{ background: "linear-gradient(180deg,#D2D9E8 0%,#B8C1D4 100%)" }}
-            />
           </div>
         </div>
       </div>
